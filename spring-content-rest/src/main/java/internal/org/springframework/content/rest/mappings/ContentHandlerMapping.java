@@ -33,7 +33,7 @@ import internal.org.springframework.content.rest.annotations.ContentRestControll
 import internal.org.springframework.content.rest.controllers.resolvers.EntityResolvers;
 import internal.org.springframework.content.rest.utils.StoreUtils;
 
-import static org.apache.commons.lang.StringUtils.join;
+import static org.apache.commons.lang3.StringUtils.join;
 
 public class ContentHandlerMapping extends StoreAwareHandlerMapping {
 

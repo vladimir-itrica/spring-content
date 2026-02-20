@@ -1,6 +1,6 @@
 package internal.org.springframework.content.mongo.it;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.testcontainers.containers.MongoDBContainer;
 
 import com.mongodb.client.MongoClient;

@@ -6,7 +6,7 @@ import org.springframework.util.Assert;
 
 import java.net.URI;
 
-import static org.apache.commons.lang.StringUtils.join;
+import static org.apache.commons.lang3.StringUtils.join;
 
 @Data
 public class ContentPropertyRequest {
