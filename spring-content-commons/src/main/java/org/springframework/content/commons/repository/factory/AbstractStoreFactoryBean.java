@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import internal.org.springframework.content.commons.store.factory.*;
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.ProxyFactory;
