@@ -8,7 +8,7 @@ public class StoreFragments extends ArrayList<StoreFragment> {
     public StoreFragments() {
     }
 
-	public StoreFragments(List<StoreFragment> fragments) {
-		super(fragments);
-	}
+    public StoreFragments(List<StoreFragment> fragments) {
+        super(fragments);
+    }
 }

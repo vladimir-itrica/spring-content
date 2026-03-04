@@ -427,7 +427,7 @@ public class FilesystemStorePropertyPathAccessorsIT {
             vendorAdapter.setDatabase(Database.HSQL);
             vendorAdapter.setGenerateDdl(true);
 
-            return new EntityManagerFactoryBuilder(vendorAdapter, props -> jpaProperties.getProperties(), null);
+            return new EntityManagerFactoryBuilder(vendorAdapter, dataSource -> jpaProperties.getProperties(), null);
         }
 
         @Bean
