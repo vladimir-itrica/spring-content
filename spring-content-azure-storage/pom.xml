@@ -21,8 +21,8 @@
 		</dependency>
  		<dependency>
  			<groupId>com.azure.spring</groupId>
- 			<artifactId>spring-cloud-azure-autoconfigure</artifactId>
- 			<version>6.1.0</version>
+ 			<artifactId>azure-spring-boot</artifactId>
+ 			<version>3.14.0</version>
  		</dependency>
         <dependency>
             <groupId>com.azure</groupId>
