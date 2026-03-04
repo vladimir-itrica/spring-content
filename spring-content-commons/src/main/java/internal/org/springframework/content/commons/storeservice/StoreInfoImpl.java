@@ -8,17 +8,17 @@ import org.springframework.content.commons.storeservice.StoreInfo;
 
 public class StoreInfoImpl implements StoreInfo {
 
-	private Class<? extends Store> storeInterface;
-	private Class<?> storeDomainClass;
-	private Object storeImpl;
+    private final Class<? extends Store> storeInterface;
+    private final Class<?> storeDomainClass;
+    private Object storeImpl;
     private Supplier<Store<Serializable>> storeSupplier;
 
-	public StoreInfoImpl(Class<? extends Store> interfaceClass, Class<?> storeDomainClass,
-						 Store<Serializable> storeImpl) {
-		this.storeInterface = interfaceClass;
-		this.storeDomainClass = storeDomainClass;
-		this.storeImpl = storeImpl;
-	}
+    public StoreInfoImpl(Class<? extends Store> interfaceClass, Class<?> storeDomainClass,
+                         Store<Serializable> storeImpl) {
+        this.storeInterface = interfaceClass;
+        this.storeDomainClass = storeDomainClass;
+        this.storeImpl = storeImpl;
+    }
 
     public StoreInfoImpl(Class<? extends Store> interfaceClass, Class<?> storeDomainClass, Supplier<Store<Serializable>> storeSupplier) {
         this.storeInterface = interfaceClass;
@@ -26,28 +26,28 @@ public class StoreInfoImpl implements StoreInfo {
         this.storeSupplier = storeSupplier;
     }
 
-	@Override
-	public Class<? extends Store> getInterface() {
-		return this.storeInterface;
-	}
-
-	@Override
-	public Class<?> getDomainObjectClass() {
-		return this.storeDomainClass;
-	}
-
-	@SuppressWarnings("unchecked")
     @Override
-	public <T> T getImplementation(Class<? extends T> clazz) {
+    public Class<? extends Store> getInterface() {
+        return this.storeInterface;
+    }
 
-	    if (storeImpl == null) {
-	        storeImpl = storeSupplier.get();
-	    }
+    @Override
+    public Class<?> getDomainObjectClass() {
+        return this.storeDomainClass;
+    }
 
-		if (storeImpl != null && clazz.isAssignableFrom(storeImpl.getClass())) {
-			return (T) storeImpl;
-		}
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getImplementation(Class<? extends T> clazz) {
 
-		return null;
-	}
+        if (storeImpl == null) {
+            storeImpl = storeSupplier.get();
+        }
+
+        if (storeImpl != null && clazz.isAssignableFrom(storeImpl.getClass())) {
+            return (T) storeImpl;
+        }
+
+        return null;
+    }
 }

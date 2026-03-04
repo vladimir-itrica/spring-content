@@ -24,7 +24,7 @@ public class StoreFragmentsFactoryBean implements FactoryBean<StoreFragments>, B
     }
 
     @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+    public void setBeanFactory(@NonNull BeanFactory beanFactory) throws BeansException {
         this.beanFactory = beanFactory;
     }
 

@@ -2,9 +2,7 @@ package org.springframework.content.commons.property;
 
 import lombok.Value;
 
-@Value(staticConstructor="from")
+@Value(staticConstructor = "from")
 public class PropertyPath {
-
     private String name;
-
 }

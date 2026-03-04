@@ -31,7 +31,7 @@ public class StoreFragmentDetector {
     private final String postfix;
     private final Set<String> basePackages;
     private final MetadataReaderFactory metadataReaderFactory;
-    private Lazy<Set<BeanDefinition>> implementationCandidates = Lazy.empty();
+    private Lazy<Set<BeanDefinition>> implementationCandidates;
 
     public StoreFragmentDetector(Environment environment, ResourceLoader loader, String postfix, String[] basePackages, MetadataReaderFactory metadataReaderFactory) {
         this.environment = environment;
@@ -64,23 +64,23 @@ public class StoreFragmentDetector {
                 .collect(Collectors.toSet());
     }
 
-    public StoreFragmentDefinition detectCustomImplementation(String iface, String storeInterface) {
+    public StoreFragmentDefinition detectCustomImplementation(String interfaceName, String storeInterface) {
 
-        Predicate<BeanDefinition> pred = new InterfaceNamePredicate(iface, basePackages, postfix);
+        Predicate<BeanDefinition> predicate = new InterfaceNamePredicate(interfaceName, basePackages, postfix);
 
-        List<BeanDefinition> definitions = implementationCandidates.get().stream().filter(pred).toList();
+        List<BeanDefinition> definitions = implementationCandidates.get().stream().filter(predicate).toList();
 
         if (definitions.isEmpty()) {
-            throw new IllegalStateException(format("No implementation found for store interface %s", iface));
+            throw new IllegalStateException(format("No implementation found for store interface %s", interfaceName));
         }
 
         if (definitions.size() > 1) {
-            LOGGER.info(String.format("Found implementations found for %s.  Using %s", iface, definitions.get(0).getBeanClassName()));
+            LOGGER.info(String.format("Found implementations found for %s.  Using %s", interfaceName, definitions.get(0).getBeanClassName()));
         }
 
-        StoreFragmentDefinition defn = new StoreFragmentDefinition(iface, definitions.get(0));
-        defn.setStoreInterfaceName(storeInterface);
-        return defn;
+        StoreFragmentDefinition def = new StoreFragmentDefinition(interfaceName, definitions.get(0));
+        def.setStoreInterfaceName(storeInterface);
+        return def;
     }
 
 

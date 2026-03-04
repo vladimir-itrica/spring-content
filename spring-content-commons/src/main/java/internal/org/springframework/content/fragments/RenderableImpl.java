@@ -3,6 +3,7 @@ package internal.org.springframework.content.fragments;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -26,37 +27,35 @@ public class RenderableImpl implements Renderable, ContentStoreAware {
     private static final Log LOGGER = LogFactory.getLog(RenderableImpl.class);
 
     private org.springframework.content.commons.store.ContentStore store;
-	private ContentStore<Object, Serializable> contentStore;
+    private ContentStore<Object, Serializable> contentStore;
 
-    private MappingContext mappingContext;
+    private final MappingContext mappingContext;
 
     private RenditionService renditionService = null;
 
-    private List<RenditionProvider> providers = new ArrayList<>();
+    private final List<RenditionProvider> providers = new ArrayList<>();
 
     public RenderableImpl() {
-       this.mappingContext = new MappingContext("/", ".");
-	}
-
-	@Autowired(required=false)
-    public void setRenditionProviders(RenditionProvider... providers) {
-        for (RenditionProvider provider : providers) {
-            this.providers.add(provider);
-        }
+        this.mappingContext = new MappingContext("/", ".");
     }
 
-	@Override
-	public void setDomainClass(Class<?> domainClass) {
-	}
+    @Autowired(required = false)
+    public void setRenditionProviders(RenditionProvider... providers) {
+        this.providers.addAll(Arrays.asList(providers));
+    }
 
-	@Override
-	public void setIdClass(Class<?> idClass) {
-	}
+    @Override
+    public void setDomainClass(Class<?> domainClass) {
+    }
 
-	@Override
+    @Override
+    public void setIdClass(Class<?> idClass) {
+    }
+
+    @Override
     public void setContentStore(ContentStore store) {
-		this.contentStore = store;
-	}
+        this.contentStore = store;
+    }
 
     @Override
     public void setContentStore(org.springframework.content.commons.store.ContentStore store) {
@@ -64,48 +63,47 @@ public class RenderableImpl implements Renderable, ContentStoreAware {
     }
 
     public RenditionService getRenditionService() {
-	    if (this.renditionService == null) {
-	        this.renditionService = new RenditionServiceImpl(providers.toArray(new RenditionProvider[0]));
-	    }
-	    return this.renditionService;
-	}
+        if (this.renditionService == null) {
+            this.renditionService = new RenditionServiceImpl(providers.toArray(new RenditionProvider[0]));
+        }
+        return this.renditionService;
+    }
 
-	@Autowired(required = false)
-	public void setRenditionService(RenditionService renditionService) {
-	    this.renditionService = renditionService;
-	}
+    @Autowired(required = false)
+    public void setRenditionService(RenditionService renditionService) {
+        this.renditionService = renditionService;
+    }
 
-	@Override
-	public InputStream getRendition(Object entity, String mimeType) {
-		String fromMimeType = null;
-		fromMimeType = (String) BeanUtils.getFieldWithAnnotation(entity, org.springframework.content.commons.annotations.MimeType.class);
-		if (fromMimeType == null) {
-			return null;
-		}
+    @Override
+    public InputStream getRendition(Object entity, String mimeType) {
+        String fromMimeType = null;
+        fromMimeType = (String) BeanUtils.getFieldWithAnnotation(entity, org.springframework.content.commons.annotations.MimeType.class);
+        if (fromMimeType == null) {
+            return null;
+        }
 
-		if (this.getRenditionService().canConvert(fromMimeType, mimeType)) {
-			InputStream content = null;
-			try {
+        if (this.getRenditionService().canConvert(fromMimeType, mimeType)) {
+            InputStream content = null;
+            try {
                 if (store != null) {
                     content = store.getContent(entity);
                 } else if (contentStore != null) {
                     content = contentStore.getContent(entity);
                 }
-				if (content != null) {
-					return this.getRenditionService().convert(fromMimeType, content, mimeType);
-				}
-			}
-			catch (Exception e) {
-				LOGGER.error(String.format("Failed to get rendition from %s to %s", fromMimeType, mimeType), e);
-			}
-		}
-		return null;
-	}
+                if (content != null) {
+                    return this.getRenditionService().convert(fromMimeType, content, mimeType);
+                }
+            } catch (Exception e) {
+                LOGGER.error(String.format("Failed to get rendition from %s to %s", fromMimeType, mimeType), e);
+            }
+        }
+        return null;
+    }
 
     @Override
     public InputStream getRendition(Object entity, PropertyPath propertyPath, String mimeType) {
 
-        Object fromMimeType = null;
+        Object fromMimeType;
 
         ContentProperty property = this.mappingContext.getContentProperty(entity.getClass(), propertyPath.getName());
         if (property == null) {
@@ -128,13 +126,10 @@ public class RenderableImpl implements Renderable, ContentStoreAware {
                 }
                 if (r != null) {
                     try (InputStream content = r.getInputStream()) {
-                        if (content != null) {
-                            return this.getRenditionService().convert(fromMimeType.toString(), content, mimeType);
-                        }
+                        return this.getRenditionService().convert(fromMimeType.toString(), content, mimeType);
                     }
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 LOGGER.error(String.format("Failed to get rendition from %s to %s", fromMimeType, mimeType), e);
             }
         }
@@ -144,8 +139,8 @@ public class RenderableImpl implements Renderable, ContentStoreAware {
     @Override
     public boolean hasRendition(Object entity, String mimeType) {
 
-        String fromMimeType = null;
-        fromMimeType = (String) BeanUtils.getFieldWithAnnotation(entity, org.springframework.content.commons.annotations.MimeType.class);
+        String fromMimeType = (String) BeanUtils
+                .getFieldWithAnnotation(entity, org.springframework.content.commons.annotations.MimeType.class);
         if (fromMimeType == null) {
             return false;
         }
@@ -159,8 +154,7 @@ public class RenderableImpl implements Renderable, ContentStoreAware {
         ContentProperty property = this.mappingContext.getContentProperty(entity.getClass(), propertyPath.getName());
         // todo: property == null
 
-        Object fromMimeType = null;
-        fromMimeType = property.getMimeType(entity);
+        Object fromMimeType = property.getMimeType(entity);
         if (fromMimeType == null) {
             return false;
         }

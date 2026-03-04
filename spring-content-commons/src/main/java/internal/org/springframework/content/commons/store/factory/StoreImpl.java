@@ -57,12 +57,11 @@ public class StoreImpl implements org.springframework.content.commons.repository
         return this.internalSetContent(entity, null, content, (actualContent) -> {
             try {
                 if (delegate instanceof org.springframework.content.commons.store.ContentStore) {
-                    return ((org.springframework.content.commons.store.ContentStore)(delegate)).setContent(entity, actualContent);
+                    return ((org.springframework.content.commons.store.ContentStore) (delegate)).setContent(entity, actualContent);
                 } else {
-                    return ((org.springframework.content.commons.repository.ContentStore)(delegate)).setContent(entity, actualContent);
+                    return ((org.springframework.content.commons.repository.ContentStore) (delegate)).setContent(entity, actualContent);
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throw e;
             }
         });
@@ -71,15 +70,10 @@ public class StoreImpl implements org.springframework.content.commons.repository
     @Override
     public Object setContent(Object entity, PropertyPath propertyPath, InputStream content) {
         return this.internalSetContent(entity, propertyPath, content, (actualContent) -> {
-            try {
-                if (delegate instanceof org.springframework.content.commons.store.ContentStore) {
-                    return ((org.springframework.content.commons.store.ContentStore)(delegate)).setContent(entity, propertyPath, actualContent);
-                } else {
-                    return ((org.springframework.content.commons.repository.ContentStore)(delegate)).setContent(entity, propertyPath, actualContent);
-                }
-            }
-            catch (Exception e) {
-                throw e;
+            if (delegate instanceof ContentStore) {
+                return ((ContentStore) (delegate)).setContent(entity, propertyPath, actualContent);
+            } else {
+                return ((org.springframework.content.commons.repository.ContentStore) (delegate)).setContent(entity, propertyPath, actualContent);
             }
         });
     }
@@ -87,15 +81,10 @@ public class StoreImpl implements org.springframework.content.commons.repository
     @Override
     public Object setContent(Object entity, PropertyPath propertyPath, InputStream content, long contentLen) {
         return this.internalSetContent(entity, propertyPath, content, (actualContent) -> {
-            try {
-                if (delegate instanceof org.springframework.content.commons.store.ContentStore) {
-                    return ((org.springframework.content.commons.store.ContentStore)(delegate)).setContent(entity, propertyPath, actualContent, contentLen);
-                } else {
-                    return ((org.springframework.content.commons.repository.ContentStore)(delegate)).setContent(entity, propertyPath, actualContent, contentLen);
-                }
-            }
-            catch (Exception e) {
-                throw e;
+            if (delegate instanceof ContentStore) {
+                return ((ContentStore) (delegate)).setContent(entity, propertyPath, actualContent, contentLen);
+            } else {
+                return ((org.springframework.content.commons.repository.ContentStore) (delegate)).setContent(entity, propertyPath, actualContent, contentLen);
             }
         });
     }
@@ -103,24 +92,14 @@ public class StoreImpl implements org.springframework.content.commons.repository
     @Override
     public Object setContent(Object entity, PropertyPath propertyPath, InputStream content, org.springframework.content.commons.repository.SetContentParams params) {
         return this.internalSetContent(entity, propertyPath, content, (actualContent) -> {
-            try {
-                return ((org.springframework.content.commons.repository.ContentStore)(delegate)).setContent(entity, propertyPath, actualContent, params);
-            }
-            catch (Exception e) {
-                throw e;
-            }
+            return ((org.springframework.content.commons.repository.ContentStore) (delegate)).setContent(entity, propertyPath, actualContent, params);
         });
     }
 
     @Override
     public Object setContent(Object entity, PropertyPath propertyPath, InputStream content, SetContentParams params) {
         return this.internalSetContent(entity, propertyPath, content, (actualContent) -> {
-            try {
-                return ((org.springframework.content.commons.store.ContentStore) delegate).setContent(entity, propertyPath, actualContent, params);
-            }
-            catch (Exception e) {
-                throw e;
-            }
+            return ((ContentStore) delegate).setContent(entity, propertyPath, actualContent, params);
         });
     }
 
@@ -146,15 +125,14 @@ public class StoreImpl implements org.springframework.content.commons.repository
                 publisher.publishEvent(before);
             }
 
-            // inputstream was processed and replaced
+            // input stream was processed and replaced
             if (oldBefore != null && oldBefore.getInputStream() != null && oldBefore.getInputStream().equals(contentCopyStream) == false) {
                 content = oldBefore.getInputStream();
-            }
-            else if (before != null && before.getInputStream() != null && before.getInputStream().equals(contentCopyStream) == false) {
+            } else if (before != null && before.getInputStream() != null && before.getInputStream().equals(contentCopyStream) == false) {
                 content = before.getInputStream();
             }
             // content was processed but not replaced
-            else if (contentCopyStream != null && contentCopyStream.isDirty()) {
+            else if (contentCopyStream.isDirty()) {
                 while (contentCopyStream.read(new byte[4096]) != -1) {
                 }
                 content = new FileInputStream(contentCopy);
@@ -173,8 +151,6 @@ public class StoreImpl implements org.springframework.content.commons.repository
                 after.setResult(result);
                 publisher.publishEvent(after);
             }
-        } catch (FileNotFoundException fileNotFoundException) {
-            fileNotFoundException.printStackTrace();
         } catch (IOException ioException) {
             ioException.printStackTrace();
         } finally {
@@ -196,15 +172,10 @@ public class StoreImpl implements org.springframework.content.commons.repository
     @Override
     public Object setContent(Object entity, Resource resourceContent) {
         return this.internalSetContent(entity, null, resourceContent, () -> {
-            try {
-                if (delegate instanceof org.springframework.content.commons.store.ContentStore) {
-                    return ((org.springframework.content.commons.store.ContentStore)(delegate)).setContent(entity, resourceContent);
-                } else {
-                    return ((org.springframework.content.commons.repository.ContentStore)(delegate)).setContent(entity, resourceContent);
-                }
-            }
-            catch (Exception e) {
-                throw e;
+            if (delegate instanceof ContentStore) {
+                return ((ContentStore) (delegate)).setContent(entity, resourceContent);
+            } else {
+                return ((org.springframework.content.commons.repository.ContentStore) (delegate)).setContent(entity, resourceContent);
             }
         });
     }
@@ -212,15 +183,10 @@ public class StoreImpl implements org.springframework.content.commons.repository
     @Override
     public Object setContent(Object entity, PropertyPath propertyPath, Resource resourceContent) {
         return this.internalSetContent(entity, propertyPath, resourceContent, () -> {
-            try {
-                if (delegate instanceof org.springframework.content.commons.store.ContentStore) {
-                    return ((org.springframework.content.commons.store.ContentStore)(delegate)).setContent(entity, propertyPath, resourceContent);
-                } else {
-                    return ((org.springframework.content.commons.repository.ContentStore)(delegate)).setContent(entity, propertyPath, resourceContent);
-                }
-            }
-            catch (Exception e) {
-                throw e;
+            if (delegate instanceof ContentStore) {
+                return ((ContentStore) (delegate)).setContent(entity, propertyPath, resourceContent);
+            } else {
+                return ((org.springframework.content.commons.repository.ContentStore) (delegate)).setContent(entity, propertyPath, resourceContent);
             }
         });
     }
@@ -255,81 +221,61 @@ public class StoreImpl implements org.springframework.content.commons.repository
     @Override
     public Object unsetContent(Object entity) {
         return this.internalUnsetContent(entity, null,
-            () -> {
-                Object result;
-                try {
-                    if (delegate instanceof org.springframework.content.commons.store.ContentStore) {
-                        return ((org.springframework.content.commons.store.ContentStore)(delegate)).unsetContent(entity);
+                () -> {
+                    Object result;
+                    if (delegate instanceof ContentStore) {
+                        return ((ContentStore) (delegate)).unsetContent(entity);
                     } else {
-                        return ((org.springframework.content.commons.repository.ContentStore)(delegate)).unsetContent(entity);
+                        return ((org.springframework.content.commons.repository.ContentStore) (delegate)).unsetContent(entity);
                     }
-                }
-                catch (Exception e) {
-                    throw e;
-                }
-            });
+                });
     }
 
     @Override
     public Object unsetContent(Object entity, PropertyPath propertyPath) {
         return this.internalUnsetContent(entity, propertyPath,
-            () -> {
-                Object result;
-                try {
-                    if (delegate instanceof org.springframework.content.commons.store.ContentStore) {
-                        return ((org.springframework.content.commons.store.ContentStore)(delegate)).unsetContent(entity, propertyPath);
+                () -> {
+                    Object result;
+                    if (delegate instanceof ContentStore) {
+                        return ((ContentStore) (delegate)).unsetContent(entity, propertyPath);
                     } else {
-                        return ((org.springframework.content.commons.repository.ContentStore)(delegate)).unsetContent(entity, propertyPath);
+                        return ((org.springframework.content.commons.repository.ContentStore) (delegate)).unsetContent(entity, propertyPath);
                     }
-                }
-                catch (Exception e) {
-                    throw e;
-                }
-            });
+                });
     }
 
     @Override
     public Object unsetContent(Object entity, PropertyPath propertyPath, org.springframework.content.commons.repository.UnsetContentParams params) {
         return this.internalUnsetContent(entity, propertyPath,
-        () -> {
-            Object result;
-            try {
-                if (delegate instanceof org.springframework.content.commons.store.ContentStore) {
-                    int ordinal = params.getDisposition().ordinal();
-                    UnsetContentParams params1 = UnsetContentParams.builder()
-                            .disposition(UnsetContentParams.Disposition.values()[ordinal])
-                            .build();
-                    return ((org.springframework.content.commons.store.ContentStore)(delegate)).unsetContent(entity, propertyPath, params1);
-                } else {
-                    return ((org.springframework.content.commons.repository.ContentStore)(delegate)).unsetContent(entity, propertyPath, params);
-                }
-            }
-            catch (Exception e) {
-                throw e;
-            }
-        });
+                () -> {
+                    Object result;
+                    if (delegate instanceof ContentStore) {
+                        int ordinal = params.getDisposition().ordinal();
+                        UnsetContentParams params1 = UnsetContentParams.builder()
+                                .disposition(UnsetContentParams.Disposition.values()[ordinal])
+                                .build();
+                        return ((ContentStore) (delegate)).unsetContent(entity, propertyPath, params1);
+                    } else {
+                        return ((org.springframework.content.commons.repository.ContentStore) (delegate)).unsetContent(entity, propertyPath, params);
+                    }
+                });
     }
 
     @Override
     public Object unsetContent(Object entity, PropertyPath propertyPath, UnsetContentParams params) {
         return this.internalUnsetContent(entity, propertyPath,
-        () -> {
-            Object result;
-            try {
-                if (delegate instanceof org.springframework.content.commons.store.ContentStore) {
-                    return ((org.springframework.content.commons.store.ContentStore)(delegate)).unsetContent(entity, propertyPath, params);
-                } else {
-                    int ordinal = params.getDisposition().ordinal();
-                    org.springframework.content.commons.repository.UnsetContentParams params1 = org.springframework.content.commons.repository.UnsetContentParams.builder()
-                            .disposition(org.springframework.content.commons.repository.UnsetContentParams.Disposition.values()[ordinal])
-                            .build();
-                    return ((org.springframework.content.commons.repository.ContentStore)(delegate)).unsetContent(entity, propertyPath, params1);
-                }
-            }
-            catch (Exception e) {
-                throw e;
-            }
-        });
+                () -> {
+                    Object result;
+                    if (delegate instanceof ContentStore) {
+                        return ((ContentStore) (delegate)).unsetContent(entity, propertyPath, params);
+                    } else {
+                        int ordinal = params.getDisposition().ordinal();
+                        org.springframework.content.commons.repository.UnsetContentParams params1 = org.springframework.content.commons.repository.UnsetContentParams.builder()
+                                .disposition(org.springframework.content.commons.repository.UnsetContentParams.Disposition.values()[ordinal])
+                                .build();
+                        return ((org.springframework.content.commons.repository.ContentStore) (delegate)).unsetContent(entity, propertyPath, params1);
+                    }
+                });
     }
 
     public Object internalUnsetContent(Object entity, PropertyPath propertyPath, Supplier invocation) {
@@ -364,14 +310,10 @@ public class StoreImpl implements org.springframework.content.commons.repository
     @Override
     public InputStream getContent(Object entity) {
         return this.internalGetContent(entity, null, () -> {
-            try {
-                if (delegate instanceof org.springframework.content.commons.store.ContentStore) {
-                    return ((org.springframework.content.commons.store.ContentStore)(delegate)).getContent(entity);
-                } else {
-                    return ((org.springframework.content.commons.repository.ContentStore)(delegate)).getContent(entity);
-                }
-            } catch (Exception e) {
-                throw e;
+            if (delegate instanceof ContentStore) {
+                return ((ContentStore) (delegate)).getContent(entity);
+            } else {
+                return ((org.springframework.content.commons.repository.ContentStore) (delegate)).getContent(entity);
             }
         });
     }
@@ -379,14 +321,10 @@ public class StoreImpl implements org.springframework.content.commons.repository
     @Override
     public InputStream getContent(Object entity, PropertyPath propertyPath) {
         return this.internalGetContent(entity, propertyPath, () -> {
-            try {
-                if (delegate instanceof org.springframework.content.commons.store.ContentStore) {
-                    return ((org.springframework.content.commons.store.ContentStore)(delegate)).getContent(entity, propertyPath);
-                } else {
-                    return ((org.springframework.content.commons.repository.ContentStore)(delegate)).getContent(entity, propertyPath);
-                }
-            } catch (Exception e) {
-                throw e;
+            if (delegate instanceof ContentStore) {
+                return ((ContentStore) (delegate)).getContent(entity, propertyPath);
+            } else {
+                return ((org.springframework.content.commons.repository.ContentStore) (delegate)).getContent(entity, propertyPath);
             }
         });
     }
@@ -429,15 +367,10 @@ public class StoreImpl implements org.springframework.content.commons.repository
     @Override
     public Resource getResource(Object entity) {
         return this.internalGetResource(entity, null, () -> {
-            try {
-                if (delegate instanceof org.springframework.content.commons.store.Store) {
-                    return ((org.springframework.content.commons.store.AssociativeStore)(delegate)).getResource(entity);
-                } else {
-                    return ((org.springframework.content.commons.repository.AssociativeStore) (delegate)).getResource(entity);
-                }
-            }
-            catch (Exception e) {
-                throw e;
+            if (delegate instanceof org.springframework.content.commons.store.Store) {
+                return ((AssociativeStore) (delegate)).getResource(entity);
+            } else {
+                return ((org.springframework.content.commons.repository.AssociativeStore) (delegate)).getResource(entity);
             }
         });
     }
@@ -445,40 +378,24 @@ public class StoreImpl implements org.springframework.content.commons.repository
     @Override
     public Resource getResource(Object entity, PropertyPath propertyPath) {
         return this.internalGetResource(entity, propertyPath, () -> {
-            try {
-                if (delegate instanceof org.springframework.content.commons.store.AssociativeStore) {
-                    return ((org.springframework.content.commons.store.AssociativeStore)(delegate)).getResource(entity, propertyPath);
-                } else {
-                    return ((org.springframework.content.commons.repository.AssociativeStore)(delegate)).getResource(entity, propertyPath);
-                }
-            }
-            catch (Exception e) {
-                throw e;
+            if (delegate instanceof AssociativeStore) {
+                return ((AssociativeStore) (delegate)).getResource(entity, propertyPath);
+            } else {
+                return ((org.springframework.content.commons.repository.AssociativeStore) (delegate)).getResource(entity, propertyPath);
             }
         });
     }
 
     @Override
     public Resource getResource(Object entity, PropertyPath propertyPath, org.springframework.content.commons.repository.GetResourceParams oldParams) {
-        return this.internalGetResource(entity, propertyPath, () -> {
-            try {
-                return ((org.springframework.content.commons.repository.AssociativeStore)(delegate)).getResource(entity, propertyPath, oldParams);
-            }
-            catch (Exception e) {
-                throw e;
-            }
-        });
+        return this.internalGetResource(entity, propertyPath,
+                () -> ((org.springframework.content.commons.repository.AssociativeStore) (delegate)).getResource(entity, propertyPath, oldParams));
     }
 
     @Override
     public Resource getResource(Object entity, PropertyPath propertyPath, GetResourceParams params) {
         return this.internalGetResource(entity, propertyPath, () -> {
-            try {
-                return ((org.springframework.content.commons.store.AssociativeStore) delegate).getResource(entity, propertyPath, params);
-            }
-            catch (Exception e) {
-                throw e;
-            }
+            return ((AssociativeStore) delegate).getResource(entity, propertyPath, params);
         });
     }
 
@@ -529,17 +446,7 @@ public class StoreImpl implements org.springframework.content.commons.repository
             publisher.publishEvent(before);
         }
 
-        Resource result;
-        try {
-            if (delegate instanceof org.springframework.content.commons.store.Store) {
-                result = ((org.springframework.content.commons.store.Store)(delegate)).getResource(id);
-            } else {
-                result = ((org.springframework.content.commons.repository.Store)(delegate)).getResource(id);
-            }
-        }
-        catch (Exception e) {
-            throw e;
-        }
+        Resource result = delegate.getResource(id);
 
         org.springframework.content.commons.repository.events.AfterGetResourceEvent oldAfter = new org.springframework.content.commons.repository.events.AfterGetResourceEvent(id, delegate);
         oldAfter.setResult(result);
@@ -567,15 +474,10 @@ public class StoreImpl implements org.springframework.content.commons.repository
             publisher.publishEvent(before);
         }
 
-        try {
-            if (delegate instanceof org.springframework.content.commons.store.AssociativeStore) {
-                ((org.springframework.content.commons.store.AssociativeStore)(delegate)).associate(entity, id);
-            } else {
-                ((org.springframework.content.commons.repository.AssociativeStore)(delegate)).associate(entity, id);
-            }
-        }
-        catch (Exception e) {
-            throw e;
+        if (delegate instanceof AssociativeStore) {
+            ((AssociativeStore) (delegate)).associate(entity, id);
+        } else {
+            ((org.springframework.content.commons.repository.AssociativeStore) (delegate)).associate(entity, id);
         }
 
         if (org.springframework.content.commons.repository.ContentStore.class.isAssignableFrom(storeInterface)) {
@@ -602,15 +504,10 @@ public class StoreImpl implements org.springframework.content.commons.repository
             publisher.publishEvent(before);
         }
 
-        try {
-            if (delegate instanceof org.springframework.content.commons.store.AssociativeStore) {
-                ((org.springframework.content.commons.store.AssociativeStore)(delegate)).associate(entity, propertyPath, id);
-            } else {
-                ((org.springframework.content.commons.repository.AssociativeStore)(delegate)).associate(entity, propertyPath, id);
-            }
-        }
-        catch (Exception e) {
-            throw e;
+        if (delegate instanceof AssociativeStore) {
+            ((AssociativeStore) (delegate)).associate(entity, propertyPath, id);
+        } else {
+            ((org.springframework.content.commons.repository.AssociativeStore) (delegate)).associate(entity, propertyPath, id);
         }
 
         if (org.springframework.content.commons.repository.ContentStore.class.isAssignableFrom(storeInterface)) {
@@ -637,15 +534,10 @@ public class StoreImpl implements org.springframework.content.commons.repository
             publisher.publishEvent(before);
         }
 
-        try {
-            if (delegate instanceof org.springframework.content.commons.store.AssociativeStore) {
-                ((org.springframework.content.commons.store.AssociativeStore)(delegate)).unassociate(entity);
-            } else {
-                ((org.springframework.content.commons.repository.AssociativeStore)(delegate)).unassociate(entity);
-            }
-        }
-        catch (Exception e) {
-            throw e;
+        if (delegate instanceof AssociativeStore) {
+            ((AssociativeStore) (delegate)).unassociate(entity);
+        } else {
+            ((org.springframework.content.commons.repository.AssociativeStore) (delegate)).unassociate(entity);
         }
 
         if (org.springframework.content.commons.repository.ContentStore.class.isAssignableFrom(storeInterface)) {
@@ -672,15 +564,10 @@ public class StoreImpl implements org.springframework.content.commons.repository
             publisher.publishEvent(before);
         }
 
-        try {
-            if (delegate instanceof org.springframework.content.commons.store.AssociativeStore) {
-                ((org.springframework.content.commons.store.AssociativeStore)(delegate)).unassociate(entity, propertyPath);
-            } else {
-                ((org.springframework.content.commons.repository.AssociativeStore)(delegate)).unassociate(entity, propertyPath);
-            }
-        }
-        catch (Exception e) {
-            throw e;
+        if (delegate instanceof AssociativeStore) {
+            ((AssociativeStore) (delegate)).unassociate(entity, propertyPath);
+        } else {
+            ((org.springframework.content.commons.repository.AssociativeStore) (delegate)).unassociate(entity, propertyPath);
         }
 
         if (org.springframework.content.commons.repository.ContentStore.class.isAssignableFrom(storeInterface)) {
@@ -695,17 +582,17 @@ public class StoreImpl implements org.springframework.content.commons.repository
     }
 
     private <SID extends Serializable> ContentStore<Object, SID> castToContentStore(Store<Serializable> delegate) {
-        if (delegate instanceof ContentStore == false) {
+        if (!(delegate instanceof ContentStore)) {
             return null;
         }
-        return (ContentStore)delegate;
+        return (ContentStore) delegate;
     }
 
     private <SID extends Serializable> org.springframework.content.commons.repository.ContentStore<Object, SID> castToOldContentStore(Store<Serializable> delegate) {
-        if (delegate instanceof org.springframework.content.commons.repository.ContentStore == false) {
+        if (!(delegate instanceof org.springframework.content.commons.repository.ContentStore)) {
             return null;
         }
-        return (org.springframework.content.commons.repository.ContentStore)delegate;
+        return (org.springframework.content.commons.repository.ContentStore) delegate;
     }
 
     @Getter
@@ -737,11 +624,7 @@ public class StoreImpl implements org.springframework.content.commons.repository
 
         @Override
         public void close() throws IOException {
-            try {
-                super.close();
-            } catch (Throwable t) {
-                throw t;
-            }
+            super.close();
         }
     }
 }

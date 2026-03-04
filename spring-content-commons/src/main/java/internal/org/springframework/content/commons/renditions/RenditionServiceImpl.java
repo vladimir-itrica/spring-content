@@ -1,11 +1,7 @@
 package internal.org.springframework.content.commons.renditions;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.content.commons.renditions.RenditionProvider;
@@ -14,13 +10,11 @@ import org.springframework.util.MimeType;
 
 public class RenditionServiceImpl implements RenditionService {
 
-    private List<RenditionProvider> providers = new ArrayList<>();
+    private final List<RenditionProvider> providers = new ArrayList<>();
 
-    @Autowired(required=false)
+    @Autowired(required = false)
     public RenditionServiceImpl(RenditionProvider... providers) {
-        for (RenditionProvider provider : providers) {
-            this.providers.add(provider);
-        }
+        Collections.addAll(this.providers, providers);
     }
 
     @Override
@@ -45,7 +39,7 @@ public class RenditionServiceImpl implements RenditionService {
                 conversions.addAll(Arrays.asList(provider.produces()));
             }
         }
-        return conversions.toArray(new String[] {});
+        return conversions.toArray(new String[]{});
     }
 
     @Override
@@ -63,5 +57,4 @@ public class RenditionServiceImpl implements RenditionService {
         }
         return null;
     }
-
 }
