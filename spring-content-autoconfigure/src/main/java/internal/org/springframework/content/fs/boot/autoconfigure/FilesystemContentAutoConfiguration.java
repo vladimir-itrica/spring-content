@@ -26,52 +26,49 @@ import internal.org.springframework.versions.jpa.boot.autoconfigure.JpaVersionsA
 @AutoConfigureAfter({JpaVersionsAutoConfiguration.class})
 @ConditionalOnClass(FilesystemStoreRegistrar.class)
 @ConditionalOnProperty(
-        prefix="spring.content.storage.type",
+        prefix = "spring.content.storage.type",
         name = "default",
         havingValue = "fs",
-        matchIfMissing=true)
+        matchIfMissing = true)
 public class FilesystemContentAutoConfiguration {
 
-	@Configuration
-	@ConditionalOnMissingBean(FilesystemStoreFactoryBean.class)
-	@Import({ FilesystemContentAutoConfigureRegistrar.class, FilesystemStoreConfiguration.class })
-	public static class EnableFilesystemStoresConfig {
-	}
+    @Configuration
+    @ConditionalOnMissingBean(FilesystemStoreFactoryBean.class)
+    @Import({FilesystemContentAutoConfigureRegistrar.class, FilesystemStoreConfiguration.class})
+    public static class EnableFilesystemStoresConfig {
+    }
 
-	@Bean
-	@ConditionalOnMissingBean(FileSystemResourceLoader.class)
-	FileSystemResourceLoader fileSystemResourceLoader(FilesystemProperties props) {
-		return new FileSystemResourceLoader(props.getFilesystemRoot());
-	}
+    @Bean
+    @ConditionalOnMissingBean(FileSystemResourceLoader.class)
+    FileSystemResourceLoader fileSystemResourceLoader(FilesystemProperties props) {
+        return new FileSystemResourceLoader(props.getFilesystemRoot());
+    }
 
-	@Component
-	@ConfigurationProperties(prefix = "spring.content.fs")
-	public static class FilesystemProperties {
+    @Component
+    @ConfigurationProperties(prefix = "spring.content.fs")
+    public static class FilesystemProperties {
 
-		private static final Logger logger = LoggerFactory.getLogger(FilesystemProperties.class);
+        private static final Logger logger = LoggerFactory.getLogger(FilesystemProperties.class);
 
-		/**
-		 * The root location where file system stores place their content
-		 */
-		String filesystemRoot;
+        /**
+         * The root location where file system stores place their content
+         */
+        String filesystemRoot;
 
-		public String getFilesystemRoot() {
-			if (filesystemRoot == null) {
-				try {
-					filesystemRoot = Files.createTempDirectory("").toString();
-				}
-				catch (IOException ioe) {
-					logger.error(String.format(
-							"Unexpected error defaulting filesystem root to %s",
-							filesystemRoot), ioe);
-				}
-			}
+        public String getFilesystemRoot() {
+            if (filesystemRoot == null) {
+                try {
+                    filesystemRoot = Files.createTempDirectory("").toString();
+                } catch (IOException ioe) {
+                    logger.error("Unexpected error defaulting filesystem root to NULL", ioe);
+                }
+            }
 
-			return this.filesystemRoot;
-		}
+            return this.filesystemRoot;
+        }
 
-		public void setFilesystemRoot(String filesystemRoot) {
-			this.filesystemRoot = filesystemRoot;
-		}
-	}
+        public void setFilesystemRoot(String filesystemRoot) {
+            this.filesystemRoot = filesystemRoot;
+        }
+    }
 }

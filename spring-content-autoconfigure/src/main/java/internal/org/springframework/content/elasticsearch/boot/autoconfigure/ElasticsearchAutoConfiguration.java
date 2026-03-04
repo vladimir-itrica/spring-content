@@ -11,8 +11,8 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.elasticsearch.autoconfigure.ElasticsearchClientAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.elasticsearch.autoconfigure.ElasticsearchClientAutoConfiguration;
 import org.springframework.content.commons.search.IndexService;
 import org.springframework.content.elasticsearch.EnableElasticsearchFulltextIndexing;
 import org.springframework.context.annotation.Bean;
@@ -55,7 +55,7 @@ public class ElasticsearchAutoConfiguration {
 	public static class ElasticsearchProperties {
 
         /**
-         * Whether or not to perform automatic indexing of content as it is added
+         * Whether to perform automatic indexing of content as it is added
          */
         boolean autoindex = true;
 

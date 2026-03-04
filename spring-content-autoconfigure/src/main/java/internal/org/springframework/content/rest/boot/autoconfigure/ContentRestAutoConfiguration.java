@@ -106,5 +106,4 @@ public class ContentRestAutoConfiguration {
     public SpringBootContentRestConfigurer springBootContentRestConfigurer() {
         return new SpringBootContentRestConfigurer();
     }
-
 }

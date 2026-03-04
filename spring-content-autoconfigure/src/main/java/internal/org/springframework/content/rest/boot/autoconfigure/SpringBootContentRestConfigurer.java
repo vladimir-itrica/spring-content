@@ -1,5 +1,6 @@
 package internal.org.springframework.content.rest.boot.autoconfigure;
 
+import internal.org.springframework.content.rest.boot.autoconfigure.ContentRestAutoConfiguration.ContentRestProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.content.rest.config.ContentRestConfigurer;
 import org.springframework.content.rest.config.RestConfiguration;
@@ -7,8 +8,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
-
-import internal.org.springframework.content.rest.boot.autoconfigure.ContentRestAutoConfiguration.ContentRestProperties;
 
 @Order(0)
 public class SpringBootContentRestConfigurer implements ContentRestConfigurer {
@@ -52,7 +51,8 @@ public class SpringBootContentRestConfigurer implements ContentRestConfigurer {
                     for (String mediaType : mediaTypes) {
                         try {
                             config.shortcutExclusions().exclude(method, MediaType.parseMediaType(mediaType));
-                        } catch (InvalidMediaTypeException imte) {}
+                        } catch (InvalidMediaTypeException ignored) {
+                        }
                     }
                 }
             }

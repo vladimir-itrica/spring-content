@@ -14,8 +14,7 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguratio
 @ConditionalOnWebApplication
 @ConditionalOnClass(HypermediaConfiguration.class)
 @ConditionalOnBean(RepositoryRestMvcConfiguration.class)
-@AutoConfigureAfter({ DataRestAutoConfiguration.class })
+@AutoConfigureAfter({DataRestAutoConfiguration.class})
 @Import(HypermediaConfiguration.class)
 public class HypermediaAutoConfiguration {
-	//
 }
