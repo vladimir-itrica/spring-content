@@ -1,6 +1,6 @@
 package internal.org.springframework.versions.jpa.boot.autoconfigure;
 
-import org.springframework.boot.autoconfigure.sql.init.SqlDataSourceScriptDatabaseInitializer;
+import org.springframework.boot.jdbc.init.DataSourceScriptDatabaseInitializer;
 import org.springframework.boot.jdbc.DatabaseDriver;
 import org.springframework.boot.sql.init.DatabaseInitializationSettings;
 import org.springframework.jdbc.support.JdbcUtils;
@@ -10,7 +10,7 @@ import javax.sql.DataSource;
 import java.sql.DatabaseMetaData;
 import java.util.Collections;
 
-public class JpaVersionsDatabaseInitializer extends SqlDataSourceScriptDatabaseInitializer {
+public class JpaVersionsDatabaseInitializer extends DataSourceScriptDatabaseInitializer {
 
 	public JpaVersionsDatabaseInitializer(DataSource ds, JpaVersionsProperties properties) {
 		super(ds, getSettings(properties, ds));

@@ -5,19 +5,17 @@ import internal.org.springframework.content.elasticsearch.ElasticsearchConfig;
 import internal.org.springframework.content.elasticsearch.ElasticsearchIndexer;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
+import org.springframework.boot.elasticsearch.autoconfigure.ElasticsearchClientAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.content.commons.search.IndexService;
 import org.springframework.content.elasticsearch.EnableElasticsearchFulltextIndexing;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +23,7 @@ import java.io.IOException;
 
 @AutoConfiguration
 //@Configuration
-@AutoConfigureAfter(ElasticsearchRestClientAutoConfiguration.class)
+@AutoConfigureAfter(ElasticsearchClientAutoConfiguration.class)
 @ConditionalOnClass({RestHighLevelClient.class, EnableElasticsearchFulltextIndexing.class})
 @Import(ElasticsearchConfig.class)
 public class ElasticsearchAutoConfiguration {
