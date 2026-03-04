@@ -20,7 +20,7 @@
         <dependency>
             <groupId>com.github.paulcwarren</groupId>
             <artifactId>spring-content-commons</artifactId>
-            <version>4.0.0-SNAPSHOT</version>
+            <version>${parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.vault</groupId>
@@ -85,25 +85,25 @@
         <dependency>
             <groupId>com.github.paulcwarren</groupId>
             <artifactId>spring-content-fs-boot-starter</artifactId>
-            <version>4.0.0-SNAPSHOT</version>
+            <version>${parent.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.github.paulcwarren</groupId>
             <artifactId>spring-content-jpa-boot-starter</artifactId>
-            <version>4.0.0-SNAPSHOT</version>
+            <version>${parent.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.github.paulcwarren</groupId>
             <artifactId>spring-content-s3-boot-starter</artifactId>
-            <version>4.0.0-SNAPSHOT</version>
+            <version>${parent.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.github.paulcwarren</groupId>
             <artifactId>spring-content-rest-boot-starter</artifactId>
-            <version>4.0.0-SNAPSHOT</version>
+            <version>${parent.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -64,6 +64,9 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
         <!-- Test dependencies -->
         <test-containers.version>1.17.6</test-containers.version>
         <mockito.version>3.12.4</mockito.version>
+        <mysql-connector.version>9.6.0</mysql-connector.version>
+        <ojdbc.version>23.26.1.0.0</ojdbc.version>
+        <hamcrest.version>3.0</hamcrest.version>
 
         <docs.output.dir>../target/generated-docs/refs/${env.BUILD_TYPE}/</docs.output.dir>
     </properties>

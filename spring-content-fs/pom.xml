@@ -33,7 +33,7 @@
 		<dependency>
 			<groupId>com.github.paulcwarren</groupId>
 			<artifactId>spring-versions-jpa</artifactId>
-			<version>4.0.0-SNAPSHOT</version>
+			<version>${parent.version}</version>
 			<optional>true</optional>
 		</dependency>
 		<!-- Locking and Versioning -->
@@ -45,7 +45,7 @@
 		<dependency>
 			<groupId>com.github.paulcwarren</groupId>
 			<artifactId>spring-content-commons</artifactId>
-			<version>4.0.0-SNAPSHOT</version>
+			<version>${parent.version}</version>
 		</dependency>
 
 		<!-- Test Dependencies -->
