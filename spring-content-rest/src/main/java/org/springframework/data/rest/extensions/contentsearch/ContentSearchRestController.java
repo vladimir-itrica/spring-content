@@ -217,18 +217,17 @@ public class ContentSearchRestController {
                 }
             }
 
-            if (entityIds.size() > 0) {
+            if (!entityIds.isEmpty()) {
                 repositories.getRepositoryFor(domainClass).ifPresent(r -> {
 
                     fetchEntitiesInBatches((CrudRepository<?,?>)r, entityIds, results);
                 });
             }
 
-            if (contentIds.size() > 0) {
+            if (!contentIds.isEmpty()) {
                 if (ri != null) {
                     if (ri.getQueryMethods()
-                            .filter(m -> m.getAnnotation(FulltextEntityLookupQuery.class) != null)
-                            .isEmpty()) {
+                            .stream().noneMatch(m -> m.getAnnotation(FulltextEntityLookupQuery.class) != null)) {
 
                         defaultLookupStrategy.lookup(repoInfo, ri, contentIds, results);
                     } else {

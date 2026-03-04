@@ -33,6 +33,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
@@ -86,11 +87,11 @@ public class ContentStoreContentService implements ContentService {
 
         try {
             MediaType producedResourceType = null;
-            Resource storedRenditionResource = null;
+            Resource storedRenditionResource;
             List<MediaType> acceptedMimeTypes = headers.getAccept();
-            if (acceptedMimeTypes.size() > 0) {
+            if (!acceptedMimeTypes.isEmpty()) {
 
-                MediaType.sortBySpecificityAndQuality(acceptedMimeTypes);
+                MimeTypeUtils.sortBySpecificity(acceptedMimeTypes);
                 for (MediaType acceptedMimeType : acceptedMimeTypes) {
 
                     if (acceptedMimeType.includes(resourceType) && matchParameters(acceptedMimeType, resourceType)) {
@@ -187,7 +188,7 @@ public class ContentStoreContentService implements ContentService {
         if (methodToUse.getParameters().length > 3 && methodToUse.getParameters()[3].getType().equals(long.class)) {
             long len = -1L;
             // if available use the original content length
-            if (headers.containsKey(HttpHeaders.CONTENT_LENGTH)) {
+            if (headers.containsHeader(HttpHeaders.CONTENT_LENGTH)) {
                 len = headers.getContentLength();
             }
             argsList.add(len);
@@ -195,7 +196,7 @@ public class ContentStoreContentService implements ContentService {
             org.springframework.content.commons.store.SetContentParams params = org.springframework.content.commons.store.SetContentParams.builder().build();
 
             // if available use the original content length
-            if (headers.containsKey(HttpHeaders.CONTENT_LENGTH)) {
+            if (headers.containsHeader(HttpHeaders.CONTENT_LENGTH)) {
                 params.setContentLength(headers.getContentLength());
             }
 
@@ -207,7 +208,7 @@ public class ContentStoreContentService implements ContentService {
             SetContentParams params = SetContentParams.builder().build();
 
             // if available use the original content length
-            if (headers.containsKey(HttpHeaders.CONTENT_LENGTH)) {
+            if (headers.containsHeader(HttpHeaders.CONTENT_LENGTH)) {
                 params.setContentLength(headers.getContentLength());
             }
 
@@ -332,7 +333,7 @@ public class ContentStoreContentService implements ContentService {
     }
 
     private void configureResourceForByteRangeRequest(RangeableResource resource, HttpHeaders headers) {
-        if (headers.containsKey(HttpHeaders.RANGE)) {
+        if (headers.containsHeader(HttpHeaders.RANGE)) {
             resource.setRange(headers.getFirst(HttpHeaders.RANGE));
         }
     }

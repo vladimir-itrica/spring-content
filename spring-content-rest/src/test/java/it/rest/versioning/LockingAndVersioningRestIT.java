@@ -48,6 +48,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
@@ -290,13 +291,11 @@ public class LockingAndVersioningRestIT {
         }
 
         @Bean
-        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-            http
-                    .csrf().disable()
-                    .authorizeRequests()
-                    .requestMatchers("/admin/**").hasRole("ADMIN")
-                    .and().httpBasic().realmName(REALM).authenticationEntryPoint(getBasicAuthEntryPoint())
-                    .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        public SecurityFilterChain filterChain(HttpSecurity http) {
+            http.csrf(AbstractHttpConfigurer::disable)
+                    .authorizeHttpRequests(c -> c.requestMatchers("/admin/**").hasRole("ADMIN"))
+                    .httpBasic(c -> c.realmName(REALM).authenticationEntryPoint(getBasicAuthEntryPoint()))
+                    .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
             return http.build();
         }

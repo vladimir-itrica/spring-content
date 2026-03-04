@@ -21,18 +21,18 @@
 		</dependency>
  		<dependency>
  			<groupId>com.azure.spring</groupId>
- 			<artifactId>azure-spring-boot</artifactId>
- 			<version>3.14.0</version>
+ 			<artifactId>spring-cloud-azure-autoconfigure</artifactId>
+ 			<version>6.1.0</version>
  		</dependency>
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-storage-blob</artifactId>
-            <version>12.31.2</version>
+            <version>12.33.2</version>
         </dependency>
 		<dependency>
 		  <groupId>com.azure</groupId>
 		  <artifactId>azure-storage-file-share</artifactId>
-		  <version>12.27.2</version>
+		  <version>12.29.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -108,12 +108,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
- 	<repositories>
-	    <repository>
-	        <id>io.spring.repo.maven.release</id>
-	        <url>https://repo.spring.io/ui/native/release</url>
-	        <snapshots><enabled>false</enabled></snapshots>
-	    </repository>
-	</repositories>
 </project>

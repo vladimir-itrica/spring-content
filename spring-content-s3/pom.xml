@@ -106,12 +106,4 @@
         </dependency>
 
 	</dependencies>
-
- 	<repositories>
-	    <repository>
-	        <id>io.spring.repo.maven.release</id>
-	        <url>https://repo.spring.io/ui/native/release</url>
-	        <snapshots><enabled>false</enabled></snapshots>
-	    </repository>
-	</repositories>
 </project>
