@@ -17,15 +17,14 @@ import org.springframework.util.Assert;
 import internal.org.springframework.content.fs.io.FileSystemDeletableResource;
 
 /**
- * {@link ResourceLoader} implementation that resolves plain paths as
- * {@link DeletableResource} file system resources rather than as class path resources
- * (the latter is {@link DefaultResourceLoader}'s default strategy).
- * <p>
+ * The implementation of the {@link ResourceLoader} that resolves plain paths as {@link DeletableResource}
+ * file system resources, rather than as class path resources (the latter is the default strategy of
+ * {@link DefaultResourceLoader}).
  * <p/>
- * <b>NOTE:</b> Plain paths will always be interpreted relative to the root specified
- * during instantiation rather than relative to the current VM working directory (the
- * latter is {@link org.springframework.core.io.FileSystemResourceLoader}'s default
- * behavior, even if they start with a slash.
+ * <b>NOTE:</b> Plain paths will always be interpreted relative to the root specified during instantiation,
+ * rather than relative to the current VM working directory (the latter is the default behavior of
+ * {@link org.springframework.core.io.FileSystemResourceLoader FileSystemResourceLoader}, even if they start
+ * with a slash).
  */
 public class FileSystemResourceLoader
         extends org.springframework.core.io.FileSystemResourceLoader {

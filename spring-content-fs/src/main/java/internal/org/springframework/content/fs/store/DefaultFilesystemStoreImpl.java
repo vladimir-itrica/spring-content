@@ -43,9 +43,10 @@ public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
     private final FileSystemResourceLoader loader;
     private final PlacementService placer;
     private final FileService fileService;
-    private MappingContext mappingContext/* = new MappingContext("/", ".")*/;
+    private MappingContext mappingContext;
 
-    public DefaultFilesystemStoreImpl(FileSystemResourceLoader loader, MappingContext mappingContext, PlacementService conversion, FileService fileService) {
+    public DefaultFilesystemStoreImpl(FileSystemResourceLoader loader, MappingContext mappingContext,
+                                      PlacementService conversion, FileService fileService) {
         this.loader = loader;
         this.placer = conversion;
         this.fileService = fileService;
@@ -98,8 +99,10 @@ public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
     }
 
     @Override
-    public Resource getResource(S entity, PropertyPath propertyPath, org.springframework.content.commons.repository.GetResourceParams params) {
-        ContentProperty contentProperty = this.mappingContext.getContentProperty(entity.getClass(), propertyPath.getName());
+    public Resource getResource(S entity, PropertyPath propertyPath,
+                                org.springframework.content.commons.repository.GetResourceParams params) {
+        ContentProperty contentProperty = this.mappingContext
+                .getContentProperty(entity.getClass(), propertyPath.getName());
         if (contentProperty == null) {
             throw new StoreAccessException(String.format("Content property %s does not exist", propertyPath.getName()));
         }
@@ -118,7 +121,6 @@ public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
 
     @Override
     public void associate(S entity, PropertyPath propertyPath, SID id) {
-
         setContentId(entity, propertyPath, id, null);
     }
 
@@ -127,11 +129,9 @@ public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
         BeanUtils.setFieldWithAnnotationConditionally(entity, ContentId.class, null,
                 field -> {
                     for (Annotation annotation : field.getAnnotations()) {
-                        if ("jakarta.persistence.Id".equals(
-                                annotation.annotationType().getCanonicalName())
-                                || "org.springframework.data.annotation.Id"
-                                .equals(annotation.annotationType()
-                                        .getCanonicalName())) {
+                        String canonicalName = annotation.annotationType().getCanonicalName();
+                        if ("org.springframework.data.annotation.Id".equals(canonicalName)
+                                || "jakarta.persistence.Id".equals(canonicalName)) {
                             return false;
                         }
                     }
@@ -141,21 +141,15 @@ public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
 
     @Override
     public void unassociate(S entity, PropertyPath propertyPath) {
-
-        setContentId(entity, propertyPath, null, new org.springframework.content.commons.mappingcontext.Condition() {
-            @Override
-            public boolean matches(TypeDescriptor descriptor) {
-                for (Annotation annotation : descriptor.getAnnotations()) {
-                    if ("javax.persistence.Id".equals(
-                            annotation.annotationType().getCanonicalName())
-                            || "org.springframework.data.annotation.Id"
-                            .equals(annotation.annotationType()
-                                    .getCanonicalName())) {
-                        return false;
-                    }
+        setContentId(entity, propertyPath, null, descriptor -> {
+            for (Annotation annotation : descriptor.getAnnotations()) {
+                String canonicalName = annotation.annotationType().getCanonicalName();
+                if ("org.springframework.data.annotation.Id".equals(canonicalName)
+                        || "jakarta.persistence.Id".equals(canonicalName)) {
+                    return false;
                 }
-                return true;
             }
+            return true;
         });
     }
 
@@ -235,13 +229,15 @@ public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
     @Override
     public S setContent(S property, PropertyPath propertyPath, InputStream content, SetContentParams params) {
 
-        ContentProperty contentProperty = this.mappingContext.getContentProperty(property.getClass(), propertyPath.getName());
+        ContentProperty contentProperty = this.mappingContext
+                .getContentProperty(property.getClass(), propertyPath.getName());
         if (contentProperty == null) {
             throw new StoreAccessException(String.format("Content property %s does not exist", propertyPath.getName()));
         }
 
         Object contentId = contentProperty.getContentId(property);
-        if (contentId == null || params.getDisposition().equals(org.springframework.content.commons.store.SetContentParams.ContentDisposition.CreateNew)) {
+        if (contentId == null || params.getDisposition()
+                .equals(org.springframework.content.commons.store.SetContentParams.ContentDisposition.CreateNew)) {
 
             Serializable newId = UUID.randomUUID().toString();
 
@@ -374,7 +370,8 @@ public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
 
         Class<?> contentLenType = BeanUtils.getFieldWithAnnotationType(entity, ContentLength.class);
         if (contentLenType != null) {
-            BeanUtils.setFieldWithAnnotation(entity, ContentLength.class, BeanUtils.getDefaultValueForType(contentLenType));
+            BeanUtils.setFieldWithAnnotation(entity, ContentLength.class,
+                    BeanUtils.getDefaultValueForType(contentLenType));
         }
 
         return entity;
@@ -388,7 +385,8 @@ public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
 
     @Transactional
     @Override
-    public S unsetContent(S entity, PropertyPath propertyPath, org.springframework.content.commons.repository.UnsetContentParams params) {
+    public S unsetContent(S entity, PropertyPath propertyPath,
+                          org.springframework.content.commons.repository.UnsetContentParams params) {
         int ordinal = params.getDisposition().ordinal();
         return unsetContent(entity, propertyPath, UnsetContentParams.builder().disposition(Disposition.values()[ordinal]).build());
     }
@@ -415,7 +413,8 @@ public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
         if (resource != null) {
             unassociate(entity, propertyPath);
 
-            property.setContentLength(entity, BeanUtils.getDefaultValueForType(property.getContentLengthType().getType()));
+            property.setContentLength(entity,
+                    BeanUtils.getDefaultValueForType(property.getContentLengthType().getType()));
         }
         return entity;
     }
@@ -432,8 +431,8 @@ public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
         return contentId.toString();
     }
 
-    private void setContentId(S entity, PropertyPath propertyPath, SID contentId, org.springframework.content.commons.mappingcontext.Condition condition) {
-
+    private void setContentId(S entity, PropertyPath propertyPath, SID contentId,
+                              org.springframework.content.commons.mappingcontext.Condition condition) {
         Assert.notNull(entity, "entity must not be null");
         Assert.notNull(propertyPath, "propertyPath must not be null");
 
