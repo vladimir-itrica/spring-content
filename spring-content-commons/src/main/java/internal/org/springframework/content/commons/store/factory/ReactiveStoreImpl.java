@@ -2,7 +2,6 @@ package internal.org.springframework.content.commons.store.factory;
 
 import org.springframework.content.commons.property.PropertyPath;
 import org.springframework.content.commons.store.ReactiveContentStore;
-import org.springframework.context.ApplicationEventPublisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -12,11 +11,9 @@ import java.nio.ByteBuffer;
 public class ReactiveStoreImpl implements ReactiveContentStore<Object, Serializable> {
 
     private final ReactiveContentStore<Object, Serializable> delegate;
-    private final ApplicationEventPublisher publisher;
 
-    public ReactiveStoreImpl(ReactiveContentStore<Object, Serializable> delegate, ApplicationEventPublisher publisher) {
+    public ReactiveStoreImpl(ReactiveContentStore<Object, Serializable> delegate) {
         this.delegate = delegate;
-        this.publisher = publisher;
     }
 
     @Override

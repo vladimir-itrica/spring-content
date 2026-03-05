@@ -150,8 +150,7 @@ public class AnnotatedStoreEventInvoker
                     method.getName()));
         }
 
-        EventHandlerMethod handlerMethod = new EventHandlerMethod(parameterTypes[0], bean,
-                method);
+        EventHandlerMethod handlerMethod = new EventHandlerMethod(parameterTypes[0], bean, method);
 
         logger.debug(
                 String.format("Annotated handler method found: {%s}", handlerMethod));

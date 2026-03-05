@@ -31,7 +31,7 @@ public class StoreFragmentsFactoryBean implements FactoryBean<StoreFragments>, B
     @Override
     public void afterPropertiesSet() {
 
-        List<StoreFragment> fragments = fragmentBeanNames.stream()
+        var fragments = fragmentBeanNames.stream()
                 .map(it -> beanFactory.getBean(it, StoreFragment.class))
                 .collect(Collectors.toList());
 

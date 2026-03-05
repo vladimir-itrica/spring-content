@@ -1,40 +1,20 @@
 package internal.org.springframework.content.commons.store.factory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.content.commons.property.PropertyPath;
 import org.springframework.content.commons.repository.Store;
 import org.springframework.content.commons.store.*;
-import org.springframework.content.commons.store.events.AfterAssociateEvent;
-import org.springframework.content.commons.store.events.AfterGetContentEvent;
-import org.springframework.content.commons.store.events.AfterGetResourceEvent;
-import org.springframework.content.commons.store.events.AfterSetContentEvent;
-import org.springframework.content.commons.store.events.AfterUnassociateEvent;
-import org.springframework.content.commons.store.events.AfterUnsetContentEvent;
-import org.springframework.content.commons.store.events.BeforeAssociateEvent;
-import org.springframework.content.commons.store.events.BeforeGetContentEvent;
-import org.springframework.content.commons.store.events.BeforeGetResourceEvent;
-import org.springframework.content.commons.store.events.BeforeSetContentEvent;
-import org.springframework.content.commons.store.events.BeforeUnassociateEvent;
-import org.springframework.content.commons.store.events.BeforeUnsetContentEvent;
+import org.springframework.content.commons.store.events.*;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 
-import lombok.Getter;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class StoreImpl implements org.springframework.content.commons.repository.ContentStore<Object, Serializable>, ContentStore<Object, Serializable> {
 
@@ -55,14 +35,10 @@ public class StoreImpl implements org.springframework.content.commons.repository
     @Override
     public Object setContent(Object entity, InputStream content) {
         return this.internalSetContent(entity, null, content, (actualContent) -> {
-            try {
-                if (delegate instanceof org.springframework.content.commons.store.ContentStore) {
-                    return ((org.springframework.content.commons.store.ContentStore) (delegate)).setContent(entity, actualContent);
-                } else {
-                    return ((org.springframework.content.commons.repository.ContentStore) (delegate)).setContent(entity, actualContent);
-                }
-            } catch (Exception e) {
-                throw e;
+            if (delegate instanceof ContentStore) {
+                return ((ContentStore) (delegate)).setContent(entity, actualContent);
+            } else {
+                return ((org.springframework.content.commons.repository.ContentStore) (delegate)).setContent(entity, actualContent);
             }
         });
     }
@@ -595,30 +571,33 @@ public class StoreImpl implements org.springframework.content.commons.repository
         return (org.springframework.content.commons.repository.ContentStore) delegate;
     }
 
-    @Getter
     static class TeeInputStream extends org.apache.commons.io.input.TeeInputStream {
 
-        private boolean isDirty = false;
+        private boolean dirty;
 
         public TeeInputStream(InputStream input, OutputStream branch, boolean closeBranch) {
             super(input, branch, closeBranch);
         }
 
+        public boolean isDirty() {
+            return dirty;
+        }
+
         @Override
         public int read() throws IOException {
-            isDirty = true;
+            dirty = true;
             return super.read();
         }
 
         @Override
         public int read(byte[] bts, int st, int end) throws IOException {
-            isDirty = true;
+            dirty = true;
             return super.read(bts, st, end);
         }
 
         @Override
         public int read(byte[] bts) throws IOException {
-            isDirty = true;
+            dirty = true;
             return super.read(bts);
         }
 

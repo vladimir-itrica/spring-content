@@ -1,12 +1,5 @@
 package internal.org.springframework.content.commons.config;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -17,6 +10,13 @@ import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.data.util.Lazy;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -84,17 +84,8 @@ public class StoreFragmentDetector {
         return def;
     }
 
-    private static class InterfaceNamePredicate implements Predicate<BeanDefinition> {
-
-        private final String interfaceName;
-        private final Set<String> basePackages;
-        private final String postfix;
-
-        public InterfaceNamePredicate(String interfaceName, Set<String> basePackages, String postfix) {
-            this.interfaceName = interfaceName;
-            this.basePackages = basePackages;
-            this.postfix = postfix;
-        }
+    private record InterfaceNamePredicate(String interfaceName, Set<String> basePackages,
+                                          String postfix) implements Predicate<BeanDefinition> {
 
         @Override
         public boolean test(BeanDefinition definition) {
