@@ -14,8 +14,6 @@ import java.util.regex.Pattern;
 
 public class ClassWalker {
 
-    private static final Log LOGGER = LogFactory.getLog(ClassWalker.class);
-
     private final ClassVisitor visitor;
 
     public ClassWalker(ClassVisitor visitor) {
@@ -77,7 +75,7 @@ public class ClassWalker {
             fContinue &= visitor.visitFieldBefore("", klazz, field);
             fContinue &= visitor.visitField("", klazz, field);
             if (isObject(field)) {
-                if (!contains(classStack, field.getType())) {
+                if (notContains(classStack, field.getType())) {
                     classStack.push(new WalkContext(field.getName(), field.getType()));
                     this.accept(field.getType(), classStack);
                     classStack.pop();
@@ -109,7 +107,7 @@ public class ClassWalker {
             fContinue &= visitor.visitFieldBefore("", klazz, field);
             fContinue &= visitor.visitField(context.getPath(), klazz, field);
             if (isObject(field)) {
-                if (!contains(classStack, field.getType())) {
+                if (notContains(classStack, field.getType())) {
                     String path = field.getName();
                     if (StringUtils.hasLength(context.getPath())) {
                         path = String.format("%s/%s", context.getPath(), path);
@@ -128,23 +126,23 @@ public class ClassWalker {
         visitor.visitClassEnd(context.getPath(), klazz);
     }
 
-    private boolean contains(Stack<WalkContext> classStack, Class<?> type) {
+    private boolean notContains(Stack<WalkContext> classStack, Class<?> type) {
 
         for (WalkContext context : classStack) {
             if (context.getClazz().equals(type)) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     private boolean isObject(Field field) {
-        return field.getType().isPrimitive() == false &&
-                field.getType().equals(String.class) == false &&
-                field.getType().equals(UUID.class) == false &&
-                field.getType().isEnum() == false &&
-                ContentPropertyUtils.isWrapperType(field.getType()) == false &&
-                ContentPropertyUtils.isRelationshipField(field) == false;
+        return !field.getType().isPrimitive() &&
+                !field.getType().equals(String.class) &&
+                !field.getType().equals(UUID.class) &&
+                !field.getType().isEnum() &&
+                !ContentPropertyUtils.isWrapperType(field.getType()) &&
+                !ContentPropertyUtils.isRelationshipField(field);
     }
 
     private List<Field> getAllFields(List<Field> fields, Class<?> type) {

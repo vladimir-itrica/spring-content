@@ -3,7 +3,6 @@ package org.springframework.content.commons.repository.events;
 import java.io.Serializable;
 
 import org.springframework.content.commons.property.PropertyPath;
-import org.springframework.content.commons.repository.ContentStore;
 import org.springframework.content.commons.repository.Store;
 import org.springframework.content.commons.repository.StoreEvent;
 

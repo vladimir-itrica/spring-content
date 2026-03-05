@@ -1,5 +1,6 @@
 package org.springframework.content.commons.repository;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import org.springframework.content.commons.property.PropertyPath;
@@ -9,7 +10,8 @@ import org.springframework.context.ApplicationEvent;
  * @deprecated This class is deprecated. Use {@link org.springframework.content.commons.store.events.StoreEvent} instead.
  */
 public class StoreEvent extends ApplicationEvent {
-	private static final long serialVersionUID = -4985896308323075130L;
+	@Serial
+    private static final long serialVersionUID = -4985896308323075130L;
 
 	private Store<Serializable> store = null;
     private PropertyPath propertyPath;

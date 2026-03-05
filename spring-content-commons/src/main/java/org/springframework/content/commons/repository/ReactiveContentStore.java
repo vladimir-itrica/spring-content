@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 /**
  * @deprecated This class is deprecated. Use {@link org.springframework.content.commons.store.ReactiveContentStore} instead.
  */
-public interface ReactiveContentStore<S, SID extends Serializable> extends ContentRepository<S, SID> {
+public interface ReactiveContentStore<S, SID extends Serializable> extends ContentRepository {
 
     Mono<S> setContent(S entity, PropertyPath path, long contentLen, Flux<ByteBuffer> buffer);
 

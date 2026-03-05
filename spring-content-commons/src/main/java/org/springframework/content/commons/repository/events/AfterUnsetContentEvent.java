@@ -1,10 +1,10 @@
 package org.springframework.content.commons.repository.events;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import org.springframework.content.commons.property.PropertyPath;
 import org.springframework.content.commons.repository.AfterStoreEvent;
-import org.springframework.content.commons.repository.ContentStore;
 import org.springframework.content.commons.repository.Store;
 
 /**
@@ -12,7 +12,8 @@ import org.springframework.content.commons.repository.Store;
  */
 public class AfterUnsetContentEvent extends AfterStoreEvent {
 
-	private static final long serialVersionUID = 3984922393423249069L;
+	@Serial
+    private static final long serialVersionUID = 3984922393423249069L;
 
 	public AfterUnsetContentEvent(Object source, Store<Serializable> store) {
 		super(source, store);

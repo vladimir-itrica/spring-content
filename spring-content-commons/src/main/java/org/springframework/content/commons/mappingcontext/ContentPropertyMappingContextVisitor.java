@@ -1,6 +1,5 @@
 package org.springframework.content.commons.mappingcontext;
 
-import lombok.Getter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.content.commons.annotations.ContentId;
@@ -21,28 +20,35 @@ import java.util.function.Consumer;
  * @author warrenpa
  *
  */
-@Getter
 public class ContentPropertyMappingContextVisitor implements ClassVisitor {
 
     private static final Log LOGGER = LogFactory.getLog(ContentPropertyMappingContextVisitor.class);
 
-    private Map<Class<?>, Boolean> looseModes = new HashMap<>();
-    private Map<String, Map<String,ContentProperty>> properties = new HashMap<>();
-    private CharSequence keySeparator;
-    private CharSequence contentPropertySeparator;
+    private final Map<Class<?>, Boolean> looseModes = new HashMap<>();
+    private final Map<String, Map<String, ContentProperty>> properties = new HashMap<>();
+    private final CharSequence keySeparator;
+    private final CharSequence contentPropertySeparator;
 
     public ContentPropertyMappingContextVisitor(CharSequence keySeparator, CharSequence contentPropertySeparator) {
         this.keySeparator = keySeparator;
         this.contentPropertySeparator = contentPropertySeparator;
     }
 
-    public Map<String,ContentProperty> getProperties() {
-        Map<String,ContentProperty> props = new HashMap<>();
-        for (Map<String,ContentProperty> property : properties.values()) {
+    public Map<String, ContentProperty> getProperties() {
+        Map<String, ContentProperty> props = new HashMap<>();
+        for (Map<String, ContentProperty> property : properties.values()) {
             props.putAll(property);
         }
 
         return props;
+    }
+
+    public CharSequence getKeySeparator() {
+        return keySeparator;
+    }
+
+    public CharSequence getContentPropertySeparator() {
+        return contentPropertySeparator;
     }
 
     @Override
@@ -69,9 +75,9 @@ public class ContentPropertyMappingContextVisitor implements ClassVisitor {
     public boolean visitClassEnd(String path, Class<?> klazz) {
 
         boolean looseMode = looseModes.get(klazz);
-        Map<String,ContentProperty> props = properties.get(key(path, klazz));
+        Map<String, ContentProperty> props = properties.get(key(path, klazz));
 
-        if (looseMode && props.size() >= 1) {
+        if (looseMode && !props.isEmpty()) {
 
             LOGGER.trace(String.format("Loose mode enabled. Collapsing properties for %s", klazz.getCanonicalName()));
 
@@ -94,7 +100,7 @@ public class ContentPropertyMappingContextVisitor implements ClassVisitor {
                 }
             }
 
-            Map<String,ContentProperty> newClassProps = new HashMap<String,ContentProperty>();
+            Map<String, ContentProperty> newClassProps = new HashMap<String, ContentProperty>();
             properties.put(key(path, klazz), newClassProps);
 
             if (isNotRootContentProperty(path)) {
@@ -114,12 +120,8 @@ public class ContentPropertyMappingContextVisitor implements ClassVisitor {
             LOGGER.trace(String.format("%s.%s is @ContentId", f.getDeclaringClass().getCanonicalName(), f.getName()));
             String propertyName = fullyQualify(path, ClassWalker.propertyName(f.getName()), this.getKeySeparator());
             if (StringUtils.hasLength(propertyName)) {
-                Map<String,ContentProperty> classProperties = properties.get(key(path, klazz));
-                ContentProperty property = classProperties.get(propertyName);
-                if (property == null) {
-                    property = new ContentProperty();
-                    classProperties.put(propertyName, property);
-                }
+                Map<String, ContentProperty> classProperties = properties.get(key(path, klazz));
+                ContentProperty property = classProperties.computeIfAbsent(propertyName, k -> new ContentProperty());
                 updateContentProperty(property::setContentPropertyPath, fullyQualify(path, ClassWalker.propertyName(f.getName()), this.getContentPropertySeparator()));
                 updateContentProperty(property::setContentIdPropertyPath, fullyQualify(path, f.getName(), this.getContentPropertySeparator()));
                 property.setContentIdType(TypeDescriptor.valueOf(f.getType()));
@@ -128,12 +130,8 @@ public class ContentPropertyMappingContextVisitor implements ClassVisitor {
             LOGGER.trace(String.format("%s.%s is @ContentLength", f.getDeclaringClass().getCanonicalName(), f.getName()));
             String propertyName = fullyQualify(path, ClassWalker.propertyName(f.getName()), this.getKeySeparator());
             if (StringUtils.hasLength(propertyName)) {
-                Map<String,ContentProperty> classProperties = properties.get(key(path, klazz));
-                ContentProperty property = classProperties.get(propertyName);
-                if (property == null) {
-                    property = new ContentProperty();
-                    classProperties.put(propertyName, property);
-                }
+                Map<String, ContentProperty> classProperties = properties.get(key(path, klazz));
+                ContentProperty property = classProperties.computeIfAbsent(propertyName, k -> new ContentProperty());
                 updateContentProperty(property::setContentLengthPropertyPath, fullyQualify(path, f.getName(), this.getContentPropertySeparator()));
                 property.setContentLengthType(TypeDescriptor.valueOf(f.getType()));
             }
@@ -141,24 +139,16 @@ public class ContentPropertyMappingContextVisitor implements ClassVisitor {
             LOGGER.trace(String.format("%s.%s is @MimeType", f.getDeclaringClass().getCanonicalName(), f.getName()));
             String propertyName = fullyQualify(path, ClassWalker.propertyName(f.getName()), this.getKeySeparator());
             if (StringUtils.hasLength(propertyName)) {
-                Map<String,ContentProperty> classProperties = properties.get(key(path, klazz));
-                ContentProperty property = classProperties.get(propertyName);
-                if (property == null) {
-                    property = new ContentProperty();
-                    classProperties.put(propertyName, property);
-                }
+                Map<String, ContentProperty> classProperties = properties.get(key(path, klazz));
+                ContentProperty property = classProperties.computeIfAbsent(propertyName, k -> new ContentProperty());
                 updateContentProperty(property::setMimeTypePropertyPath, fullyQualify(path, f.getName(), this.getContentPropertySeparator()));
             }
         } else if (f.isAnnotationPresent(OriginalFileName.class)) {
             LOGGER.trace(String.format("%s.%s is @OriginalFileName", f.getDeclaringClass().getCanonicalName(), f.getName()));
             String propertyName = fullyQualify(path, ClassWalker.propertyName(f.getName()), this.getKeySeparator());
             if (StringUtils.hasLength(propertyName)) {
-                Map<String,ContentProperty> classProperties = properties.get(key(path, klazz));
-                ContentProperty property = classProperties.get(propertyName);
-                if (property == null) {
-                    property = new ContentProperty();
-                    classProperties.put(propertyName, property);
-                }
+                Map<String, ContentProperty> classProperties = properties.get(key(path, klazz));
+                ContentProperty property = classProperties.computeIfAbsent(propertyName, k -> new ContentProperty());
                 updateContentProperty(property::setOriginalFileNamePropertyPath, fullyQualify(path, f.getName(), this.getContentPropertySeparator()));
             }
         }
@@ -172,7 +162,7 @@ public class ContentPropertyMappingContextVisitor implements ClassVisitor {
 
     protected String fullyQualify(String path, String name, CharSequence separator) {
         String fqName = name;
-        if (StringUtils.hasLength(path) ) {
+        if (StringUtils.hasLength(path)) {
             String propertyPath = path.replaceAll("/", separator.toString());
             fqName = String.format("%s%s%s", propertyPath, separator, fqName);
         }

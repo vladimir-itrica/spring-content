@@ -166,8 +166,7 @@ public class ContentProperty {
     }
 
     private BeanWrapper getBeanWrapperForRead(Object entity) {
-        BeanWrapper wrapper = new BeanWrapperImpl(entity);
-        return wrapper;
+        return new BeanWrapperImpl(entity);
     }
 
     private BeanWrapper getBeanWrapperForWrite(Object entity) {
