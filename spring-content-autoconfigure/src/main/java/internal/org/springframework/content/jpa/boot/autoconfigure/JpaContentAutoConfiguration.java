@@ -20,37 +20,37 @@ import internal.org.springframework.versions.jpa.boot.autoconfigure.JpaVersionsA
 
 @Configuration
 @AutoConfigureAfter({DataSourceAutoConfiguration.class, JpaVersionsAutoConfiguration.class})
-@ConditionalOnClass({ DataSource.class, JpaStoresRegistrar.class })
+@ConditionalOnClass({DataSource.class, JpaStoresRegistrar.class})
 @ConditionalOnProperty(
-        prefix="spring.content.storage.type",
+        prefix = "spring.content.storage.type",
         name = "default",
         havingValue = "jpa",
-        matchIfMissing=true)
+        matchIfMissing = true)
 @EnableConfigurationProperties(ContentJpaProperties.class)
 public class JpaContentAutoConfiguration {
 
-	private final ContentJpaProperties properties;
+    private final ContentJpaProperties properties;
 
-	public JpaContentAutoConfiguration(ContentJpaProperties properties) {
-		this.properties = properties;
-	}
+    public JpaContentAutoConfiguration(ContentJpaProperties properties) {
+        this.properties = properties;
+    }
 
-	@Bean
-	@ConditionalOnMissingBean
-	@ConditionalOnBean(DataSource.class)
-	public ContentJpaDatabaseInitializer contentJpaDatabaseInitializer(DataSource dataSource) {
-		return new ContentJpaDatabaseInitializer(dataSource, properties);
-	}
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnBean(DataSource.class)
+    public ContentJpaDatabaseInitializer contentJpaDatabaseInitializer(DataSource dataSource) {
+        return new ContentJpaDatabaseInitializer(dataSource, properties);
+    }
 
-	@Bean
-	@ConditionalOnMissingBean
-	public Integer copyBufferSize() {
-		return properties.getCopyBufferSize();
-	}
+    @Bean
+    @ConditionalOnMissingBean
+    public Integer copyBufferSize() {
+        return properties.getCopyBufferSize();
+    }
 
-	@Configuration
-	@ConditionalOnMissingBean(JpaStoreFactoryBean.class)
-	@Import({ JpaContentAutoConfigureRegistrar.class, JpaStoreConfiguration.class })
-	public static class EnableJpaStoresConfig {}
-
+    @Configuration
+    @ConditionalOnMissingBean(JpaStoreFactoryBean.class)
+    @Import({JpaContentAutoConfigureRegistrar.class, JpaStoreConfiguration.class})
+    public static class EnableJpaStoresConfig {
+    }
 }

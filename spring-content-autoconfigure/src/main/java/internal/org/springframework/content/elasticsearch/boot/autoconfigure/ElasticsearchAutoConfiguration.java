@@ -28,43 +28,50 @@ import java.io.IOException;
 @Import(ElasticsearchConfig.class)
 public class ElasticsearchAutoConfiguration {
 
-	// optional (based on properties)
-	@ConditionalOnProperty(prefix="spring.content.elasticsearch", name="autoindex", havingValue="true", matchIfMissing = true)
-	@ConditionalOnMissingBean(ElasticsearchIndexer.class)
-	@Bean
-	public ElasticsearchIndexer elasticFulltextIndexerEventListener(RestHighLevelClient client, IndexService elasticFulltextIndexService) throws IOException {
-		return new ElasticsearchIndexer(client, elasticFulltextIndexService);
-	}
+    // optional (based on properties)
+    @ConditionalOnProperty(prefix = "spring.content.elasticsearch", name = "autoindex",
+            havingValue = "true", matchIfMissing = true)
+    @ConditionalOnMissingBean(ElasticsearchIndexer.class)
+    @Bean
+    public ElasticsearchIndexer elasticFulltextIndexerEventListener(
+            RestHighLevelClient client, IndexService<?> elasticFulltextIndexService
+    ) throws IOException {
+        return new ElasticsearchIndexer(client, elasticFulltextIndexService);
+    }
 
-	@ConditionalOnProperty(prefix="spring.content.elasticsearch", name="autoindex", havingValue="true", matchIfMissing = true)
-	@ConditionalOnMissingBean(DeprecatedElasticsearchIndexer.class)
-	@Bean
-	public DeprecatedElasticsearchIndexer deprecatedElasticFulltextIndexerEventListener(RestHighLevelClient client, IndexService elasticFulltextIndexService) throws IOException {
-		return new DeprecatedElasticsearchIndexer(client, elasticFulltextIndexService);
-	}
+    @ConditionalOnProperty(prefix = "spring.content.elasticsearch", name = "autoindex",
+            havingValue = "true", matchIfMissing = true)
+    @ConditionalOnMissingBean(DeprecatedElasticsearchIndexer.class)
+    @Bean
+    public DeprecatedElasticsearchIndexer deprecatedElasticFulltextIndexerEventListener(
+            RestHighLevelClient client, IndexService<?> elasticFulltextIndexService
+    ) throws IOException {
+        return new DeprecatedElasticsearchIndexer(client, elasticFulltextIndexService);
+    }
 
-	// user supplied
-	@Bean
-	@ConditionalOnMissingBean(RestHighLevelClient.class)
-	public RestHighLevelClient restHighLevelClient() {
-		return new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")));
-	}
+    // user supplied
+    @Bean
+    @ConditionalOnMissingBean(RestHighLevelClient.class)
+    public RestHighLevelClient restHighLevelClient() {
+        return new RestHighLevelClient(RestClient
+                .builder(new HttpHost("localhost", 9200, "http")));
+    }
 
-	@Component
-	@ConfigurationProperties(prefix = "spring.content.elasticsearch")
-	public static class ElasticsearchProperties {
+    @Component
+    @ConfigurationProperties(prefix = "spring.content.elasticsearch")
+    public static class ElasticsearchProperties {
 
         /**
          * Whether to perform automatic indexing of content as it is added
          */
         boolean autoindex = true;
 
-		public boolean getAutoindex() {
-			return autoindex;
-		}
+        public boolean getAutoindex() {
+            return autoindex;
+        }
 
-		public void setAutoindex(boolean autoindex) {
-			this.autoindex = autoindex;
-		}
-	}
+        public void setAutoindex(boolean autoindex) {
+            this.autoindex = autoindex;
+        }
+    }
 }

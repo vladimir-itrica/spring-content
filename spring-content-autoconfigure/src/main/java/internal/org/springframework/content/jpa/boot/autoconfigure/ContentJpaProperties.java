@@ -18,6 +18,14 @@ public class ContentJpaProperties {
         return "optional:classpath:org/springframework/content/jpa/schema-@@platform@@.sql";
     }
 
+    public int getCopyBufferSize() {
+        return this.copyBufferSize;
+    }
+
+    public void setCopyBufferSize(int copyBufferSize) {
+        this.copyBufferSize = copyBufferSize;
+    }
+
     public static class Initializer {
         private DatabaseInitializationMode initializeSchema;
 
@@ -28,13 +36,5 @@ public class ContentJpaProperties {
         public void setInitializeSchema(DatabaseInitializationMode initializeSchema) {
             this.initializeSchema = initializeSchema;
         }
-    }
-
-    public void setCopyBufferSize(int copyBufferSize) {
-        this.copyBufferSize = copyBufferSize;
-    }
-
-    public int getCopyBufferSize() {
-        return this.copyBufferSize;
     }
 }

@@ -14,9 +14,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.versions.jpa.config.JpaLockingAndVersioningConfig;
 
 @Configuration
-@ConditionalOnClass({ DataSource.class, JpaLockingAndVersioningConfig.class })
+@ConditionalOnClass({DataSource.class, JpaLockingAndVersioningConfig.class})
 @AutoConfigureAfter(DataSourceAutoConfiguration.class)
-@Import({ JpaLockingAndVersioningConfig.class })
+@Import({JpaLockingAndVersioningConfig.class})
 @EnableConfigurationProperties(JpaVersionsProperties.class)
 public class JpaVersionsAutoConfiguration {
 
@@ -35,5 +35,6 @@ public class JpaVersionsAutoConfiguration {
 
     @Configuration
     @Import(JpaVersionsAutoConfigureRegistrar.class)
-    public static class JpaVersionAutoConfig {}
+    public static class JpaVersionAutoConfig {
+    }
 }

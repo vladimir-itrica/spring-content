@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.content.fs.config.EnableFilesystemStores;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.core.type.StandardAnnotationMetadata;
 
 import java.util.Objects;
 import java.util.Set;
@@ -17,9 +16,10 @@ import java.util.Set;
 public class FilesystemContentAutoConfigureRegistrar extends FilesystemStoreRegistrar {
 
     @Override
-    protected void registerContentStoreBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+    protected void registerContentStoreBeanDefinitions(
+            AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 
-        AnnotationMetadata metadata = new StandardAnnotationMetadata(EnableFilesystemContentAutoConfiguration.class);
+        AnnotationMetadata metadata = AnnotationMetadata.introspect(EnableFilesystemContentAutoConfiguration.class);
         AnnotationAttributes attributes = new AnnotationAttributes(Objects.requireNonNull(metadata.getAnnotationAttributes(this.getAnnotation().getName())));
 
         String[] basePackages = this.getBasePackages();

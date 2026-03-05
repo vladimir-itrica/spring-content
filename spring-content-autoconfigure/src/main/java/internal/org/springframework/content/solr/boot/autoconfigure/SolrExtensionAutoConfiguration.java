@@ -35,7 +35,7 @@ public class SolrExtensionAutoConfiguration {
 
     @ConditionalOnMissingBean(name = "solrIndexService")
     @Bean
-    public IndexService solrIndexService() {
+    public IndexService<?> solrIndexService() {
         return new SolrFulltextIndexServiceImpl(solrClient, props);
     }
 

@@ -8,7 +8,9 @@ import org.springframework.core.type.AnnotationMetadata;
 
 public class JpaVersionsAutoConfigureRegistrar implements ImportBeanDefinitionRegistrar {
     @Override
-    public void registerBeanDefinitions(@NonNull AnnotationMetadata importingClassMetadata, @NonNull BeanDefinitionRegistry registry) {
+    public void registerBeanDefinitions(
+            @NonNull AnnotationMetadata importingClassMetadata, @NonNull BeanDefinitionRegistry registry
+    ) {
         AutoConfigurationPackages.register(registry, "org.springframework.versions");
     }
 }

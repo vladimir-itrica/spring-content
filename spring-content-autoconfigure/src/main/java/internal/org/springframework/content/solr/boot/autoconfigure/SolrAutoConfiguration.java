@@ -14,23 +14,23 @@ import org.springframework.format.support.DefaultFormattingConversionService;
 @ConditionalOnClass(SolrClient.class)
 public class SolrAutoConfiguration {
 
-	@Bean
-	@ConditionalOnMissingBean(SolrProperties.class)
-	public SolrProperties solrProperties() {
-		SolrProperties solrConfig = new SolrProperties();
-		solrConfig.setUrl("http://localhost:8983/solr/solr");
-		return solrConfig;
-	}
+    @Bean
+    @ConditionalOnMissingBean(SolrProperties.class)
+    public SolrProperties solrProperties() {
+        SolrProperties solrConfig = new SolrProperties();
+        solrConfig.setUrl("http://localhost:8983/solr/solr");
+        return solrConfig;
+    }
 
-	@Bean
-	@ConditionalOnMissingBean(SolrClient.class)
-	public SolrClient solrClient() {
-		return new HttpSolrClient.Builder(solrProperties().getUrl()).build();
-	}
+    @Bean
+    @ConditionalOnMissingBean(SolrClient.class)
+    public SolrClient solrClient() {
+        return new HttpSolrClient.Builder(solrProperties().getUrl()).build();
+    }
 
-	@Bean
-	@ConditionalOnMissingBean(name = "solrConversionService")
-	public ConversionService solrConversionService() {
-		return new DefaultFormattingConversionService();
-	}
+    @Bean
+    @ConditionalOnMissingBean(name = "solrConversionService")
+    public ConversionService solrConversionService() {
+        return new DefaultFormattingConversionService();
+    }
 }

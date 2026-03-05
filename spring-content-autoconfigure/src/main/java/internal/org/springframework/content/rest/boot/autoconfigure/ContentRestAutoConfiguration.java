@@ -19,6 +19,11 @@ import org.springframework.stereotype.Component;
 @Import(RestConfiguration.class)
 public class ContentRestAutoConfiguration {
 
+    @Bean
+    public SpringBootContentRestConfigurer springBootContentRestConfigurer() {
+        return new SpringBootContentRestConfigurer();
+    }
+
     @Component
     @ConfigurationProperties(prefix = "spring.content.rest")
     public static class ContentRestProperties {
@@ -28,8 +33,10 @@ public class ContentRestAutoConfiguration {
         private ShortcutRequestMappings requestMappings = new ShortcutRequestMappings();
         private boolean overwriteExistingContent = RestConfiguration.OVERWRITE_EXISTING_CONTENT_DEFAULT;
 
-        private SetContentDisposition setContentDisposition = RestConfiguration.SETCONTENT_CONTENT_DISPOSITION_DEFAULT;
-        private UnsetContentDisposition unsetContentDisposition = RestConfiguration.UNSETCONTENT_CONTENT_DISPOSITION_DEFAULT;
+        private SetContentDisposition setContentDisposition =
+                RestConfiguration.SETCONTENT_CONTENT_DISPOSITION_DEFAULT;
+        private UnsetContentDisposition unsetContentDisposition =
+                RestConfiguration.UNSETCONTENT_CONTENT_DISPOSITION_DEFAULT;
 
         public URI getBaseUri() {
             return baseUri;
@@ -100,10 +107,5 @@ public class ContentRestAutoConfiguration {
                 this.excludes = excludes;
             }
         }
-    }
-
-    @Bean
-    public SpringBootContentRestConfigurer springBootContentRestConfigurer() {
-        return new SpringBootContentRestConfigurer();
     }
 }

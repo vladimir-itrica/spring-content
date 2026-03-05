@@ -46,7 +46,8 @@ public class S3ContentAutoConfiguration {
         }
 
         if (StringUtils.hasText(props.accessKey) && StringUtils.hasText(props.secretKey)) {
-            AwsCredentialsProvider provider = StaticCredentialsProvider.create(AwsBasicCredentials.create(props.accessKey, props.secretKey));
+            AwsCredentialsProvider provider = StaticCredentialsProvider
+                    .create(AwsBasicCredentials.create(props.accessKey, props.secretKey));
             builder.credentialsProvider(provider);
         }
 

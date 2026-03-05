@@ -32,16 +32,16 @@ import internal.org.springframework.versions.jpa.boot.autoconfigure.JpaVersionsA
         matchIfMissing = true)
 public class FilesystemContentAutoConfiguration {
 
-    @Configuration
-    @ConditionalOnMissingBean(FilesystemStoreFactoryBean.class)
-    @Import({FilesystemContentAutoConfigureRegistrar.class, FilesystemStoreConfiguration.class})
-    public static class EnableFilesystemStoresConfig {
-    }
-
     @Bean
     @ConditionalOnMissingBean(FileSystemResourceLoader.class)
     FileSystemResourceLoader fileSystemResourceLoader(FilesystemProperties props) {
         return new FileSystemResourceLoader(props.getFilesystemRoot());
+    }
+
+    @Configuration
+    @ConditionalOnMissingBean(FilesystemStoreFactoryBean.class)
+    @Import({FilesystemContentAutoConfigureRegistrar.class, FilesystemStoreConfiguration.class})
+    public static class EnableFilesystemStoresConfig {
     }
 
     @Component
@@ -58,9 +58,9 @@ public class FilesystemContentAutoConfiguration {
         public String getFilesystemRoot() {
             if (filesystemRoot == null) {
                 try {
-                    filesystemRoot = Files.createTempDirectory("").toString();
+                    filesystemRoot = Files.createTempDirectory(null).toString();
                 } catch (IOException ioe) {
-                    logger.error("Unexpected error defaulting filesystem root to NULL", ioe);
+                    logger.error("Unexpected error, defaulting filesystem root to NULL", ioe);
                 }
             }
 
