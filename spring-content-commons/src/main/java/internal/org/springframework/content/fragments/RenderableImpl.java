@@ -22,11 +22,11 @@ import org.springframework.core.io.Resource;
 
 import internal.org.springframework.content.commons.renditions.RenditionServiceImpl;
 
-public class RenderableImpl implements Renderable, ContentStoreAware {
+public class RenderableImpl implements Renderable<Object>, ContentStoreAware {
 
     private static final Log LOGGER = LogFactory.getLog(RenderableImpl.class);
 
-    private org.springframework.content.commons.store.ContentStore store;
+    private org.springframework.content.commons.store.ContentStore<Object, Serializable> store;
     private ContentStore<Object, Serializable> contentStore;
 
     private final MappingContext mappingContext;
@@ -53,12 +53,12 @@ public class RenderableImpl implements Renderable, ContentStoreAware {
     }
 
     @Override
-    public void setContentStore(ContentStore store) {
+    public void setContentStore(ContentStore<Object, Serializable> store) {
         this.contentStore = store;
     }
 
     @Override
-    public void setContentStore(org.springframework.content.commons.store.ContentStore store) {
+    public void setContentStore(org.springframework.content.commons.store.ContentStore<Object, Serializable> store) {
         this.store = store;
     }
 

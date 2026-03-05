@@ -11,7 +11,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.security.Principal;
 import java.util.UUID;
 
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
@@ -402,7 +401,7 @@ public class LockingAndVersioningRestIT {
         }
     }
 
-    public interface VersionedDocumentAndVersioningRepository extends JpaRepository<VersionedDocument, Long>, LockingAndVersioningRepository<VersionedDocument, Long> {
+    public interface VersionedDocumentAndVersioningRepository extends JpaRepository<VersionedDocument, Long>, LockingAndVersioningRepository<VersionedDocument> {
     }
 
     @StoreRestResource(path = "versionedDocumentsContent")

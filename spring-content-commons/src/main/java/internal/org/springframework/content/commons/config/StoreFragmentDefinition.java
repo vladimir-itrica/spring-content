@@ -7,40 +7,40 @@ import org.springframework.util.StringUtils;
 
 public class StoreFragmentDefinition {
 
-	private final String interfaceName;
-	private final String implementationClassName;
-	private final BeanDefinition beanDefinition;
+    private final String interfaceName;
+    private final String implementationClassName;
+    private final BeanDefinition beanDefinition;
 
-	private String storeInterfaceName;
+    private String storeInterfaceName;
 
-	public StoreFragmentDefinition(String interfaceName, BeanDefinition beanDef) {
-		this.interfaceName = interfaceName;
-		this.implementationClassName = ConfigurationUtils.getRequiredBeanClassName(beanDef);
-		this.beanDefinition = beanDef;
-	}
+    public StoreFragmentDefinition(String interfaceName, BeanDefinition beanDef) {
+        this.interfaceName = interfaceName;
+        this.implementationClassName = ConfigurationUtils.getRequiredBeanClassName(beanDef);
+        this.beanDefinition = beanDef;
+    }
 
-	public void setStoreInterfaceName(String storeInterface) {
-		this.storeInterfaceName = storeInterface;
-	}
+    public void setStoreInterfaceName(String storeInterface) {
+        this.storeInterfaceName = storeInterface;
+    }
 
-	public String getStoreInterfaceName() {
-		return this.storeInterfaceName;
-	}
+    public String getStoreInterfaceName() {
+        return this.storeInterfaceName;
+    }
 
-	public String getInterfaceName() {
-		return interfaceName;
-	}
+    public String getInterfaceName() {
+        return interfaceName;
+    }
 
-	public String getImplementationBeanName() {
-		return this.storeInterfaceName + "#" + StringUtils.uncapitalize(ClassUtils.getShortName(implementationClassName));
-	}
+    public String getImplementationBeanName() {
+        return this.storeInterfaceName + "#" +
+                StringUtils.uncapitalize(ClassUtils.getShortName(implementationClassName));
+    }
 
-	public BeanDefinition getBeanDefinition() {
-		return beanDefinition;
-	}
+    public BeanDefinition getBeanDefinition() {
+        return beanDefinition;
+    }
 
-	public String getFragmentBeanName() {
-		return getImplementationBeanName() + "Fragment";
-	}
-
+    public String getFragmentBeanName() {
+        return getImplementationBeanName() + "Fragment";
+    }
 }

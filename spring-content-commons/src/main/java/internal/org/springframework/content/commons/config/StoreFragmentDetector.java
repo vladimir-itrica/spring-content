@@ -31,7 +31,7 @@ public class StoreFragmentDetector {
     private final String postfix;
     private final Set<String> basePackages;
     private final MetadataReaderFactory metadataReaderFactory;
-    private Lazy<Set<BeanDefinition>> implementationCandidates;
+    private final Lazy<Set<BeanDefinition>> implementationCandidates;
 
     public StoreFragmentDetector(Environment environment, ResourceLoader loader, String postfix, String[] basePackages, MetadataReaderFactory metadataReaderFactory) {
         this.environment = environment;
@@ -59,8 +59,8 @@ public class StoreFragmentDetector {
 
 //		config.getExcludeFilters().forEach(it -> provider.addExcludeFilter(it));
 
-        return basePackages.stream()//
-                .flatMap(it -> provider.findCandidateComponents(it).stream())//
+        return basePackages.stream()
+                .flatMap(it -> provider.findCandidateComponents(it).stream())
                 .collect(Collectors.toSet());
     }
 
@@ -75,20 +75,13 @@ public class StoreFragmentDetector {
         }
 
         if (definitions.size() > 1) {
-            LOGGER.info(String.format("Found implementations found for %s.  Using %s", interfaceName, definitions.get(0).getBeanClassName()));
+            LOGGER.info(String.format("Found implementations found for %s.  Using %s", interfaceName,
+                    definitions.get(0).getBeanClassName()));
         }
 
         StoreFragmentDefinition def = new StoreFragmentDefinition(interfaceName, definitions.get(0));
         def.setStoreInterfaceName(storeInterface);
         return def;
-    }
-
-
-    private String concat(List<BeanDefinition> definitions) {
-
-        return definitions.stream()//
-                .map(BeanDefinition::getBeanClassName)//
-                .collect(Collectors.joining(", "));
     }
 
     private static class InterfaceNamePredicate implements Predicate<BeanDefinition> {
@@ -117,9 +110,8 @@ public class StoreFragmentDetector {
             String shortName = ClassUtils.getShortName(beanClassName);
             String localName = shortName.substring(shortName.lastIndexOf('.') + 1);
 
-            return localName.equals(getImplementationClassName(interfaceName)) //
+            return localName.equals(getImplementationClassName(interfaceName))
                     && basePackages.stream().anyMatch(beanPackage::startsWith);
-
         }
 
         private String getImplementationClassName(String interfaceName) {

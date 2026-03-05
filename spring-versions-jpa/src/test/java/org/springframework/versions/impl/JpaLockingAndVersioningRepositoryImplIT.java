@@ -950,7 +950,7 @@ public class JpaLockingAndVersioningRepositoryImplIT {
         public TestEntity(TestEntity entity) {}
     }
 
-    public interface TestRepository extends JpaRepository<TestEntity, Long>, LockingAndVersioningRepository<TestEntity, Long> {}
+    public interface TestRepository extends JpaRepository<TestEntity, Long>, LockingAndVersioningRepository<TestEntity> {}
 
     @Getter
     @Setter
@@ -959,7 +959,7 @@ public class JpaLockingAndVersioningRepositoryImplIT {
         @Id @GeneratedValue private Long id;
     }
 
-    public interface OtherTestRepository extends JpaRepository<OtherTestEntity, Long>, LockingAndVersioningRepository<OtherTestEntity, Long> {}
+    public interface OtherTestRepository extends JpaRepository<OtherTestEntity, Long>, LockingAndVersioningRepository<OtherTestEntity> {}
 
     private static void setupSecurityContext(String principal, boolean isAuthenticated) {
         SecurityContext sc = new SecurityContext() {

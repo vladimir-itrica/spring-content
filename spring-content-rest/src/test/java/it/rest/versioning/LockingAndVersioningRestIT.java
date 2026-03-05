@@ -358,7 +358,7 @@ public class LockingAndVersioningRestIT {
         }
     }
 
-    public interface VersionedDocumentAndVersioningRepository extends JpaRepository<VersionedDocument, Long>, LockingAndVersioningRepository<VersionedDocument, Long> {
+    public interface VersionedDocumentAndVersioningRepository extends JpaRepository<VersionedDocument, Long>, LockingAndVersioningRepository<VersionedDocument> {
     }
 
     @StoreRestResource(path="versionedDocumentsContent")

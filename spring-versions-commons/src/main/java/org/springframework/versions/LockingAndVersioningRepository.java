@@ -1,12 +1,11 @@
 package org.springframework.versions;
 
-import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.rest.core.annotation.RestResource;
 
-public interface LockingAndVersioningRepository<T, ID extends Serializable> {
+public interface LockingAndVersioningRepository<T> {
 
     /**
      * Locks the entity and returns the updated entity (@Version and @LockOwner) attributes updated, otherwise

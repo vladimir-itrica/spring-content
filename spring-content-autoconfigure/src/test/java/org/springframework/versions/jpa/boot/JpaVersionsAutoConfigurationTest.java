@@ -108,5 +108,5 @@ public class JpaVersionsAutoConfigurationTest {
     public static class StarterWithAnnotationConfig /*extends BaseConfig*/ {
     }
 
-    public interface NestedTestEntityRepository extends CrudRepository<TestEntityVersioned, Long>, LockingAndVersioningRepository<TestEntityVersioned, Long> {}
+    public interface NestedTestEntityRepository extends CrudRepository<TestEntityVersioned, Long>, LockingAndVersioningRepository<TestEntityVersioned> {}
 }

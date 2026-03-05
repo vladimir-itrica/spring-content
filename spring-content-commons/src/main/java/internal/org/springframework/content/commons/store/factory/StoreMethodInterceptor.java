@@ -1,13 +1,7 @@
 package internal.org.springframework.content.commons.store.factory;
 
-import static java.lang.String.format;
-
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.Optional;
-
+import internal.org.springframework.content.commons.config.StoreFragment;
+import internal.org.springframework.content.commons.config.StoreFragments;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
@@ -19,26 +13,31 @@ import org.springframework.util.Assert;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.ReflectionUtils;
 
-import internal.org.springframework.content.commons.config.StoreFragment;
-import internal.org.springframework.content.commons.config.StoreFragments;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Map;
+
+import static java.lang.String.format;
 
 public class StoreMethodInterceptor implements MethodInterceptor {
 
     private static final Log LOGGER = LogFactory.getLog(StoreMethodInterceptor.class);
-
-    private StoreFragments storeFragments;
-    private final Map<Method, Method> methodCache = new ConcurrentReferenceHashMap<>();
-
     // ContentStoreAware methods
     private static final Method deprecatedSetContentStoreMethod;
     private static final Method setContentStoreMethod;
 
     static {
-        deprecatedSetContentStoreMethod = ReflectionUtils.findMethod(ContentStoreAware.class, "setContentStore", ContentStore.class);
+        deprecatedSetContentStoreMethod = ReflectionUtils.findMethod(ContentStoreAware.class,
+                "setContentStore", ContentStore.class);
         Assert.notNull(deprecatedSetContentStoreMethod, "setContentStore method not found");
-        setContentStoreMethod = ReflectionUtils.findMethod(ContentStoreAware.class, "setContentStore", org.springframework.content.commons.store.ContentStore.class);
+        setContentStoreMethod = ReflectionUtils.findMethod(ContentStoreAware.class,
+                "setContentStore", org.springframework.content.commons.store.ContentStore.class);
         Assert.notNull(setContentStoreMethod, "setContentStore method not found");
     }
+
+    private final Map<Method, Method> methodCache = new ConcurrentReferenceHashMap<>();
+    private StoreFragments storeFragments;
 
     public StoreMethodInterceptor() {
     }
@@ -51,7 +50,7 @@ public class StoreMethodInterceptor implements MethodInterceptor {
     public Object invoke(@NonNull MethodInvocation invocation) throws Throwable {
 
         if (storeFragments != null) {
-            Optional<StoreFragment> fragment = storeFragments.stream()
+            var fragment = storeFragments.stream()
                     .filter(it -> it.hasMethod(invocation.getMethod()))
                     .findFirst();
 
@@ -61,18 +60,23 @@ public class StoreMethodInterceptor implements MethodInterceptor {
                         .findFirst();
             }
 
-            fragment.orElseThrow(() -> new IllegalStateException(format("No fragment found for method %s", invocation.getMethod())));
+            fragment.orElseThrow(() -> new IllegalStateException(
+                    format("No fragment found for method %s", invocation.getMethod())));
 
-            StoreFragment f = fragment.get();
+            StoreFragment<?> f = fragment.get();
             if (f.hasImplementationMethod(deprecatedSetContentStoreMethod)) {
-                ReflectionUtils.invokeMethod(deprecatedSetContentStoreMethod, f.getImplementation(), invocation.getThis());
+                assert deprecatedSetContentStoreMethod != null;
+                ReflectionUtils.invokeMethod(deprecatedSetContentStoreMethod, f.getImplementation(),
+                        invocation.getThis());
             }
             if (f.hasImplementationMethod(setContentStoreMethod)) {
+                assert setContentStoreMethod != null;
                 ReflectionUtils.invokeMethod(setContentStoreMethod, f.getImplementation(), invocation.getThis());
             }
 
             try {
-                return getMethod(invocation.getMethod(), f).invoke(fragment.get().getImplementation(), invocation.getArguments());
+                return getMethod(invocation.getMethod(), f)
+                        .invoke(fragment.get().getImplementation(), invocation.getArguments());
             } catch (InvocationTargetException ite) {
                 throw ite.getTargetException();
             }
@@ -83,22 +87,21 @@ public class StoreMethodInterceptor implements MethodInterceptor {
         return null;
     }
 
-    /* package */ Method getMethod(Method invokedMethod, StoreFragment fragment) {
+    /* package */ Method getMethod(Method invokedMethod, StoreFragment<?> fragment) {
         return methodCache.computeIfAbsent(invokedMethod,
                 key -> resolveImplementationMethod(invokedMethod, fragment));
     }
 
-    private Method resolveImplementationMethod(Method invokedMethod, StoreFragment fragment) {
+    private Method resolveImplementationMethod(Method invokedMethod, StoreFragment<?> fragment) {
 
-        if (invokedMethod.getName().equals("getResource") && Serializable.class.isAssignableFrom(invokedMethod.getParameterTypes()[0])) {
-            return ReflectionUtils.findMethod(fragment.getImplementation().getClass(), "getResource", Serializable.class);
+        if (invokedMethod.getName().equals("getResource") &&
+                Serializable.class.isAssignableFrom(invokedMethod.getParameterTypes()[0])) {
+            return ReflectionUtils.findMethod(fragment.getImplementation().getClass(),
+                    "getResource", Serializable.class);
         }
 
         for (Method candidate : fragment.getImplementation().getClass().getMethods()) {
-
-            if (invokedMethod.getName().equals(candidate.getName()) &&
-                    parametersMatch(invokedMethod, candidate)
-            ) {
+            if (invokedMethod.getName().equals(candidate.getName()) && parametersMatch(invokedMethod, candidate)) {
                 return candidate;
             }
         }
