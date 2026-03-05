@@ -16,7 +16,7 @@ public class ClassWalker {
 
     private static final Log LOGGER = LogFactory.getLog(ClassWalker.class);
 
-    private ClassVisitor visitor;
+    private final ClassVisitor visitor;
 
     public ClassWalker(ClassVisitor visitor) {
         this.visitor = visitor;
@@ -35,10 +35,9 @@ public class ClassWalker {
         String[] segments = split(name);
         if (segments.length == 1) {
             return segments[0];
-        }
-        else {
+        } else {
             StringBuilder b = new StringBuilder();
-            for (int i=0; i < segments.length - 1; i++) {
+            for (int i = 0; i < segments.length - 1; i++) {
                 b.append(segments[i]);
             }
             return b.toString();
@@ -48,7 +47,7 @@ public class ClassWalker {
     public static String calculateName(String name) {
         Pattern p = Pattern.compile("^(.+)(Id|Len|Length|MimeType|Mimetype|ContentType|(?<!Mime|Content)Type|(?<!Original)FileName|(?<!Original)Filename|OriginalFileName|OriginalFilename)$");
         Matcher m = p.matcher(name);
-        if (m.matches() == false) {
+        if (!m.matches()) {
             return null;
         }
         return m.group(1);
@@ -72,8 +71,7 @@ public class ClassWalker {
             return;
         }
 
-        List<Field>fields = new ArrayList<>();
-        fields = getAllFields(fields, klazz);
+        List<Field> fields = getAllFields(new ArrayList<>(), klazz);
 
         for (Field field : fields) {
             fContinue &= visitor.visitFieldBefore("", klazz, field);
@@ -87,10 +85,6 @@ public class ClassWalker {
             }
             fContinue &= visitor.visitFieldAfter("", klazz, field);
         }
-        if (!fContinue) {
-            return;
-        }
-
         if (!fContinue) {
             return;
         }
@@ -109,8 +103,7 @@ public class ClassWalker {
             return;
         }
 
-        List<Field>fields = new ArrayList<>();
-        fields = getAllFields(fields, context.getClazz());
+        List<Field> fields = getAllFields(new ArrayList<>(), context.getClazz());
 
         for (Field field : fields) {
             fContinue &= visitor.visitFieldBefore("", klazz, field);
@@ -132,10 +125,6 @@ public class ClassWalker {
             return;
         }
 
-        if (!fContinue) {
-            return;
-        }
-
         visitor.visitClassEnd(context.getPath(), klazz);
     }
 
@@ -151,11 +140,11 @@ public class ClassWalker {
 
     private boolean isObject(Field field) {
         return field.getType().isPrimitive() == false &&
-            field.getType().equals(String.class) == false &&
-            field.getType().equals(UUID.class) == false &&
-            field.getType().isEnum() == false &&
-            ContentPropertyUtils.isWrapperType(field.getType()) == false &&
-            ContentPropertyUtils.isRelationshipField(field) == false;
+                field.getType().equals(String.class) == false &&
+                field.getType().equals(UUID.class) == false &&
+                field.getType().isEnum() == false &&
+                ContentPropertyUtils.isWrapperType(field.getType()) == false &&
+                ContentPropertyUtils.isRelationshipField(field) == false;
     }
 
     private List<Field> getAllFields(List<Field> fields, Class<?> type) {

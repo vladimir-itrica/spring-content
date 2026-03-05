@@ -2,6 +2,7 @@ package internal.org.springframework.content.fs.config;
 
 import java.lang.annotation.Annotation;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.content.commons.config.AbstractStoreBeanDefinitionRegistrar;
 import org.springframework.content.fs.config.EnableFilesystemStores;
@@ -13,8 +14,8 @@ import org.springframework.core.type.AnnotationMetadata;
 public class FilesystemStoreRegistrar extends AbstractStoreBeanDefinitionRegistrar {
 
 	@Override
-	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
-			BeanDefinitionRegistry registry) {
+	public void registerBeanDefinitions(@NonNull AnnotationMetadata importingClassMetadata,
+                                        @NonNull BeanDefinitionRegistry registry) {
 		super.registerBeanDefinitions(importingClassMetadata, registry);
 	}
 

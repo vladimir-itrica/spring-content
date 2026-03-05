@@ -9,6 +9,7 @@ import internal.org.springframework.content.commons.utils.StoreCandidateComponen
 import internal.org.springframework.content.commons.utils.StoreUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.BeanFactory;
@@ -36,8 +37,8 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.data.config.ParsingUtils;
-import org.springframework.data.util.Pair;
 import org.springframework.data.core.TypeInformation;
+import org.springframework.data.util.Pair;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
@@ -46,10 +47,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -59,32 +57,22 @@ import static java.util.stream.Collectors.toList;
 public abstract class AbstractStoreBeanDefinitionRegistrar
         implements ImportBeanDefinitionRegistrar, EnvironmentAware, ResourceLoaderAware, BeanFactoryAware {
 
-    private static final Log LOGGER = LogFactory.getLog(AbstractStoreBeanDefinitionRegistrar.class);
-
     public static final String STORE_INTERFACE_PROPERTY = "storeInterface";
     public static final String DOMAIN_CLASS_PROPERTY = "domainClass";
     public static final String ID_CLASS_PROPERTY = "idClass";
     public static final String STORE_INTERFACE_CLASS_PROPERTY = "storeInterfaceClass";
-
-    private static String REPOSITORY_INTERFACE_POST_PROCESSOR = "internal.org.springframework.content.commons.utils.StoreInterfaceAwareBeanPostProcessor";
-
+    private static final Log LOGGER = LogFactory.getLog(AbstractStoreBeanDefinitionRegistrar.class);
     private Environment environment;
     private ResourceLoader resourceLoader;
     private BeanFactory beanFactory;
-    private boolean multiStoreMode;
-
-    @Override
-    public void setEnvironment(Environment env) {
-        this.environment = env;
-    }
 
     public Environment getEnvironment() {
         return this.environment;
     }
 
     @Override
-    public void setResourceLoader(ResourceLoader resourceLoader) {
-        this.resourceLoader = resourceLoader;
+    public void setEnvironment(@NonNull Environment env) {
+        this.environment = env;
     }
 
     protected ResourceLoader getResourceLoader() {
@@ -92,12 +80,17 @@ public abstract class AbstractStoreBeanDefinitionRegistrar
     }
 
     @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        this.beanFactory = beanFactory;
+    public void setResourceLoader(@NonNull ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
     }
 
     protected BeanFactory getBeanFactory() {
         return this.beanFactory;
+    }
+
+    @Override
+    public void setBeanFactory(@NonNull BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
     }
 
     /*
@@ -108,10 +101,12 @@ public abstract class AbstractStoreBeanDefinitionRegistrar
      * org.springframework.beans.factory.support.BeanDefinitionRegistry)
      */
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+    public void registerBeanDefinitions(@NonNull AnnotationMetadata importingClassMetadata,
+                                        @NonNull BeanDefinitionRegistry registry) {
         Assert.notNull(importingClassMetadata, "AnnotationMetadata must not be null!");
         Assert.notNull(registry, "BeanDefinitionRegistry must not be null!");
-        Assert.isTrue(registry instanceof ConfigurableListableBeanFactory, "BeanDefinitionRegistry must be instance of ConfigurableListableBeanFactory");
+        Assert.isTrue(registry instanceof ConfigurableListableBeanFactory,
+                "BeanDefinitionRegistry must be instance of ConfigurableListableBeanFactory");
 
         // Guard against calls for subclasses
         // if (importingClassMetadata.getAnnotationAttributes(getAnnotation().getName())
@@ -119,8 +114,8 @@ public abstract class AbstractStoreBeanDefinitionRegistrar
         // return;
         // }
 
-        BeanDefinition annotatedStoreEventHandlerDef = createBeanDefinition(AnnotatedStoreEventInvoker.class);
-        if (registry.containsBeanDefinition("annotatedStoreEventHandler") == false) {
+        BeanDefinition annotatedStoreEventHandlerDef = createBeanDefinition();
+        if (!registry.containsBeanDefinition("annotatedStoreEventHandler")) {
             registry.registerBeanDefinition("annotatedStoreEventHandler", annotatedStoreEventHandlerDef);
         }
 
@@ -129,9 +124,11 @@ public abstract class AbstractStoreBeanDefinitionRegistrar
         registerContentStoreBeanDefinitions(importingClassMetadata, registry);
     }
 
-    protected void registerContentStoreBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+    protected void registerContentStoreBeanDefinitions(AnnotationMetadata importingClassMetadata,
+                                                       BeanDefinitionRegistry registry) {
 
-        AnnotationAttributes attributes = new AnnotationAttributes(importingClassMetadata.getAnnotationAttributes(getAnnotation().getName()));
+        AnnotationAttributes attributes = new AnnotationAttributes(Objects
+                .requireNonNull(importingClassMetadata.getAnnotationAttributes(getAnnotation().getName())));
         String[] basePackages = this.getBasePackages(attributes, importingClassMetadata);
 
         StoreCandidateComponentProvider scanner = new StoreCandidateComponentProvider(false, environment);
@@ -161,7 +158,7 @@ public abstract class AbstractStoreBeanDefinitionRegistrar
             try {
                 storeClass = loadStoreClass((ConfigurableListableBeanFactory) registry, definition);
             } catch (ClassNotFoundException e) {
-                LOGGER.error(format("Instantiating store class %s", storeClass.getName()), e);
+                LOGGER.error("Failed to instantiate store class.", e);
             }
 
             builder.addConstructorArgValue(storeClass);
@@ -171,6 +168,7 @@ public abstract class AbstractStoreBeanDefinitionRegistrar
             String storeInterface = definition.getBeanClassName();
             String[] interfaces = new String[0];
             try {
+                assert storeInterface != null;
                 interfaces = metadataReaderFactory.getMetadataReader(storeInterface).getClassMetadata().getInterfaceNames();
             } catch (IOException e) {
                 LOGGER.error(format("Reading store interface %s", storeInterface), e);
@@ -183,15 +181,15 @@ public abstract class AbstractStoreBeanDefinitionRegistrar
             final Class<?> domainClass = types.getFirst().isPresent() ? types.getFirst().get() : null;
             final Class<?> idClass = types.getSecond();
 
-            Predicate isCandidate = new IsCandidatePredicate(this.getSignatureTypes());
+            Predicate<String> isCandidate = new IsCandidatePredicate(this.getSignatureTypes());
 
             final Class<? extends Store> storeClassFinal = storeClass;
             List<String> fragmentBeanNames = Arrays.stream(interfaces)
-                    .filter(isCandidate::test)
+                    .filter(isCandidate)
                     .map(iface -> detector.detectCustomImplementation(iface, storeInterface))
                     .peek(it -> registerStoreFragmentImplementation(registry, importingClassMetadata, it, storeClassFinal, domainClass, idClass))
                     .peek(it -> registerStoreFragment(registry, importingClassMetadata, it))
-                    .map(it -> it.getFragmentBeanName())
+                    .map(StoreFragmentDefinition::getFragmentBeanName)
                     .collect(Collectors.toList());
 
             BeanDefinitionBuilder fragmentsBuilder = BeanDefinitionBuilder.rootBeanDefinition(StoreFragmentsFactoryBean.class);
@@ -211,9 +209,9 @@ public abstract class AbstractStoreBeanDefinitionRegistrar
                 ClassUtils.getPackageName(importingClassMetadata.getClassName())});
     }
 
-    protected BeanDefinition createBeanDefinition(Class<?> beanType) {
+    protected BeanDefinition createBeanDefinition() {
         GenericBeanDefinition beanDef = new GenericBeanDefinition();
-        beanDef.setBeanClass(beanType);
+        beanDef.setBeanClass(AnnotatedStoreEventInvoker.class);
 
         MutablePropertyValues values = new MutablePropertyValues();
         beanDef.setPropertyValues(values);
@@ -221,8 +219,10 @@ public abstract class AbstractStoreBeanDefinitionRegistrar
         return beanDef;
     }
 
-    protected Class<? extends Store> loadStoreClass(ConfigurableListableBeanFactory registry, BeanDefinition definition) throws ClassNotFoundException {
-        Class<?> candidateStoreClass = ClassUtils.forName(definition.getBeanClassName(), registry.getBeanClassLoader());
+    protected Class<? extends Store> loadStoreClass(ConfigurableListableBeanFactory registry,
+                                                    BeanDefinition definition) throws ClassNotFoundException {
+        Class<?> candidateStoreClass = ClassUtils.forName(Objects.requireNonNull(definition.getBeanClassName()),
+                registry.getBeanClassLoader());
         if (!Store.class.isAssignableFrom(candidateStoreClass) && !ReactiveContentStore.class.isAssignableFrom(candidateStoreClass) &&
                 !org.springframework.content.commons.repository.Store.class.isAssignableFrom(candidateStoreClass) && !org.springframework.content.commons.repository.ReactiveContentStore.class.isAssignableFrom(candidateStoreClass)) {
             throw new IllegalStateException(String.format("Store class %s is not assignable from Store or ReactiveContentStore", definition.getBeanClassName()));
@@ -231,7 +231,6 @@ public abstract class AbstractStoreBeanDefinitionRegistrar
     }
 
     protected void createOperationsBean(BeanDefinitionRegistry registry) {
-        return;
     }
 
     private void registerStoreFragmentImplementation(BeanDefinitionRegistry registry, AnnotationMetadata source, StoreFragmentDefinition fragmentDefinition, Class<?> storeInterfaceClass, Class<?> domainClass, Class<?> idClass) {
@@ -245,51 +244,58 @@ public abstract class AbstractStoreBeanDefinitionRegistrar
         ((AbstractBeanDefinition) fragmentDefinition.getBeanDefinition()).setSource(source);
 
         try {
-            Class<?> ifaceClass = ClassUtils.forName(fragmentDefinition.getInterfaceName(), ((ConfigurableListableBeanFactory) registry).getBeanClassLoader());
-            Class<?> implClass = ClassUtils.forName(fragmentDefinition.getBeanDefinition().getBeanClassName(), ((ConfigurableListableBeanFactory) registry).getBeanClassLoader());
-            Class<?> storeClass = ClassUtils.forName(fragmentDefinition.getStoreInterfaceName(), ((ConfigurableListableBeanFactory) registry).getBeanClassLoader());
+            Class<?> ifaceClass = ClassUtils.forName(fragmentDefinition.getInterfaceName(),
+                    ((ConfigurableListableBeanFactory) registry).getBeanClassLoader());
+            Class<?> implClass = ClassUtils.forName(Objects.requireNonNull(
+                            fragmentDefinition.getBeanDefinition().getBeanClassName()),
+                    ((ConfigurableListableBeanFactory) registry).getBeanClassLoader());
+            Class<?> storeClass = ClassUtils.forName(fragmentDefinition.getStoreInterfaceName(),
+                    ((ConfigurableListableBeanFactory) registry).getBeanClassLoader());
 
             Method method = ReflectionUtils.findMethod(implClass, "setGenericArguments", Class[].class);
             if (method != null) {
-                List<TypeInformation<?>> types = TypeInformation.of(storeClass).getSuperTypeInformation(ifaceClass).getTypeArguments();
+                List<TypeInformation<?>> types = Objects.requireNonNull(
+                        TypeInformation.of(storeClass).getSuperTypeInformation(ifaceClass)).getTypeArguments();
                 List<Class<?>> genericArguments = types.stream().map(TypeInformation::getType).collect(toList());
-                fragmentDefinition.getBeanDefinition().getPropertyValues().add("genericArguments", genericArguments.toArray(new Class[]{}));
+                fragmentDefinition.getBeanDefinition().getPropertyValues()
+                        .add("genericArguments", genericArguments.toArray(new Class[]{}));
             }
         } catch (ClassNotFoundException e) {
-
             LOGGER.error("Failed setting fragment generic arguments", e);
         }
 
         try {
-            Class<?> implClass = ClassUtils.forName(fragmentDefinition.getBeanDefinition().getBeanClassName(), ((ConfigurableListableBeanFactory) registry).getBeanClassLoader());
+            Class<?> implClass = ClassUtils.forName(Objects.requireNonNull(
+                            fragmentDefinition.getBeanDefinition().getBeanClassName()),
+                    ((ConfigurableListableBeanFactory) registry).getBeanClassLoader());
             Method method = ReflectionUtils.findMethod(implClass, "setDomainClass", Class.class);
             if (method != null) {
                 fragmentDefinition.getBeanDefinition().getPropertyValues().add(DOMAIN_CLASS_PROPERTY, domainClass);
             }
         } catch (ClassNotFoundException e) {
-
             LOGGER.error("Failed setting fragment domain class", e);
         }
 
         try {
-            Class<?> implClass = ClassUtils.forName(fragmentDefinition.getBeanDefinition().getBeanClassName(), ((ConfigurableListableBeanFactory) registry).getBeanClassLoader());
+            Class<?> implClass = ClassUtils.forName(fragmentDefinition.getBeanDefinition().getBeanClassName(),
+                    ((ConfigurableListableBeanFactory) registry).getBeanClassLoader());
             Method method = ReflectionUtils.findMethod(implClass, "setIdClass", Class.class);
             if (method != null) {
                 fragmentDefinition.getBeanDefinition().getPropertyValues().add(ID_CLASS_PROPERTY, idClass);
             }
         } catch (ClassNotFoundException e) {
-
             LOGGER.error("Failed setting fragment ID class", e);
         }
 
         try {
-            Class<?> implClass = ClassUtils.forName(fragmentDefinition.getBeanDefinition().getBeanClassName(), ((ConfigurableListableBeanFactory) registry).getBeanClassLoader());
+            Class<?> implClass = ClassUtils.forName(fragmentDefinition.getBeanDefinition().getBeanClassName(),
+                    ((ConfigurableListableBeanFactory) registry).getBeanClassLoader());
             Method method = ReflectionUtils.findMethod(implClass, "setStoreInterfaceClass", Class.class);
             if (method != null) {
-                fragmentDefinition.getBeanDefinition().getPropertyValues().add(STORE_INTERFACE_CLASS_PROPERTY, storeInterfaceClass);
+                fragmentDefinition.getBeanDefinition().getPropertyValues()
+                        .add(STORE_INTERFACE_CLASS_PROPERTY, storeInterfaceClass);
             }
         } catch (ClassNotFoundException e) {
-
             LOGGER.error("Failed setting fragment ID class", e);
         }
 
@@ -325,6 +331,29 @@ public abstract class AbstractStoreBeanDefinitionRegistrar
         return multipleOldModulesFound || multipleNewModulesFound;
     }
 
+    /**
+     * Return the annotation to obtain configuration information from
+     *
+     * @return configuration annotation
+     */
+    protected abstract Class<? extends Annotation> getAnnotation();
+
+    /**
+     * Return the storage module's signature types
+     *
+     * @return array of classes that represent signature types
+     */
+    protected abstract Class<?>[] getSignatureTypes();
+
+    /**
+     * Return the storage module's override property value
+     *
+     * @return the storage modules' override property value
+     */
+    protected String getOverridePropertyValue() {
+        return "";
+    }
+
     private static class IsCandidatePredicate implements Predicate<String> {
 
         private final Class<?>[] additionalTypes;
@@ -357,28 +386,5 @@ public abstract class AbstractStoreBeanDefinitionRegistrar
 
             return true;
         }
-    }
-
-    /**
-     * Return the annotation to obtain configuration information from
-     *
-     * @return configuration annotation
-     */
-    protected abstract Class<? extends Annotation> getAnnotation();
-
-    /**
-     * Return the storage module's signature types
-     *
-     * @return array of classes that represent signature types
-     */
-    protected abstract Class<?>[] getSignatureTypes();
-
-    /**
-     * Return the storage module's override property value
-     *
-     * @return the storage modules' override property value
-     */
-    protected String getOverridePropertyValue() {
-        return "";
     }
 }
