@@ -171,7 +171,7 @@ Content Resource's associated with https://docs.oracle.com/javaee/7/tutorial/per
 Spring Data Entities.
 
 As a result any `ContentStore` operation that is attempted on an out-of-date Entity, that with an out-of-date @Version
-value, will throw `javax.persistence.OptimisticLockException`.
+value, will throw `jakarta.persistence.OptimisticLockException`.
 
 In addition, any `ContentStore` operation on an up-to-date Entity's content will cause the @Version value to be
 incremented rendering all other copies out-of-date and forcing those to be re-fetched.

@@ -40,12 +40,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 public class DefaultJpaStoreImpl<S, SID extends Serializable>
-		implements org.springframework.content.commons.repository.Store<SID>,
+        implements org.springframework.content.commons.repository.Store<SID>,
         org.springframework.content.commons.repository.AssociativeStore<S, SID>,
         org.springframework.content.commons.repository.ContentStore<S, SID>,
         ContentStore<S, SID> {
 
-	private static Log logger = LogFactory.getLog(DefaultJpaStoreImpl.class);
+    private static Log logger = LogFactory.getLog(DefaultJpaStoreImpl.class);
 
     private ResourceLoader loader;
 
@@ -53,29 +53,29 @@ public class DefaultJpaStoreImpl<S, SID extends Serializable>
 
     private int copyBufferSize = 4096;
 
-	public DefaultJpaStoreImpl(ResourceLoader blobResourceLoader, MappingContext mappingContext, int copyBufferSize) {
-		this.loader = blobResourceLoader;
-		this.mappingContext = mappingContext;
-		if (this.mappingContext == null) {
-		    this.mappingContext = new MappingContext("/", ".");
-		}
+    public DefaultJpaStoreImpl(ResourceLoader blobResourceLoader, MappingContext mappingContext, int copyBufferSize) {
+        this.loader = blobResourceLoader;
+        this.mappingContext = mappingContext;
+        if (this.mappingContext == null) {
+            this.mappingContext = new MappingContext("/", ".");
+        }
         this.copyBufferSize = copyBufferSize;
-	}
+    }
 
-	@Override
-	public Resource getResource(SID id) {
-		return loader.getResource(id.toString());
-	}
+    @Override
+    public Resource getResource(SID id) {
+        return loader.getResource(id.toString());
+    }
 
-	@Override
-	public Resource getResource(S entity) {
-		Object contentId = BeanUtils.getFieldWithAnnotation(entity, ContentId.class);
-		if (contentId == null) {
-			return null;
-		}
+    @Override
+    public Resource getResource(S entity) {
+        Object contentId = BeanUtils.getFieldWithAnnotation(entity, ContentId.class);
+        if (contentId == null) {
+            return null;
+        }
 
-		return loader.getResource(contentId.toString());
-	}
+        return loader.getResource(contentId.toString());
+    }
 
     @Override
     public Resource getResource(S entity, PropertyPath propertyPath) {
@@ -119,8 +119,7 @@ public class DefaultJpaStoreImpl<S, SID extends Serializable>
             public boolean matches(TypeDescriptor descriptor) {
                 for (Annotation annotation : descriptor.getAnnotations()) {
                     String canonicalName = annotation.annotationType().getCanonicalName();
-                    if ("javax.persistence.Id".equals(canonicalName)
-                            || "jakarta.persistence.Id".equals(canonicalName)
+                    if ("jakarta.persistence.Id".equals(canonicalName)
                             || "org.springframework.data.annotation.Id".equals(canonicalName)) {
                         return false;
                     }
@@ -130,45 +129,43 @@ public class DefaultJpaStoreImpl<S, SID extends Serializable>
         });
     }
 
-	@Override
-	public void associate(S entity, SID id) {
-		BeanUtils.setFieldWithAnnotation(entity, ContentId.class, id.toString());
-	}
+    @Override
+    public void associate(S entity, SID id) {
+        BeanUtils.setFieldWithAnnotation(entity, ContentId.class, id.toString());
+    }
 
-	@Override
-	public void unassociate(S entity) {
-		BeanUtils.setFieldWithAnnotationConditionally(entity, ContentId.class, null,
-				new Condition() {
-					@Override
-					public boolean matches(Field field) {
-						for (Annotation annotation : field.getAnnotations()) {
+    @Override
+    public void unassociate(S entity) {
+        BeanUtils.setFieldWithAnnotationConditionally(entity, ContentId.class, null,
+                new Condition() {
+                    @Override
+                    public boolean matches(Field field) {
+                        for (Annotation annotation : field.getAnnotations()) {
                             String canonicalName = annotation.annotationType().getCanonicalName();
-                            if ("javax.persistence.Id".equals(canonicalName)
-                                    || "jakarta.persistence.Id".equals(canonicalName)
-									|| "org.springframework.data.annotation.Id".equals(canonicalName)) {
-								return false;
-							}
-						}
-						return true;
-					}
-				});
-	}
+                            if ("jakarta.persistence.Id".equals(canonicalName)
+                                    || "org.springframework.data.annotation.Id".equals(canonicalName)) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                });
+    }
 
-	@Override
-	public InputStream getContent(S entity) {
-      Object id = BeanUtils.getFieldWithAnnotation(entity, ContentId.class);
-      if (id == null) {
-          return null;
-      }
-      Resource resource = loader.getResource(id.toString());
-      try {
-          return resource.getInputStream();
-      }
-      catch (IOException e) {
-          logger.error(format("Unexpected error getting content for entity %s", entity), e);
-          throw new StoreAccessException(format("Getting content for entity %s", entity), e);
-      }
-	}
+    @Override
+    public InputStream getContent(S entity) {
+        Object id = BeanUtils.getFieldWithAnnotation(entity, ContentId.class);
+        if (id == null) {
+            return null;
+        }
+        Resource resource = loader.getResource(id.toString());
+        try {
+            return resource.getInputStream();
+        } catch (IOException e) {
+            logger.error(format("Unexpected error getting content for entity %s", entity), e);
+            throw new StoreAccessException(format("Getting content for entity %s", entity), e);
+        }
+    }
 
     @Override
     public InputStream getContent(S entity, PropertyPath propertyPath) {
@@ -184,16 +181,15 @@ public class DefaultJpaStoreImpl<S, SID extends Serializable>
         Resource resource = loader.getResource(id.toString());
         try {
             return resource.getInputStream();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             logger.error(format("Unexpected error getting content for entity %s", entity), e);
             throw new StoreAccessException(format("Getting content for entity %s", entity), e);
         }
     }
 
-	@Transactional
-	@Override
-	public S setContent(S entity, InputStream content) {
+    @Transactional
+    @Override
+    public S setContent(S entity, InputStream content) {
 
         Object contentId = BeanUtils.getFieldWithAnnotation(entity, ContentId.class);
         if (contentId == null) {
@@ -205,34 +201,32 @@ public class DefaultJpaStoreImpl<S, SID extends Serializable>
             BeanUtils.setFieldWithAnnotation(entity, ContentId.class, convertedId);
         }
 
-		Resource resource = getResource(entity);
-		if (resource == null) {
-		    return entity;
-		}
+        Resource resource = getResource(entity);
+        if (resource == null) {
+            return entity;
+        }
 
-		OutputStream os = null;
-		long contentLen = -1L;
-		try {
-			if (resource instanceof WritableResource) {
-				os = ((WritableResource) resource).getOutputStream();
-				contentLen = IOUtils.copyLarge(content, os, new byte[this.copyBufferSize]);
-			}
-		}
-		catch (IOException e) {
-			logger.error(format("Unexpected error setting content for entity %s", entity), e);
-			throw new StoreAccessException(format("Setting content for entity %s", entity), e);
-		}
-		finally {
-			IOUtils.closeQuietly(content);
-			IOUtils.closeQuietly(os);
-		}
+        OutputStream os = null;
+        long contentLen = -1L;
+        try {
+            if (resource instanceof WritableResource) {
+                os = ((WritableResource) resource).getOutputStream();
+                contentLen = IOUtils.copyLarge(content, os, new byte[this.copyBufferSize]);
+            }
+        } catch (IOException e) {
+            logger.error(format("Unexpected error setting content for entity %s", entity), e);
+            throw new StoreAccessException(format("Setting content for entity %s", entity), e);
+        } finally {
+            IOUtils.closeQuietly(content);
+            IOUtils.closeQuietly(os);
+        }
 
-		BeanUtils.setFieldWithAnnotation(entity, ContentId.class,
-				((BlobResource) resource).getId());
-		BeanUtils.setFieldWithAnnotation(entity, ContentLength.class, contentLen);
+        BeanUtils.setFieldWithAnnotation(entity, ContentId.class,
+                ((BlobResource) resource).getId());
+        BeanUtils.setFieldWithAnnotation(entity, ContentLength.class, contentLen);
 
-		return entity;
-	}
+        return entity;
+    }
 
     @Transactional
     @Override
@@ -274,7 +268,7 @@ public class DefaultJpaStoreImpl<S, SID extends Serializable>
 
             Object convertedId = convertToExternalContentIdType(newId, property.getContentIdType(entity));
 
-            setContentId(entity, propertyPath, (SID)convertedId, null);
+            setContentId(entity, propertyPath, (SID) convertedId, null);
         }
 
         Resource resource = getResource(entity, propertyPath);
@@ -289,12 +283,10 @@ public class DefaultJpaStoreImpl<S, SID extends Serializable>
                 os = ((WritableResource) resource).getOutputStream();
                 readLen = IOUtils.copyLarge(content, os, new byte[this.copyBufferSize]);
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             logger.error(format("Unexpected error setting content for entity %s", entity), e);
             throw new StoreAccessException(format("Setting content for entity %s", entity), e);
-        }
-        finally {
+        } finally {
             IOUtils.closeQuietly(content);
             IOUtils.closeQuietly(os);
         }
@@ -311,15 +303,15 @@ public class DefaultJpaStoreImpl<S, SID extends Serializable>
     }
 
     @Transactional
-	@Override
-	public S setContent(S entity, Resource resourceContent) {
-		try {
-			return this.setContent(entity, resourceContent.getInputStream());
-		} catch (IOException e) {
-			logger.error(format("Unexpected error setting content for entity %s", entity), e);
-			throw new StoreAccessException(format("Setting content for entity %s", entity), e);
-		}
-	}
+    @Override
+    public S setContent(S entity, Resource resourceContent) {
+        try {
+            return this.setContent(entity, resourceContent.getInputStream());
+        } catch (IOException e) {
+            logger.error(format("Unexpected error setting content for entity %s", entity), e);
+            throw new StoreAccessException(format("Setting content for entity %s", entity), e);
+        }
+    }
 
     @Transactional
     @Override
@@ -332,30 +324,30 @@ public class DefaultJpaStoreImpl<S, SID extends Serializable>
         }
     }
 
-	@Transactional
-	@Override
-	public S unsetContent(S metadata) {
-		Object id = BeanUtils.getFieldWithAnnotation(metadata, ContentId.class);
-		if (id == null) {
-			id = -1L;
-		}
-		Resource resource = loader.getResource(id.toString());
-		if (resource instanceof DeletableResource) {
-			try {
-				((DeletableResource) resource).delete();
-			} catch (Exception e) {
-				logger.error(format("Unexpected error unsetting content for entity %s", metadata));
-				throw new StoreAccessException(format("Unsetting content for entity %s", metadata), e);
-			}
-		}
-		unassociate(metadata);
+    @Transactional
+    @Override
+    public S unsetContent(S metadata) {
+        Object id = BeanUtils.getFieldWithAnnotation(metadata, ContentId.class);
+        if (id == null) {
+            id = -1L;
+        }
+        Resource resource = loader.getResource(id.toString());
+        if (resource instanceof DeletableResource) {
+            try {
+                ((DeletableResource) resource).delete();
+            } catch (Exception e) {
+                logger.error(format("Unexpected error unsetting content for entity %s", metadata));
+                throw new StoreAccessException(format("Unsetting content for entity %s", metadata), e);
+            }
+        }
+        unassociate(metadata);
         Class<?> contentLenType = BeanUtils.getFieldWithAnnotationType(metadata, ContentLength.class);
         if (contentLenType != null) {
             BeanUtils.setFieldWithAnnotation(metadata, ContentLength.class, BeanUtils.getDefaultValueForType(contentLenType));
         }
 
-		return metadata;
-	}
+        return metadata;
+    }
 
     @Transactional
     @Override
@@ -401,17 +393,17 @@ public class DefaultJpaStoreImpl<S, SID extends Serializable>
     }
 
     protected Object convertToExternalContentIdType(S property, Object contentId) {
-		ConversionService converter = new DefaultConversionService();
-		if (converter.canConvert(TypeDescriptor.forObject(contentId),
-				TypeDescriptor.valueOf(BeanUtils.getFieldWithAnnotationType(property,
-						ContentId.class)))) {
-			contentId = converter.convert(contentId, TypeDescriptor.forObject(contentId),
-					TypeDescriptor.valueOf(BeanUtils.getFieldWithAnnotationType(property,
-							ContentId.class)));
-			return contentId;
-		}
-		return contentId.toString();
-	}
+        ConversionService converter = new DefaultConversionService();
+        if (converter.canConvert(TypeDescriptor.forObject(contentId),
+                TypeDescriptor.valueOf(BeanUtils.getFieldWithAnnotationType(property,
+                        ContentId.class)))) {
+            contentId = converter.convert(contentId, TypeDescriptor.forObject(contentId),
+                    TypeDescriptor.valueOf(BeanUtils.getFieldWithAnnotationType(property,
+                            ContentId.class)));
+            return contentId;
+        }
+        return contentId.toString();
+    }
 
     private Object convertToExternalContentIdType(Object contentId, TypeDescriptor contentIdType) {
         ConversionService converter = new DefaultConversionService();
@@ -447,6 +439,6 @@ public class DefaultJpaStoreImpl<S, SID extends Serializable>
         if (property == null) {
             throw new StoreAccessException(String.format("Content property %s does not exist", propertyPath.getName()));
         }
-        property.setContentId(entity, contentId,  null);
+        property.setContentId(entity, contentId, null);
     }
 }
