@@ -533,7 +533,7 @@ public class FilesystemStoreIT {
 	    File filesystemRoot() {
 	        try {
 	            return Files.createTempDirectory("").toFile();
-	        } catch (IOException ioe) {}
+	        } catch (IOException ignored) {}
 	        return null;
 	    }
 
