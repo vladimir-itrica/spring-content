@@ -5,14 +5,13 @@ import org.springframework.content.commons.store.ReactiveContentStore;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 
-public class ReactiveStoreImpl implements ReactiveContentStore<Object, Serializable> {
+public class ReactiveStoreImpl implements ReactiveContentStore<Object> {
 
-    private final ReactiveContentStore<Object, Serializable> delegate;
+    private final ReactiveContentStore<Object> delegate;
 
-    public ReactiveStoreImpl(ReactiveContentStore<Object, Serializable> delegate) {
+    public ReactiveStoreImpl(ReactiveContentStore<Object> delegate) {
         this.delegate = delegate;
     }
 

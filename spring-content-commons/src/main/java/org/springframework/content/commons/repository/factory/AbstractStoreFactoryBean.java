@@ -257,7 +257,7 @@ public abstract class AbstractStoreFactoryBean implements BeanFactoryAware, Init
         if (!ClassUtils.getAllInterfaces(storeInterface).contains(ReactiveContentStore.class) && !ClassUtils.getAllInterfaces(storeInterface).contains(org.springframework.content.commons.repository.ReactiveContentStore.class)) {
             storeFragments.add(new StoreFragment(storeInterface, new StoreImpl(storeInterface, (org.springframework.content.commons.repository.Store<Serializable>) target, publisher, Paths.get(System.getProperty("java.io.tmpdir")))));
         } else {
-            storeFragments.add(new StoreFragment(storeInterface, new ReactiveStoreImpl((ReactiveContentStore<Object, Serializable>) target)));
+            storeFragments.add(new StoreFragment(storeInterface, new ReactiveStoreImpl((ReactiveContentStore<Object>) target)));
         }
         interceptor.setStoreFragments(storeFragments);
 

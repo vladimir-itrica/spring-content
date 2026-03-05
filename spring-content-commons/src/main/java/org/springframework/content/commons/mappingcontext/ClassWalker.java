@@ -2,8 +2,6 @@ package org.springframework.content.commons.mappingcontext;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.content.commons.utils.ContentPropertyUtils;
 import org.springframework.util.StringUtils;
 

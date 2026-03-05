@@ -13,12 +13,12 @@ public final class DomainObjectUtils {
     static {
         try {
             JAVAX_PERSISTENCE_ID_CLASS_PRESENT = DomainObjectUtils.class.getClassLoader().loadClass("jakarta.persistence.Id") != null;
-        } catch (ClassNotFoundException e) {}
+        } catch (ClassNotFoundException ignored) {}
     }
 
     private DomainObjectUtils() {}
 
-    public static final Object getId(Object entity) {
+    public static Object getId(Object entity) {
 
         Object id = null;
 
@@ -48,7 +48,7 @@ public final class DomainObjectUtils {
         return id;
     }
 
-    public static final Field getIdField(Class<?> domainClass) {
+    public static Field getIdField(Class<?> domainClass) {
 
         if (JAVAX_PERSISTENCE_ID_CLASS_PRESENT && BeanUtils.findFieldWithAnnotation(domainClass, jakarta.persistence.Id.class) != null) {
             return BeanUtils.findFieldWithAnnotation(domainClass, jakarta.persistence.Id.class);

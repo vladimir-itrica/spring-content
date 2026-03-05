@@ -4,8 +4,8 @@ import org.springframework.content.commons.store.AssociativeStore;
 import org.springframework.content.commons.store.ContentStore;
 import org.springframework.content.commons.store.ReactiveContentStore;
 import org.springframework.content.commons.store.Store;
-import org.springframework.data.util.Pair;
 import org.springframework.data.core.TypeInformation;
+import org.springframework.data.util.Pair;
 import org.springframework.util.Assert;
 
 import java.io.Serializable;
@@ -16,7 +16,8 @@ public final class StoreInterfaceUtils {
     private StoreInterfaceUtils() {
     }
 
-    public static Pair<Optional<Class<?>>, Class<? extends Serializable>> getStoreTypes(Class<? extends org.springframework.content.commons.repository.Store> storeClass) {
+    public static Pair<Optional<Class<?>>, Class<? extends Serializable>> getStoreTypes(
+            Class<? extends org.springframework.content.commons.repository.Store> storeClass) {
         List<TypeInformation<?>> types = null;
 
         Class<?>[] candidateStoreClasses = new Class<?>[]{
@@ -33,13 +34,14 @@ public final class StoreInterfaceUtils {
             try {
                 types = TypeInformation.of(storeClass).getRequiredSuperTypeInformation(candidateStoreClass).getTypeArguments();
                 break;
-            } catch (IllegalArgumentException iae) {
+            } catch (IllegalArgumentException ignored) {
             }
         }
 
-        Optional<Class<?>> domainClass = null;
+        Optional<Class<?>> domainClass = Optional.empty();
         Class<? extends Serializable> idClass = null;
 
+        assert types != null;
         if (types.size() == 2) {
             domainClass = Optional.of(types.get(0).getType());
             Assert.isAssignable(Serializable.class, types.get(1).getType());

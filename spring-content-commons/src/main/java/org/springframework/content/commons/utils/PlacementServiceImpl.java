@@ -1,5 +1,7 @@
 package org.springframework.content.commons.utils;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.content.commons.config.ContentPropertyInfo;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.TypeDescriptor;
@@ -7,15 +9,15 @@ import org.springframework.core.convert.converter.ConditionalConverter;
 import org.springframework.core.convert.converter.ConditionalGenericConverter;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.DefaultConversionService;
-import org.springframework.lang.Nullable;
 
 import java.util.Collections;
 import java.util.Set;
 
 public class PlacementServiceImpl extends DefaultConversionService implements PlacementService {
 
-    public static final String CONTENT_PROPERTY_INFO_GENERIC_PARAMETERS_MISSING_MESSAGE = "Unable to determine entity type <S> and content id type <SID> for " +
-            ContentPropertyInfo.class.getName() + "; does the class parameterize those types?";
+    public static final String CONTENT_PROPERTY_INFO_GENERIC_PARAMETERS_MISSING_MESSAGE =
+            "Unable to determine entity type <S> and content id type <SID> for " +
+                    ContentPropertyInfo.class.getName() + "; does the class parameterize those types?";
 
     public PlacementServiceImpl() {
         // Issue #57
@@ -23,15 +25,14 @@ public class PlacementServiceImpl extends DefaultConversionService implements Pl
         // Remove the FallbackObjectToStringConverter (Object -> String).  This converter can cause issues with Entities
         // with String-arg Constructors.  Because the conversion service considers class hierarchies this converter will
         // match the canConvert(entity.getClass(), String.class) call in getResource(S entity) and be used (incorrectly)
-        // to determine the entity's location.  Since there is no way to turn of the hierachy matching we remove this
+        // to determine the entity's location.  Since there is no way to turn of the hierarchy matching we remove this
         // converter instead forcing only matching on the domain object class -> String class.
         this.removeConvertible(Object.class, String.class);
     }
 
     // Duplicate of private org.springframework.core.convert.support.GenericConversionService::getRequiredTypeInfo
-    @Nullable
-    private ResolvableType[] getRequiredGenericParameters(Class<?> converterClass, Class<?> genericIfc) {
-        ResolvableType resolvableType = ResolvableType.forClass(converterClass).as(genericIfc);
+    private ResolvableType[] getRequiredGenericParameters(Class<?> converterClass) {
+        ResolvableType resolvableType = ResolvableType.forClass(converterClass).as(Converter.class);
         ResolvableType[] generics = resolvableType.getGenerics();
         if (generics.length < 2) {
             return null;
@@ -46,7 +47,7 @@ public class PlacementServiceImpl extends DefaultConversionService implements Pl
 
     @Override
     public void addConverter(Converter<?, ?> converter) {
-        ResolvableType[] generics = getRequiredGenericParameters(converter.getClass(), Converter.class);
+        ResolvableType[] generics = getRequiredGenericParameters(converter.getClass());
         if (generics == null) {
             throw new IllegalArgumentException("Unable to determine source type <S> and target type <T> for your " +
                     "Converter [" + converter.getClass().getName() + "]; does the class parameterize those types?");
@@ -73,7 +74,8 @@ public class PlacementServiceImpl extends DefaultConversionService implements Pl
     }
 
     @Override
-    public <S, T> void addConverter(Class<S> sourceType, Class<T> targetType, Converter<? super S, ? extends T> converter) {
+    public <S, T> void addConverter(@NonNull Class<S> sourceType, @NonNull Class<T> targetType,
+                                    @NonNull Converter<? super S, ? extends T> converter) {
         if (sourceType == ContentPropertyInfo.class) {
             throw new IllegalArgumentException("Adding of" + ContentPropertyInfo.class.getName() +
                     " converter is not supported by this method; use addConverter(Converter<?, ?> converter) instead");
@@ -107,7 +109,9 @@ public class PlacementServiceImpl extends DefaultConversionService implements Pl
         private final Class<?> entityClass;
         private final Class<?> contentIdClass;
 
-        public ContentPropertyInfoConverterAdapter(Converter<?, ?> converter, ResolvableType sourceType, ResolvableType targetType, Class<?> entityClass, Class<?> contentIdClass) {
+        public ContentPropertyInfoConverterAdapter(Converter<?, ?> converter, ResolvableType sourceType,
+                                                   ResolvableType targetType, Class<?> entityClass,
+                                                   Class<?> contentIdClass) {
             this.converter = (Converter<Object, Object>) converter;
             this.typeInfo = new ConvertiblePair(sourceType.toClass(), targetType.toClass());
             this.targetType = targetType;
@@ -121,7 +125,7 @@ public class PlacementServiceImpl extends DefaultConversionService implements Pl
         }
 
         @Override
-        public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+        public boolean matches(@NonNull TypeDescriptor sourceType, @NonNull TypeDescriptor targetType) {
             // targetType checks (same as in GenericConversionService.ConverterAdapter)
             // Check raw type first...
             if (this.typeInfo.getTargetType() != targetType.getObjectType()) {
@@ -136,12 +140,12 @@ public class PlacementServiceImpl extends DefaultConversionService implements Pl
 
             // sourceType (ContentPropertyInfo) checks
             ResolvableType[] generics = sourceType.getResolvableType().getGenerics();
-            Class<?> sourceEntityClass  = generics[0].resolve();
-            if (sourceEntityClass == null || !entityClass.isAssignableFrom(sourceEntityClass)){
+            Class<?> sourceEntityClass = generics[0].resolve();
+            if (sourceEntityClass == null || !entityClass.isAssignableFrom(sourceEntityClass)) {
                 return false;
             }
-            Class<?> sourceContentIdClass  = generics[1].resolve();
-            if (sourceContentIdClass == null || !contentIdClass.isAssignableFrom(sourceContentIdClass)){
+            Class<?> sourceContentIdClass = generics[1].resolve();
+            if (sourceContentIdClass == null || !contentIdClass.isAssignableFrom(sourceContentIdClass)) {
                 return false;
             }
             // return true;
@@ -152,7 +156,8 @@ public class PlacementServiceImpl extends DefaultConversionService implements Pl
 
         @Override
         @Nullable
-        public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+        public Object convert(@Nullable Object source, @Nullable TypeDescriptor sourceType,
+                              @NonNull TypeDescriptor targetType) {
             if (source == null) {
                 return convertNullSource(sourceType, targetType);
             }
