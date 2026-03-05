@@ -24,7 +24,8 @@ public class FileServiceImpl implements FileService {
             throw new IOException("Not a directory");
         }
         File dir = from;
-        while (dir != null && dir.listFiles().length == 0 && !dir.equals(to)) {
+        File[] fileList;
+        while (dir != null && (fileList = dir.listFiles()) != null && fileList.length == 0 && !dir.equals(to)) {
             File temp = dir.getParentFile();
             dir.delete();
             dir = temp;
@@ -38,7 +39,8 @@ public class FileServiceImpl implements FileService {
             throw new IOException("Not a directory");
         }
         File dir = from;
-        while (dir != null && dir.listFiles() != null && dir.listFiles().length == 0) {
+        File[] fileList;
+        while (dir != null && (fileList = dir.listFiles()) != null && fileList.length == 0) {
             File temp = dir.getParentFile();
             dir.delete();
             dir = temp;
