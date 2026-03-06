@@ -1,6 +1,6 @@
 package it.typesupport.model;
 
-import org.springframework.content.commons.repository.ContentStore;
+import org.springframework.content.commons.store.ContentStore;
 
 import java.util.UUID;
 
