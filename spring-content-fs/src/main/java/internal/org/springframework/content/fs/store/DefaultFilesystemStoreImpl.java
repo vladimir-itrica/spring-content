@@ -18,7 +18,6 @@ import org.springframework.content.commons.store.StoreAccessException;
 import org.springframework.content.commons.store.UnsetContentParams;
 import org.springframework.content.commons.store.UnsetContentParams.Disposition;
 import org.springframework.content.commons.utils.BeanUtils;
-import org.springframework.content.commons.utils.Condition;
 import org.springframework.content.commons.utils.FileService;
 import org.springframework.content.commons.utils.PlacementService;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
@@ -30,147 +29,134 @@ import org.springframework.util.Assert;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.util.UUID;
 
 import static java.lang.String.format;
 
 @Transactional(readOnly = true)
 public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
-		implements Store<SID>, AssociativeStore<S, SID>, ContentStore<S, SID>,
-		org.springframework.content.commons.store.ContentStore<S, SID> {
+        implements Store<SID>, AssociativeStore<S, SID>, ContentStore<S, SID>,
+        org.springframework.content.commons.store.ContentStore<S, SID> {
 
-	private static Log logger = LogFactory.getLog(DefaultFilesystemStoreImpl.class);
+    private static final Log logger = LogFactory.getLog(DefaultFilesystemStoreImpl.class);
 
-	private FileSystemResourceLoader loader;
-	private PlacementService placer;
-	private FileService fileService;
-    private MappingContext mappingContext/* = new MappingContext("/", ".")*/;
+    private final FileSystemResourceLoader loader;
+    private final PlacementService placer;
+    private final FileService fileService;
+    private MappingContext mappingContext;
 
-	public DefaultFilesystemStoreImpl(FileSystemResourceLoader loader, MappingContext mappingContext, PlacementService conversion, FileService fileService) {
-		this.loader = loader;
-		this.placer = conversion;
-		this.fileService = fileService;
-		this.mappingContext = mappingContext;
-		if (this.mappingContext == null) {
-		    this.mappingContext = new MappingContext("/", ".");
-		}
-	}
+    public DefaultFilesystemStoreImpl(FileSystemResourceLoader loader, MappingContext mappingContext,
+                                      PlacementService conversion, FileService fileService) {
+        this.loader = loader;
+        this.placer = conversion;
+        this.fileService = fileService;
+        this.mappingContext = mappingContext;
+        if (this.mappingContext == null) {
+            this.mappingContext = new MappingContext("/", ".");
+        }
+    }
 
-	@Override
-	public Resource getResource(SID id) {
-		String location = placer.convert(id, String.class);
-		Resource resource = loader.getResource(location);
-		return resource;
-	}
+    @Override
+    public Resource getResource(SID id) {
+        String location = placer.convert(id, String.class);
+        assert location != null;
+        return loader.getResource(location);
+    }
 
-	@Override
-	public Resource getResource(S entity) {
-		Resource resource = null;
-		if (placer.canConvert(entity.getClass(), String.class)) {
-			String location = placer.convert(entity, String.class);
-			resource = loader.getResource(location);
-			if (resource != null) {
-				return resource;
-			}
-		}
+    @Override
+    public Resource getResource(S entity) {
+        if (placer.canConvert(entity.getClass(), String.class)) {
+            String location = placer.convert(entity, String.class);
+            assert location != null;
+            return loader.getResource(location);
+        }
 
-		SID contentId = (SID) BeanUtils.getFieldWithAnnotation(entity, ContentId.class);
-		if (contentId != null) {
-			return getResource(contentId);
-		}
+        SID contentId = (SID) BeanUtils.getFieldWithAnnotation(entity, ContentId.class);
+        if (contentId != null) {
+            return getResource(contentId);
+        }
 
-		return null;
-	}
+        return null;
+    }
 
     @Override
     public Resource getResource(S entity, PropertyPath propertyPath) {
-		return this.getResource(entity, propertyPath, GetResourceParams.builder().build());
+        return this.getResource(entity, propertyPath, GetResourceParams.builder().build());
     }
 
-	@Override
-	public Resource getResource(S entity, PropertyPath propertyPath, GetResourceParams params) {
-		ContentProperty contentProperty = this.mappingContext.getContentProperty(entity.getClass(), propertyPath.getName());
-		if (contentProperty == null) {
-			throw new StoreAccessException(String.format("Content property %s does not exist", propertyPath.getName()));
-		}
+    @Override
+    public Resource getResource(S entity, PropertyPath propertyPath, GetResourceParams params) {
+        ContentProperty contentProperty = this.mappingContext.getContentProperty(entity.getClass(), propertyPath.getName());
+        if (contentProperty == null) {
+            throw new StoreAccessException(String.format("Content property %s does not exist", propertyPath.getName()));
+        }
 
-		SID contentId = (SID) contentProperty.getContentId(entity);
-		if (contentId == null) {
-			return null;
-		}
-		return getResource(contentId);
-	}
+        SID contentId = (SID) contentProperty.getContentId(entity);
+        if (contentId == null) {
+            return null;
+        }
+        return getResource(contentId);
+    }
 
-	@Override
-	public Resource getResource(S entity, PropertyPath propertyPath, org.springframework.content.commons.repository.GetResourceParams params) {
-		ContentProperty contentProperty = this.mappingContext.getContentProperty(entity.getClass(), propertyPath.getName());
-		if (contentProperty == null) {
-			throw new StoreAccessException(String.format("Content property %s does not exist", propertyPath.getName()));
-		}
+    @Override
+    public Resource getResource(S entity, PropertyPath propertyPath,
+                                org.springframework.content.commons.repository.GetResourceParams params) {
+        ContentProperty contentProperty = this.mappingContext
+                .getContentProperty(entity.getClass(), propertyPath.getName());
+        if (contentProperty == null) {
+            throw new StoreAccessException(String.format("Content property %s does not exist", propertyPath.getName()));
+        }
 
-		SID contentId = (SID) contentProperty.getContentId(entity);
-		if (contentId == null) {
-			return null;
-		}
-		return getResource(contentId);
-	}
+        SID contentId = (SID) contentProperty.getContentId(entity);
+        if (contentId == null) {
+            return null;
+        }
+        return getResource(contentId);
+    }
 
-	@Override
-	public void associate(S entity, SID id) {
-		BeanUtils.setFieldWithAnnotation(entity, ContentId.class, id.toString());
-	}
+    @Override
+    public void associate(S entity, SID id) {
+        BeanUtils.setFieldWithAnnotation(entity, ContentId.class, id.toString());
+    }
 
     @Override
     public void associate(S entity, PropertyPath propertyPath, SID id) {
-
         setContentId(entity, propertyPath, id, null);
     }
 
-	@Override
-	public void unassociate(S entity) {
-		BeanUtils.setFieldWithAnnotationConditionally(entity, ContentId.class, null,
-				new Condition() {
-					@Override
-					public boolean matches(Field field) {
-						for (Annotation annotation : field.getAnnotations()) {
-							if ("jakarta.persistence.Id".equals(
-									annotation.annotationType().getCanonicalName())
-									|| "org.springframework.data.annotation.Id"
-									.equals(annotation.annotationType()
-											.getCanonicalName())) {
-								return false;
-							}
-						}
-						return true;
-					}
-				});
-	}
+    @Override
+    public void unassociate(S entity) {
+        BeanUtils.setFieldWithAnnotationConditionally(entity, ContentId.class, null,
+                field -> {
+                    for (Annotation annotation : field.getAnnotations()) {
+                        String canonicalName = annotation.annotationType().getCanonicalName();
+                        if ("org.springframework.data.annotation.Id".equals(canonicalName)
+                                || "jakarta.persistence.Id".equals(canonicalName)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                });
+    }
 
     @Override
     public void unassociate(S entity, PropertyPath propertyPath) {
-
-        setContentId(entity, propertyPath, null, new org.springframework.content.commons.mappingcontext.Condition() {
-            @Override
-            public boolean matches(TypeDescriptor descriptor) {
-                for (Annotation annotation : descriptor.getAnnotations()) {
-                    if ("javax.persistence.Id".equals(
-                            annotation.annotationType().getCanonicalName())
-                            || "org.springframework.data.annotation.Id"
-                            .equals(annotation.annotationType()
-                                    .getCanonicalName())) {
-                        return false;
-                    }
+        setContentId(entity, propertyPath, null, descriptor -> {
+            for (Annotation annotation : descriptor.getAnnotations()) {
+                String canonicalName = annotation.annotationType().getCanonicalName();
+                if ("org.springframework.data.annotation.Id".equals(canonicalName)
+                        || "jakarta.persistence.Id".equals(canonicalName)) {
+                    return false;
                 }
-                return true;
             }
+            return true;
         });
     }
 
-	@Override
-	@Transactional
-	public S setContent(S entity, InputStream content) {
-		Object contentId = BeanUtils.getFieldWithAnnotation(entity, ContentId.class);
+    @Override
+    @Transactional
+    public S setContent(S entity, InputStream content) {
+        Object contentId = BeanUtils.getFieldWithAnnotation(entity, ContentId.class);
         if (contentId == null) {
 
             Serializable newId = UUID.randomUUID().toString();
@@ -185,134 +171,132 @@ public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
             return entity;
         }
 
-		OutputStream os = null;
-		try {
-			if (resource.exists() == false) {
-				File resourceFile = resource.getFile();
-				File parent = resourceFile.getParentFile();
-				this.fileService.mkdirs(parent);
-			}
-			if (resource instanceof WritableResource) {
-				os = ((WritableResource) resource).getOutputStream();
-				IOUtils.copy(content, os);
-			}
+        OutputStream os = null;
+        try {
+            if (!resource.exists()) {
+                File resourceFile = resource.getFile();
+                File parent = resourceFile.getParentFile();
+                this.fileService.mkdirs(parent);
+            }
+            if (resource instanceof WritableResource) {
+                os = ((WritableResource) resource).getOutputStream();
+                IOUtils.copy(content, os);
+            }
 
-		} catch (IOException e) {
-			logger.error(format("Unexpected io error setting content for entity %s", entity), e);
-			throw new StoreAccessException(format("Setting content for entity %s", entity), e);
-		}
-		finally {
-			IOUtils.closeQuietly(os);
-		}
+        } catch (IOException e) {
+            logger.error(format("Unexpected io error setting content for entity %s", entity), e);
+            throw new StoreAccessException(format("Setting content for entity %s", entity), e);
+        } finally {
+            IOUtils.closeQuietly(os);
+        }
 
-		try {
-			BeanUtils.setFieldWithAnnotation(entity, ContentLength.class,
-					resource.contentLength());
-		}
-		catch (IOException e) {
-			logger.error(format(
-					"Unexpected error setting content length for content for resource %s",
-					resource.toString()), e);
-		}
+        try {
+            BeanUtils.setFieldWithAnnotation(entity, ContentLength.class,
+                    resource.contentLength());
+        } catch (IOException e) {
+            logger.error(format(
+                    "Unexpected error setting content length for content for resource %s",
+                    resource), e);
+        }
 
-		return entity;
-	}
+        return entity;
+    }
 
     @Transactional
     @Override
     public S setContent(S property, PropertyPath propertyPath, InputStream content) {
-		return this.setContent(property, propertyPath, content, -1L);
+        return this.setContent(property, propertyPath, content, -1L);
     }
 
-	@Transactional
-	@Override
-	public S setContent(S property, PropertyPath propertyPath, InputStream content, long contentLen) {
-		return this.setContent(property, propertyPath, content, SetContentParams.builder().contentLength(contentLen).build());
-	}
+    @Transactional
+    @Override
+    public S setContent(S property, PropertyPath propertyPath, InputStream content, long contentLen) {
+        return this.setContent(property, propertyPath, content, SetContentParams.builder().contentLength(contentLen).build());
+    }
 
-	@Override
-	public S setContent(S entity, PropertyPath propertyPath, InputStream content, org.springframework.content.commons.repository.SetContentParams params) {
-		int ordinal = params.getDisposition().ordinal();
-		SetContentParams params1 = SetContentParams.builder()
-				.contentLength(params.getContentLength())
-				.overwriteExistingContent(params.isOverwriteExistingContent())
-				.disposition(org.springframework.content.commons.store.SetContentParams.ContentDisposition.values()[ordinal])
-				.build();
-		return this.setContent(entity, propertyPath, content, params1);
-	}
+    @Override
+    public S setContent(S entity, PropertyPath propertyPath, InputStream content, org.springframework.content.commons.repository.SetContentParams params) {
+        int ordinal = params.getDisposition().ordinal();
+        SetContentParams params1 = SetContentParams.builder()
+                .contentLength(params.getContentLength())
+                .overwriteExistingContent(params.isOverwriteExistingContent())
+                .disposition(org.springframework.content.commons.store.SetContentParams.ContentDisposition.values()[ordinal])
+                .build();
+        return this.setContent(entity, propertyPath, content, params1);
+    }
 
-	@Transactional
-	@Override
-	public S setContent(S property, PropertyPath propertyPath, InputStream content, SetContentParams params) {
+    @Transactional
+    @Override
+    public S setContent(S property, PropertyPath propertyPath, InputStream content, SetContentParams params) {
 
-		ContentProperty contentProperty = this.mappingContext.getContentProperty(property.getClass(), propertyPath.getName());
-		if (contentProperty == null) {
-			throw new StoreAccessException(String.format("Content property %s does not exist", propertyPath.getName()));
-		}
+        ContentProperty contentProperty = this.mappingContext
+                .getContentProperty(property.getClass(), propertyPath.getName());
+        if (contentProperty == null) {
+            throw new StoreAccessException(String.format("Content property %s does not exist", propertyPath.getName()));
+        }
 
-		Object contentId = contentProperty.getContentId(property);
-		if (contentId == null || params.getDisposition().equals(org.springframework.content.commons.store.SetContentParams.ContentDisposition.CreateNew)) {
+        Object contentId = contentProperty.getContentId(property);
+        if (contentId == null || params.getDisposition()
+                .equals(org.springframework.content.commons.store.SetContentParams.ContentDisposition.CreateNew)) {
 
-			Serializable newId = UUID.randomUUID().toString();
+            Serializable newId = UUID.randomUUID().toString();
 
-			Object convertedId = placer.convert(
-					newId,
-					TypeDescriptor.forObject(newId),
-					contentProperty.getContentIdType(property));
+            Object convertedId = placer.convert(
+                    newId,
+                    TypeDescriptor.forObject(newId),
+                    contentProperty.getContentIdType(property));
 
-			contentProperty.setContentId(property, convertedId, null);
-		}
+            contentProperty.setContentId(property, convertedId, null);
+        }
 
-		Resource resource = this.getResource(property, propertyPath);
-		if (resource == null) {
-			return property;
-		}
+        Resource resource = this.getResource(property, propertyPath);
+        if (resource == null) {
+            return property;
+        }
 
-		OutputStream os = null;
-		try {
-			if (resource.exists() == false) {
-				File resourceFile = resource.getFile();
-				File parent = resourceFile.getParentFile();
-				this.fileService.mkdirs(parent);
-			}
-			if (resource instanceof WritableResource) {
-				os = ((WritableResource) resource).getOutputStream();
-				IOUtils.copy(content, os);
-			}
-		} catch (IOException e) {
-			logger.error(format("Unexpected io error setting content for entity %s", property), e);
-			throw new StoreAccessException(format("Setting content for entity %s", property), e);
-		}
-		finally {
-			IOUtils.closeQuietly(os);
-		}
+        OutputStream os = null;
+        try {
+            if (!resource.exists()) {
+                File resourceFile = resource.getFile();
+                File parent = resourceFile.getParentFile();
+                this.fileService.mkdirs(parent);
+            }
+            if (resource instanceof WritableResource) {
+                os = ((WritableResource) resource).getOutputStream();
+                IOUtils.copy(content, os);
+            }
+        } catch (IOException e) {
+            logger.error(format("Unexpected io error setting content for entity %s", property), e);
+            throw new StoreAccessException(format("Setting content for entity %s", property), e);
+        } finally {
+            IOUtils.closeQuietly(os);
+        }
 
-		try {
-			long len = params.getContentLength();
-			if (len == -1L) {
-				len = resource.contentLength();
-			}
-			contentProperty.setContentLength(property, len);
-		}
-		catch (IOException e) {
-			logger.error(format(
-					"Unexpected error setting content length for content for resource %s",
-					resource.toString()), e);
-		}
+        try {
+            long len = params.getContentLength();
+            if (len == -1L) {
+                len = resource.contentLength();
+            }
+            contentProperty.setContentLength(property, len);
+        } catch (IOException e) {
+            logger.error(format(
+                    "Unexpected error setting content length for content for resource %s",
+                    resource), e);
+        }
 
-		return property;
-	}
+        return property;
+    }
 
-	@Transactional
-	@Override
-	public S setContent(S property, Resource resourceContent) {
-		try {
-			return this.setContent(property, resourceContent.getInputStream());
-		} catch (IOException e) {
-			logger.error(format("Unexpected error setting content for entity %s", property), e);
-			throw new StoreAccessException(format("Setting content for entity %s", property), e);
-		}
-	}
+    @Transactional
+    @Override
+    public S setContent(S property, Resource resourceContent) {
+        try {
+            return this.setContent(property, resourceContent.getInputStream());
+        } catch (IOException e) {
+            logger.error(format("Unexpected error setting content for entity %s", property), e);
+            throw new StoreAccessException(format("Setting content for entity %s", property), e);
+        }
+    }
 
     @Transactional
     @Override
@@ -325,31 +309,29 @@ public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
         }
     }
 
-	@Override
-	@Transactional
-	public InputStream getContent(S entity) {
-		if (entity == null)
-			return null;
+    @Override
+    @Transactional
+    public InputStream getContent(S entity) {
+        if (entity == null)
+            return null;
 
-		Resource resource = getResource(entity);
+        Resource resource = getResource(entity);
 
-		try {
-			if (resource != null && resource.exists()) {
-				return resource.getInputStream();
-			}
-		}
-		catch (IOException e) {
-			logger.error(format("Unexpected error getting content for entity %s", entity), e);
-			throw new StoreAccessException(format("Getting content for entity %s", entity), e);
-		}
+        try {
+            if (resource != null && resource.exists()) {
+                return resource.getInputStream();
+            }
+        } catch (IOException e) {
+            logger.error(format("Unexpected error getting content for entity %s", entity), e);
+            throw new StoreAccessException(format("Getting content for entity %s", entity), e);
+        }
 
-		return null;
-	}
+        return null;
+    }
 
     @Transactional
     @Override
     public InputStream getContent(S property, PropertyPath propertyPath) {
-
         if (property == null)
             return null;
 
@@ -359,8 +341,7 @@ public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
             if (resource != null && resource.exists()) {
                 return resource.getInputStream();
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             logger.error(format("Unexpected error getting content for entity %s", property), e);
             throw new StoreAccessException(format("Getting content for entity %s", property), e);
         }
@@ -368,33 +349,33 @@ public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
         return null;
     }
 
-	@Override
-	@Transactional
-	public S unsetContent(S entity) {
+    @Override
+    @Transactional
+    public S unsetContent(S entity) {
+        if (entity == null)
+            return null;
 
-		if (entity == null)
-			return entity;
+        Resource resource = getResource(entity);
 
-		Resource resource = getResource(entity);
+        if (resource != null && resource.exists() && resource instanceof DeletableResource) {
+            try {
+                ((DeletableResource) resource).delete();
+            } catch (IOException e) {
+                logger.warn(format("Unable to get file for resource %s", resource));
+            }
+        }
 
-		if (resource != null && resource.exists() && resource instanceof DeletableResource) {
-			try {
-				((DeletableResource) resource).delete();
-			} catch (IOException e) {
-				logger.warn(format("Unable to get file for resource %s", resource));
-			}
-		}
+        // reset content fields
+        unassociate(entity);
 
-		// reset content fields
-		unassociate(entity);
+        Class<?> contentLenType = BeanUtils.getFieldWithAnnotationType(entity, ContentLength.class);
+        if (contentLenType != null) {
+            BeanUtils.setFieldWithAnnotation(entity, ContentLength.class,
+                    BeanUtils.getDefaultValueForType(contentLenType));
+        }
 
-		Class<?> contentLenType = BeanUtils.getFieldWithAnnotationType(entity, ContentLength.class);
-		if (contentLenType != null) {
-			BeanUtils.setFieldWithAnnotation(entity, ContentLength.class, BeanUtils.getDefaultValueForType(contentLenType));
-		}
-
-		return entity;
-	}
+        return entity;
+    }
 
     @Transactional
     @Override
@@ -402,57 +383,56 @@ public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
         return unsetContent(entity, propertyPath, UnsetContentParams.builder().disposition(Disposition.Remove).build());
     }
 
-	@Transactional
-	@Override
-	public S unsetContent(S entity, PropertyPath propertyPath, org.springframework.content.commons.repository.UnsetContentParams params) {
-		int ordinal = params.getDisposition().ordinal();
-		return unsetContent(entity, propertyPath, UnsetContentParams.builder().disposition(Disposition.values()[ordinal]).build());
-	}
+    @Transactional
+    @Override
+    public S unsetContent(S entity, PropertyPath propertyPath,
+                          org.springframework.content.commons.repository.UnsetContentParams params) {
+        int ordinal = params.getDisposition().ordinal();
+        return unsetContent(entity, propertyPath, UnsetContentParams.builder().disposition(Disposition.values()[ordinal]).build());
+    }
 
-	@Transactional
-	@Override
-	public S unsetContent(S entity, PropertyPath propertyPath, UnsetContentParams params) {
-		ContentProperty property = this.mappingContext.getContentProperty(entity.getClass(), propertyPath.getName());
-		if (property == null) {
-			throw new StoreAccessException(String.format("Content property %s does not exist", propertyPath.getName()));
-		}
+    @Transactional
+    @Override
+    public S unsetContent(S entity, PropertyPath propertyPath, UnsetContentParams params) {
+        ContentProperty property = this.mappingContext.getContentProperty(entity.getClass(), propertyPath.getName());
+        if (property == null) {
+            throw new StoreAccessException(String.format("Content property %s does not exist", propertyPath.getName()));
+        }
 
-		if (entity == null)
-			return entity;
+        Resource resource = getResource(entity, propertyPath);
 
-		Resource resource = getResource(entity, propertyPath);
+        if (resource != null && resource.exists() && resource instanceof DeletableResource && params.getDisposition().equals(Disposition.Remove)) {
+            try {
+                ((DeletableResource) resource).delete();
+            } catch (IOException e) {
+                logger.warn(format("Unable to get file for resource %s", resource));
+            }
+        }
 
-		if (resource != null && resource.exists() && resource instanceof DeletableResource && params.getDisposition().equals(Disposition.Remove)) {
-			try {
-				((DeletableResource) resource).delete();
-			} catch (IOException e) {
-				logger.warn(format("Unable to get file for resource %s", resource));
-			}
-		}
+        // reset content fields
+        if (resource != null) {
+            unassociate(entity, propertyPath);
 
-		// reset content fields
-		if (resource != null) {
-			unassociate(entity, propertyPath);
+            property.setContentLength(entity,
+                    BeanUtils.getDefaultValueForType(property.getContentLengthType().getType()));
+        }
+        return entity;
+    }
 
-			property.setContentLength(entity, BeanUtils.getDefaultValueForType(property.getContentLengthType().getType()));
-		}
-		return entity;
-	}
+    private Object convertToExternalContentIdType(S property, Object contentId) {
+        if (placer.canConvert(TypeDescriptor.forObject(contentId),
+                TypeDescriptor.valueOf(BeanUtils.getFieldWithAnnotationType(property,
+                        ContentId.class)))) {
+            contentId = placer.convert(contentId, TypeDescriptor.forObject(contentId),
+                    TypeDescriptor.valueOf(BeanUtils.getFieldWithAnnotationType(property,
+                            ContentId.class)));
+            return contentId;
+        }
+        return contentId.toString();
+    }
 
-	private Object convertToExternalContentIdType(S property, Object contentId) {
-		if (placer.canConvert(TypeDescriptor.forObject(contentId),
-				TypeDescriptor.valueOf(BeanUtils.getFieldWithAnnotationType(property,
-						ContentId.class)))) {
-			contentId = placer.convert(contentId, TypeDescriptor.forObject(contentId),
-					TypeDescriptor.valueOf(BeanUtils.getFieldWithAnnotationType(property,
-							ContentId.class)));
-			return contentId;
-		}
-		return contentId.toString();
-	}
-
-    private void setContentId(S entity, PropertyPath propertyPath, SID contentId, org.springframework.content.commons.mappingcontext.Condition condition) {
-
+    private void setContentId(S entity, PropertyPath propertyPath, SID contentId,
+                              org.springframework.content.commons.mappingcontext.Condition condition) {
         Assert.notNull(entity, "entity must not be null");
         Assert.notNull(propertyPath, "propertyPath must not be null");
 

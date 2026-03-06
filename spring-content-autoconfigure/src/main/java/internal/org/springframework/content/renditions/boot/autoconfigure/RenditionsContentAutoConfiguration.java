@@ -15,6 +15,5 @@ public class RenditionsContentAutoConfiguration {
 //    @ConditionalOnClass(Docx4jConfiguration.class)
 //    @Import(Docx4jConfiguration.class)
 //    public static class Docx4jAutoConfiguration {
-//        //
 //    }
 }

@@ -101,6 +101,6 @@ public class StoreAwareHandlerMapping extends RequestMappingHandlerMapping {
 			augmentedPatterns[count++] = prefix.concat(pattern);
 		}
 
-		return new PatternsRequestCondition(augmentedPatterns, false, getPathMatcher());
+		return new PatternsRequestCondition(augmentedPatterns, null/*false*/, getPathMatcher());
 	}
 }

@@ -1,28 +1,28 @@
 package internal.org.springframework.content.fs.boot.autoconfigure;
 
-import java.util.Set;
-
+import internal.org.springframework.content.commons.utils.StoreCandidateComponentProvider;
+import internal.org.springframework.content.commons.utils.StoreUtils;
+import internal.org.springframework.content.fs.config.FilesystemStoreRegistrar;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.content.fs.config.EnableFilesystemStores;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.core.type.StandardAnnotationMetadata;
 
-import internal.org.springframework.content.commons.utils.StoreCandidateComponentProvider;
-import internal.org.springframework.content.commons.utils.StoreUtils;
-import internal.org.springframework.content.fs.config.FilesystemStoreRegistrar;
+import java.util.Objects;
+import java.util.Set;
 
 public class FilesystemContentAutoConfigureRegistrar extends FilesystemStoreRegistrar {
 
-	@Override
-	protected void registerContentStoreBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+    @Override
+    protected void registerContentStoreBeanDefinitions(
+            AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 
-		AnnotationMetadata metadata = new StandardAnnotationMetadata(EnableFilesystemContentAutoConfiguration.class);
-		AnnotationAttributes attributes = new AnnotationAttributes(metadata.getAnnotationAttributes(this.getAnnotation().getName()));
+        AnnotationMetadata metadata = AnnotationMetadata.introspect(EnableFilesystemContentAutoConfiguration.class);
+        AnnotationAttributes attributes = new AnnotationAttributes(Objects.requireNonNull(metadata.getAnnotationAttributes(this.getAnnotation().getName())));
 
-		String[] basePackages = this.getBasePackages();
+        String[] basePackages = this.getBasePackages();
 
         StoreCandidateComponentProvider scanner = new StoreCandidateComponentProvider(false, this.getEnvironment());
         scanner.setResourceLoader(this.getResourceLoader());
@@ -36,15 +36,15 @@ public class FilesystemContentAutoConfigureRegistrar extends FilesystemStoreRegi
                 this.getSignatureTypes(),
                 this.getOverridePropertyValue());
 
-		this.buildAndRegisterDefinitions(importingClassMetadata, registry, attributes, basePackages, definitions);
-	}
+        this.buildAndRegisterDefinitions(importingClassMetadata, registry, attributes, basePackages, definitions);
+    }
 
-	protected String[] getBasePackages() {
-		return AutoConfigurationPackages.get(this.getBeanFactory())
-				.toArray(new String[] {});
-	}
+    protected String[] getBasePackages() {
+        return AutoConfigurationPackages.get(this.getBeanFactory())
+                .toArray(new String[]{});
+    }
 
-	@EnableFilesystemStores
-	private static class EnableFilesystemContentAutoConfiguration {
-	}
+    @EnableFilesystemStores
+    private static class EnableFilesystemContentAutoConfiguration {
+    }
 }

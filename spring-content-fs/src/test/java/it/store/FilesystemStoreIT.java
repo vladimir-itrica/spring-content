@@ -469,7 +469,7 @@ public class FilesystemStoreIT {
 					});
 				});
 
-				Context("when content is deleted and the id field is shared with javax id", () -> {
+				Context("when content is deleted and the id field is shared with Jakarta id", () -> {
 
 					It("should not reset the id field", () -> {
 						SharedIdRepository sharedIdRepository = context.getBean(SharedIdRepository.class);
@@ -533,7 +533,7 @@ public class FilesystemStoreIT {
 	    File filesystemRoot() {
 	        try {
 	            return Files.createTempDirectory("").toFile();
-	        } catch (IOException ioe) {}
+	        } catch (IOException ignored) {}
 	        return null;
 	    }
 

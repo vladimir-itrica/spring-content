@@ -4,6 +4,7 @@ import static org.springframework.util.StringUtils.cleanPath;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.NonNull;
 import org.springframework.content.commons.io.DeletableResource;
 import org.springframework.content.commons.utils.FileService;
 import org.springframework.content.commons.utils.FileServiceImpl;
@@ -16,54 +17,54 @@ import org.springframework.util.Assert;
 import internal.org.springframework.content.fs.io.FileSystemDeletableResource;
 
 /**
- * {@link ResourceLoader} implementation that resolves plain paths as
- * {@link DeletableResource} file system resources rather than as class path resources
- * (the latter is {@link DefaultResourceLoader}'s default strategy).
- *
- * <p>
- * <b>NOTE:</b> Plain paths will always be interpreted relative to the root specified
- * during instantiation rather than relative to the current VM working directory (the
- * latter is {@link org.springframework.core.io.FileSystemResourceLoader}'s default
- * behavior, even if they start with a slash.
+ * The implementation of the {@link ResourceLoader} that resolves plain paths as {@link DeletableResource}
+ * file system resources, rather than as class path resources (the latter is the default strategy of
+ * {@link DefaultResourceLoader}).
+ * <p/>
+ * <b>NOTE:</b> Plain paths will always be interpreted relative to the root specified during instantiation,
+ * rather than relative to the current VM working directory (the latter is the default behavior of
+ * {@link org.springframework.core.io.FileSystemResourceLoader FileSystemResourceLoader}, even if they start
+ * with a slash).
  */
 public class FileSystemResourceLoader
-		extends org.springframework.core.io.FileSystemResourceLoader {
+        extends org.springframework.core.io.FileSystemResourceLoader {
 
-    private static Log logger = LogFactory.getLog(FileSystemResourceLoader.class);
+    private static final Log logger = LogFactory.getLog(FileSystemResourceLoader.class);
 
-	private FileSystemResource root;
-	private FileService fileService = null;
+    private final FileSystemResource root;
+    private FileService fileService = null;
 
-	public FileSystemResourceLoader(String root) {
-		Assert.notNull(root, "root must not be null");
-		logger.info(String.format("Defaulting filesystem root to %s", root));
-		this.root = new FileSystemResource(suffixPath(cleanPath(root)));
-		this.fileService = new FileServiceImpl();
-	}
+    public FileSystemResourceLoader(String root) {
+        Assert.notNull(root, "root must not be null");
+        logger.info(String.format("Defaulting filesystem root to %s", root));
+        this.root = new FileSystemResource(suffixPath(cleanPath(root)));
+        this.fileService = new FileServiceImpl();
+    }
 
-	@Deprecated
-	public String getFilesystemRoot() {
-		return root.getPath();
-	}
+    @Deprecated
+    public String getFilesystemRoot() {
+        return root.getPath();
+    }
 
-	public FileSystemResource getRootResource() {
-		return root;
-	}
+    public FileSystemResource getRootResource() {
+        return root;
+    }
 
-	private String suffixPath(String path) {
-		if (path.endsWith("/") == false) {
-			return path + "/";
-		}
-		return path;
-	}
+    private String suffixPath(String path) {
+        if (!path.endsWith("/")) {
+            return path + "/";
+        }
+        return path;
+    }
 
-	@Override
-	public Resource getResource(String location) {
-		Assert.notNull(root, "root must not be null");
-		Resource resource = root.createRelative(location);
-		if (resource instanceof FileSystemResource) {
-			resource = new FileSystemDeletableResource((FileSystemResource) resource, fileService);
-		}
-		return resource;
-	}
+    @Override
+    @NonNull
+    public Resource getResource(@NonNull String location) {
+        Assert.notNull(root, "root must not be null");
+        Resource resource = root.createRelative(location);
+        if (resource instanceof FileSystemResource) {
+            resource = new FileSystemDeletableResource((FileSystemResource) resource, fileService);
+        }
+        return resource;
+    }
 }

@@ -13,5 +13,4 @@ public interface StoreInvoker {
 	Class<? extends Serializable> getContentIdClass();
 
 	InputStream invokeGetContent();
-
 }

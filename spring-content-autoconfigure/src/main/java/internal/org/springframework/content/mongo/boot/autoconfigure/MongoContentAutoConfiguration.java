@@ -15,15 +15,11 @@ import internal.org.springframework.content.mongo.config.MongoStoreFactoryBean;
 import internal.org.springframework.versions.jpa.boot.autoconfigure.JpaVersionsAutoConfiguration;
 
 @Configuration
-@AutoConfigureAfter({ JpaVersionsAutoConfiguration.class })
-@ConditionalOnClass({ MongoClient.class, MongoContentStoresRegistrar.class })
-@ConditionalOnProperty(
-        prefix="spring.content.storage.type",
-        name = "default",
-        havingValue = "gridfs",
-        matchIfMissing=true)
+@AutoConfigureAfter({JpaVersionsAutoConfiguration.class})
+@ConditionalOnClass({MongoClient.class, MongoContentStoresRegistrar.class})
+@ConditionalOnProperty(prefix = "spring.content.storage.type", name = "default",
+        havingValue = "gridfs", matchIfMissing = true)
 @ConditionalOnMissingBean(MongoStoreFactoryBean.class)
-@Import({ MongoContentAutoConfigureRegistrar.class, MongoStoreConfiguration.class })
+@Import({MongoContentAutoConfigureRegistrar.class, MongoStoreConfiguration.class})
 public class MongoContentAutoConfiguration {
-
 }

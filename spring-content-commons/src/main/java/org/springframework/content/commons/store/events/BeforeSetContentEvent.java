@@ -1,16 +1,15 @@
 package org.springframework.content.commons.store.events;
 
-import lombok.Getter;
 import org.springframework.content.commons.property.PropertyPath;
-import org.springframework.content.commons.store.ContentStore;
 import org.springframework.content.commons.store.Store;
 import org.springframework.core.io.Resource;
 
 import java.io.InputStream;
+import java.io.Serial;
 import java.io.Serializable;
 
-@Getter
 public class BeforeSetContentEvent extends StoreEvent {
+    @Serial
     private static final long serialVersionUID = -7299354365313770L;
 
     private InputStream inputStream;
@@ -42,19 +41,15 @@ public class BeforeSetContentEvent extends StoreEvent {
         this.resource = resource;
     }
 
-    /**
-     * Deprecated.
-     *
-     * Use getInputStream instead
-     *
-     * @return the event's input stream
-     */
-    @Deprecated()
-    public InputStream getIs() {
-        return this.inputStream;
+    public InputStream getInputStream() {
+        return inputStream;
     }
 
     public void setInputStream(InputStream is) {
         this.inputStream = is;
+    }
+
+    public Resource getResource() {
+        return resource;
     }
 }

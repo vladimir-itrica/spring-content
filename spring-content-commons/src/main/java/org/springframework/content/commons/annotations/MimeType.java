@@ -8,7 +8,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value = { FIELD, METHOD })
+@Target(value = {FIELD, METHOD})
 public @interface MimeType {
-
 }

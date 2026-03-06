@@ -21,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import internal.org.springframework.content.rest.controllers.MethodNotAllowedException;
@@ -44,9 +45,9 @@ public class StoreContentService implements ContentService {
         try {
             MediaType producedResourceType = null;
             List<MediaType> acceptedMimeTypes = headers.getAccept();
-            if (acceptedMimeTypes.size() > 0) {
+            if (!acceptedMimeTypes.isEmpty()) {
 
-                MediaType.sortBySpecificityAndQuality(acceptedMimeTypes);
+                MimeTypeUtils.sortBySpecificity(acceptedMimeTypes);
                 for (MediaType acceptedMimeType : acceptedMimeTypes) {
                     if (resource instanceof RenderableResource && ((RenderableResource) resource)
                             .isRenderableAs(acceptedMimeType)) {
@@ -122,7 +123,7 @@ public class StoreContentService implements ContentService {
     }
 
     private void configureResourceForByteRangeRequest(RangeableResource resource, HttpHeaders headers) {
-        if (headers.containsKey(HttpHeaders.RANGE)) {
+        if (headers.containsHeader(HttpHeaders.RANGE)) {
             resource.setRange(headers.getFirst(HttpHeaders.RANGE));
         }
     }

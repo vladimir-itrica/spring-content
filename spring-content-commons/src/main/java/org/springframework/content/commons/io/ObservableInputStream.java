@@ -2,8 +2,7 @@ package org.springframework.content.commons.io;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class ObservableInputStream extends InputStream {
@@ -33,6 +32,6 @@ public class ObservableInputStream extends InputStream {
     }
 
     public List<CloseableObserver> getObservers() {
-        return Arrays.asList(new CloseableObserver[]{observer});
+        return Collections.singletonList(observer);
     }
 }

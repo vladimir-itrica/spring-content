@@ -1,7 +1,6 @@
 package org.springframework.content.commons.store;
 
 import org.springframework.content.commons.property.PropertyPath;
-import org.springframework.content.commons.repository.ContentRepository;
 import org.springframework.core.io.Resource;
 import org.springframework.versions.LockParticipant;
 

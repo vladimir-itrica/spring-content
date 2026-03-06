@@ -10,7 +10,7 @@ import org.springframework.versions.LockParticipant;
 /**
  * @deprecated This class is deprecated. Use {@link org.springframework.content.commons.store.ContentStore} instead.
  */
-public interface ContentStore<S, SID extends Serializable> extends AssociativeStore<S, SID>, ContentRepository<S, SID> {
+public interface ContentStore<S, SID extends Serializable> extends AssociativeStore<S, SID>, ContentRepository {
 
 	@LockParticipant
 	S setContent(S entity, InputStream content);

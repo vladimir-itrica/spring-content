@@ -8,7 +8,7 @@ public interface StoreInfo {
      *
      * @return interface class
      */
-    public Class<? extends Store> getInterface();
+    Class<? extends Store> getInterface();
 
     /**
      * Returns the Store's domain object class if applicable. In cases where the Store
@@ -16,17 +16,15 @@ public interface StoreInfo {
      *
      * @return domain object class
      */
-    public Class<?> getDomainObjectClass();
+    Class<?> getDomainObjectClass();
 
     /**
      * Returns the Store's implementation
      *
-     * @param <T>
-     *          the type of the implementation class
-     * @param clazz
-     *          the type of the implementation
+     * @param <T>   the type of the implementation class
+     * @param clazz the type of the implementation
      * @return T
-     *          the implementation, or null
+     * the implementation, or null
      */
-    public <T> T getImplementation(Class<? extends T> clazz);
+    <T> T getImplementation(Class<? extends T> clazz);
 }

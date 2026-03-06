@@ -3,12 +3,8 @@ package internal.org.springframework.content.rest.boot.autoconfigure;
 import java.net.URI;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.autoconfigure.data.rest.RepositoryRestMvcAutoConfiguration;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.content.rest.config.RestConfiguration;
 import org.springframework.content.rest.config.SetContentDisposition;
@@ -19,74 +15,81 @@ import org.springframework.stereotype.Component;
 
 @AutoConfiguration
 @ConditionalOnWebApplication()
-@ConditionalOnClass({ RestConfiguration.class })
+@ConditionalOnClass({RestConfiguration.class})
 @Import(RestConfiguration.class)
 public class ContentRestAutoConfiguration {
 
-	@Component
-	@ConfigurationProperties(prefix="spring.content.rest")
-	public static class ContentRestProperties {
+    @Bean
+    public SpringBootContentRestConfigurer springBootContentRestConfigurer() {
+        return new SpringBootContentRestConfigurer();
+    }
 
-		private URI baseUri;
-		private boolean fullyQualifiedLinks = RestConfiguration.FULLY_QUALIFIED_DEFAULTS_DEFAULT;
-		private ShortcutRequestMappings requestMappings = new ShortcutRequestMappings();
-		private boolean overwriteExistingContent = RestConfiguration.OVERWRITE_EXISTING_CONTENT_DEFAULT;
+    @Component
+    @ConfigurationProperties(prefix = "spring.content.rest")
+    public static class ContentRestProperties {
 
-		private SetContentDisposition setContentDisposition = RestConfiguration.SETCONTENT_CONTENT_DISPOSITION_DEFAULT;
-		private UnsetContentDisposition unsetContentDisposition = RestConfiguration.UNSETCONTENT_CONTENT_DISPOSITION_DEFAULT;
+        private URI baseUri;
+        private boolean fullyQualifiedLinks = RestConfiguration.FULLY_QUALIFIED_DEFAULTS_DEFAULT;
+        private ShortcutRequestMappings requestMappings = new ShortcutRequestMappings();
+        private boolean overwriteExistingContent = RestConfiguration.OVERWRITE_EXISTING_CONTENT_DEFAULT;
 
-		public URI getBaseUri() {
-			return baseUri;
-		}
+        private SetContentDisposition setContentDisposition =
+                RestConfiguration.SETCONTENT_CONTENT_DISPOSITION_DEFAULT;
+        private UnsetContentDisposition unsetContentDisposition =
+                RestConfiguration.UNSETCONTENT_CONTENT_DISPOSITION_DEFAULT;
 
-		public void setBaseUri(URI baseUri) {
-			this.baseUri = baseUri;
-		}
+        public URI getBaseUri() {
+            return baseUri;
+        }
 
-		public boolean fullyQualifiedLinks() {
-			return this.fullyQualifiedLinks;
-		}
+        public void setBaseUri(URI baseUri) {
+            this.baseUri = baseUri;
+        }
 
-		public void setFullyQualifiedLinks(boolean fullyQualifiedLinks) {
-			this.fullyQualifiedLinks = fullyQualifiedLinks;
-		}
+        public boolean fullyQualifiedLinks() {
+            return this.fullyQualifiedLinks;
+        }
 
-		public ShortcutRequestMappings shortcutRequestMappings() {
-		    return this.requestMappings;
-		}
+        public void setFullyQualifiedLinks(boolean fullyQualifiedLinks) {
+            this.fullyQualifiedLinks = fullyQualifiedLinks;
+        }
 
-		public void setShortcutRequestMappings(ShortcutRequestMappings requestMappings) {
-		    this.requestMappings = requestMappings;
-		}
+        public ShortcutRequestMappings shortcutRequestMappings() {
+            return this.requestMappings;
+        }
 
-		public boolean getOverwriteExistingContent() {
-			return this.overwriteExistingContent;
-		}
+        public void setShortcutRequestMappings(ShortcutRequestMappings requestMappings) {
+            this.requestMappings = requestMappings;
+        }
 
-		public void setOverwriteExistingContent(boolean overwriteExistingContent) {
-			this.overwriteExistingContent = overwriteExistingContent;
-		}
+        public boolean getOverwriteExistingContent() {
+            return this.overwriteExistingContent;
+        }
 
-		public SetContentDisposition getSetContentDisposition() {
-			return this.setContentDisposition;
-		}
+        public void setOverwriteExistingContent(boolean overwriteExistingContent) {
+            this.overwriteExistingContent = overwriteExistingContent;
+        }
 
-		public void setSetContentDisposition(SetContentDisposition setContentDisposition) {
-			this.setContentDisposition = setContentDisposition;
-		}
+        public SetContentDisposition getSetContentDisposition() {
+            return this.setContentDisposition;
+        }
 
-		public UnsetContentDisposition getUnsetContentDisposition() {
-			return this.unsetContentDisposition;
-		}
+        public void setSetContentDisposition(SetContentDisposition setContentDisposition) {
+            this.setContentDisposition = setContentDisposition;
+        }
 
-		public void setUnsetContentDisposition(UnsetContentDisposition unsetContentDisposition) {
-			this.unsetContentDisposition = unsetContentDisposition;
-		}
+        public UnsetContentDisposition getUnsetContentDisposition() {
+            return this.unsetContentDisposition;
+        }
 
-		public static class ShortcutRequestMappings {
+        public void setUnsetContentDisposition(UnsetContentDisposition unsetContentDisposition) {
+            this.unsetContentDisposition = unsetContentDisposition;
+        }
 
-		    private boolean disabled = false;
-		    private String excludes = null;
+        public static class ShortcutRequestMappings {
+
+            private boolean disabled = false;
+            private String excludes = null;
 
             public boolean disabled() {
                 return this.disabled;
@@ -96,19 +99,13 @@ public class ContentRestAutoConfiguration {
                 this.disabled = disabled;
             }
 
-		    public String excludes() {
-		        return excludes;
-		    }
+            public String excludes() {
+                return excludes;
+            }
 
-		    public void setExcludes(String excludes) {
-		        this.excludes = excludes;
-		    }
-		}
+            public void setExcludes(String excludes) {
+                this.excludes = excludes;
+            }
+        }
     }
-
-	@Bean
-	public SpringBootContentRestConfigurer springBootContentRestConfigurer() {
-		return new SpringBootContentRestConfigurer();
-	}
-
 }

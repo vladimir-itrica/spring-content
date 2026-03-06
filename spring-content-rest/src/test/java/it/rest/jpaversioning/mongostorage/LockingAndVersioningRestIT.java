@@ -11,7 +11,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.security.Principal;
 import java.util.UUID;
 
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
@@ -23,6 +22,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import javax.sql.DataSource;
 
 import org.apache.http.HttpStatus;
@@ -67,6 +67,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
@@ -97,8 +98,8 @@ import org.springframework.web.context.WebApplicationContext;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.*;
 
 @RunWith(Ginkgo4jSpringRunner.class)
-@Ginkgo4jConfiguration(threads=1)
-@SpringBootTest(classes = {LockingAndVersioningRestIT.Application.class}, webEnvironment=WebEnvironment.RANDOM_PORT)
+@Ginkgo4jConfiguration(threads = 1)
+@SpringBootTest(classes = {LockingAndVersioningRestIT.Application.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class LockingAndVersioningRestIT {
 
     @Autowired
@@ -202,7 +203,7 @@ public class LockingAndVersioningRestIT {
                                     .statusCode(HttpStatus.SC_OK)
                                     .extract().jsonPath();
                     assertThat(response.get("_embedded.versionedDocuments[0].version"), is("1.0"));
-                    assertThat(response.get("_embedded.versionedDocuments[0].successorId"), is((int)(doc.getId() + 1)));
+                    assertThat(response.get("_embedded.versionedDocuments[0].successorId"), is((int) (doc.getId() + 1)));
                     assertThat(response.get("_embedded.versionedDocuments[1].version"), is("1.1"));
                     assertThat(response.get("_embedded.versionedDocuments[1].successorId"), is(nullValue()));
                 });
@@ -212,7 +213,7 @@ public class LockingAndVersioningRestIT {
 
     @SpringBootApplication
     @EnableJpaRepositories(considerNestedRepositories = true,
-                            basePackages={"it.rest.jpaversioning.mongostorage", "org.springframework.versions"})
+            basePackages = {"it.rest.jpaversioning.mongostorage", "org.springframework.versions"})
     @EnableTransactionManagement
     @EnableMongoStores(basePackages = "it.rest.jpaversioning.mongostorage")
     @Import({JpaLockingAndVersioningConfig.class, RestConfiguration.class, SecurityConfiguration.class})
@@ -308,10 +309,10 @@ public class LockingAndVersioningRestIT {
         @Autowired
         public void configureGlobalSecurity(AuthenticationManagerBuilder auth) throws Exception {
             // Enable if spring-doc apps supports user accounts in the future
-             auth.inMemoryAuthentication().
-                     withUser(User.withDefaultPasswordEncoder().username("paul123").password("password").roles("USER")).
-                     withUser(User.withDefaultPasswordEncoder().username("john123").password("password").roles("USER").
-                             build());
+            auth.inMemoryAuthentication().
+                    withUser(User.withDefaultPasswordEncoder().username("paul123").password("password").roles("USER")).
+                    withUser(User.withDefaultPasswordEncoder().username("john123").password("password").roles("USER").
+                            build());
 
         }
 
@@ -321,12 +322,11 @@ public class LockingAndVersioningRestIT {
         }
 
         @Bean
-        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-            http.csrf().disable()
-                    .authorizeRequests()
-                    .requestMatchers("/admin/**").hasRole("ADMIN")
-                    .and().httpBasic().realmName(REALM).authenticationEntryPoint(getBasicAuthEntryPoint())
-                    .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        public SecurityFilterChain filterChain(HttpSecurity http) {
+            http.csrf(AbstractHttpConfigurer::disable)
+                    .authorizeHttpRequests(c -> c.requestMatchers("/admin/**").hasRole("ADMIN"))
+                    .httpBasic(c -> c.realmName(REALM).authenticationEntryPoint(getBasicAuthEntryPoint()))
+                    .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
             return http.build();
         }
@@ -341,7 +341,7 @@ public class LockingAndVersioningRestIT {
 
         @Override
         public void commence(final HttpServletRequest request, final HttpServletResponse response,
-                final AuthenticationException authException) throws IOException {
+                             final AuthenticationException authException) throws IOException {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.addHeader("WWW-Authenticate", "Basic realm=" + getRealmName() + "");
 
@@ -361,20 +361,32 @@ public class LockingAndVersioningRestIT {
     @Setter
     @EqualsAndHashCode
     @ToString
-    @Table(name="VERSIONED_DOCUMENTS")
+    @Table(name = "VERSIONED_DOCUMENTS")
     public static class VersionedDocument {
 
-        @Id @GeneratedValue private Long id;
-        @Version private Long vstamp;
-        @ContentId private UUID contentId;
-        @ContentLength private long contentLen;
-        @MimeType private String mimeType;
-        @LockOwner private String lockOwner;
-        @AncestorId private Long ancestorId;
-        @AncestorRootId private Long ancestralRootId;
-        @SuccessorId private Long successorId;
-        @VersionNumber private String version;
-        @VersionLabel private String label;
+        @Id
+        @GeneratedValue
+        private Long id;
+        @Version
+        private Long vstamp;
+        @ContentId
+        private UUID contentId;
+        @ContentLength
+        private long contentLen;
+        @MimeType
+        private String mimeType;
+        @LockOwner
+        private String lockOwner;
+        @AncestorId
+        private Long ancestorId;
+        @AncestorRootId
+        private Long ancestralRootId;
+        @SuccessorId
+        private Long successorId;
+        @VersionNumber
+        private String version;
+        @VersionLabel
+        private String label;
         private String data;
 
         public VersionedDocument() {
@@ -389,13 +401,14 @@ public class LockingAndVersioningRestIT {
         }
     }
 
-    public interface VersionedDocumentAndVersioningRepository extends JpaRepository<VersionedDocument, Long>, LockingAndVersioningRepository<VersionedDocument, Long> {
+    public interface VersionedDocumentAndVersioningRepository extends JpaRepository<VersionedDocument, Long>, LockingAndVersioningRepository<VersionedDocument> {
     }
 
-    @StoreRestResource(path="versionedDocumentsContent")
+    @StoreRestResource(path = "versionedDocumentsContent")
     public interface VersionedDocumentStore extends MongoContentStore<VersionedDocument, UUID> {
     }
 
     @Test
-    public void noop() {}
+    public void noop() {
+    }
 }

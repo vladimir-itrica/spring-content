@@ -5,7 +5,8 @@ public class VersionInfo {
     private String number;
     private String label;
 
-    public VersionInfo() {}
+    public VersionInfo() {
+    }
 
     public VersionInfo(String number, String label) {
         this.number = number;

@@ -1,17 +1,11 @@
 package it.typesupport.model;
 
-import org.springframework.content.commons.annotations.ContentId;
+import java.util.Random;
 
-public class LongBasedContentEntity {
-
-	@ContentId 
-	private Long contentId;
-
-	public Long getContentId() {
-		return contentId;
-	}
-
-	public void setContentId(Long contentId) {
-		this.contentId = contentId;
-	}
+public class LongBasedContentEntity extends ContentEntity<Long> implements IdGenerator<Long> {
+    @Override
+    public Long generateId() {
+        Random r = new Random();
+        return r.nextLong();
+    }
 }

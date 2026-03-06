@@ -45,7 +45,7 @@ import internal.org.springframework.versions.jpa.JpaCloningServiceImpl;
 import internal.org.springframework.versions.jpa.VersioningService;
 
 @Repository
-public class LockingAndVersioningRepositoryImpl<T, ID extends Serializable> implements LockingAndVersioningRepository<T, ID> {
+public class LockingAndVersioningRepositoryImpl<T, ID extends Serializable> implements LockingAndVersioningRepository<T> {
 
     private static Log logger = LogFactory.getLog(JpaCloningServiceImpl.class);
 

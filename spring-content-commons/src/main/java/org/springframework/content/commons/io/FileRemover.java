@@ -4,12 +4,11 @@ import java.io.File;
 
 public class FileRemover implements InputStreamObserver, OutputStreamObserver {
 
-    private File file;
+    private final File file;
 
     public FileRemover(File file) {
         this.file = file;
     }
-
 
     @Override
     public void closed() {

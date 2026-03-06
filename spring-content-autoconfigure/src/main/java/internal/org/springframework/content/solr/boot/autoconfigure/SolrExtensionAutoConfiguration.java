@@ -20,36 +20,34 @@ import org.springframework.core.convert.ConversionService;
 @ComponentScan(basePackageClasses = SolrAutoConfiguration.class)
 public class SolrExtensionAutoConfiguration {
 
-   @Autowired
-   private SolrProperties props;
+    @Autowired
+    private SolrProperties props;
 
-   @Autowired
-   private SolrClient solrClient;
+    @Autowired
+    private SolrClient solrClient;
 
-   @Autowired
-   @Qualifier("solrConversionService")
-   private ConversionService solrConversionService;
+    @Autowired
+    @Qualifier("solrConversionService")
+    private ConversionService solrConversionService;
 
-   public SolrExtensionAutoConfiguration() {
-   }
+    public SolrExtensionAutoConfiguration() {
+    }
 
+    @ConditionalOnMissingBean(name = "solrIndexService")
+    @Bean
+    public IndexService<?> solrIndexService() {
+        return new SolrFulltextIndexServiceImpl(solrClient, props);
+    }
 
+    @ConditionalOnMissingBean(name = "solrFulltextEventListener")
+    @Bean
+    public Object solrFulltextEventListener() {
+        return new SolrIndexerStoreEventHandler(solrIndexService());
+    }
 
-   @ConditionalOnMissingBean(name = "solrIndexService")
-   @Bean
-   public IndexService solrIndexService() {
-      return new SolrFulltextIndexServiceImpl(solrClient, props);
-   }
-
-   @ConditionalOnMissingBean(name = "solrFulltextEventListener")
-   @Bean
-   public Object solrFulltextEventListener() {
-      return new SolrIndexerStoreEventHandler(solrIndexService());
-   }
-
-   @ConditionalOnMissingBean(name = "deprecatedSolrFulltextEventListener")
-   @Bean
-   public Object deprecatedSolrFulltextEventListener() {
-      return new DeprecatedSolrIndexerStoreEventHandler(solrIndexService());
-   }
+    @ConditionalOnMissingBean(name = "deprecatedSolrFulltextEventListener")
+    @Bean
+    public Object deprecatedSolrFulltextEventListener() {
+        return new DeprecatedSolrIndexerStoreEventHandler(solrIndexService());
+    }
 }

@@ -794,7 +794,7 @@ public class DefaultS3StoreImplTest {
 											assertThat(entity.getContentLen(), is(0L));
 										});
 									});
-									Context("when the property's ContentId field also is the javax persistence Id field", () -> {
+									Context("when the property's ContentId field also is the Jakarta persistence Id field", () -> {
 										BeforeEach(() -> {
 											entity = new SharedIdContentIdEntity();
 											entity.setContentId("abcd-efgh");

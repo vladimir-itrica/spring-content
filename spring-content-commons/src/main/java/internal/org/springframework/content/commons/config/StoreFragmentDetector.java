@@ -1,16 +1,8 @@
 package internal.org.springframework.content.commons.config;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.content.commons.config.AbstractStoreBeanDefinitionRegistrar;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
@@ -19,114 +11,104 @@ import org.springframework.data.util.Lazy;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import static java.lang.String.format;
 
 public class StoreFragmentDetector {
 
-	private static final Log LOGGER = LogFactory.getLog(StoreFragmentDetector.class);
+    private static final Log LOGGER = LogFactory.getLog(StoreFragmentDetector.class);
 
-	private static final String CUSTOM_IMPLEMENTATION_RESOURCE_PATTERN = "**/*%s.class";
+    private static final String CUSTOM_IMPLEMENTATION_RESOURCE_PATTERN = "**/*%s.class";
 
-	private final Environment environment;
-	private final ResourceLoader resourceLoader;
-	private final String postfix;
-	private final Set<String> basePackages;
-	private final MetadataReaderFactory metadataReaderFactory;
-	private Lazy<Set<BeanDefinition>> implementationCandidates = Lazy.empty();
+    private final Environment environment;
+    private final ResourceLoader resourceLoader;
+    private final String postfix;
+    private final Set<String> basePackages;
+    private final MetadataReaderFactory metadataReaderFactory;
+    private final Lazy<Set<BeanDefinition>> implementationCandidates;
 
-	public StoreFragmentDetector(Environment environment, ResourceLoader loader, String postfix, String[] basePackages, MetadataReaderFactory metadataReaderFactory) {
-		this.environment = environment;
-		this.resourceLoader = loader;
-		this.postfix = postfix;
+    public StoreFragmentDetector(Environment environment, ResourceLoader loader, String postfix, String[] basePackages, MetadataReaderFactory metadataReaderFactory) {
+        this.environment = environment;
+        this.resourceLoader = loader;
+        this.postfix = postfix;
 
-		this.basePackages = new HashSet<String>(Arrays.asList(basePackages));
-		this.basePackages.add("org.springframework.content.fragments");
-		this.basePackages.add("internal.org.springframework.content.fragments");
+        this.basePackages = new HashSet<>(Arrays.asList(basePackages));
+        this.basePackages.add("org.springframework.content.fragments");
+        this.basePackages.add("internal.org.springframework.content.fragments");
 
-		this.metadataReaderFactory = metadataReaderFactory;
-		this.implementationCandidates = Lazy.of(() -> findCandidateBeanDefinitions());
-	}
+        this.metadataReaderFactory = metadataReaderFactory;
+        this.implementationCandidates = Lazy.of(this::findCandidateBeanDefinitions);
+    }
 
-	public Set<BeanDefinition> getBeanDefinitions() {
-		return implementationCandidates.get();
-	}
+    public Set<BeanDefinition> getBeanDefinitions() {
+        return implementationCandidates.get();
+    }
 
-	private Set<BeanDefinition> findCandidateBeanDefinitions() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false, environment);
-		provider.setResourceLoader(resourceLoader);
-		provider.setResourcePattern(format(CUSTOM_IMPLEMENTATION_RESOURCE_PATTERN, postfix));
-		provider.setMetadataReaderFactory(metadataReaderFactory);
-		provider.addIncludeFilter((reader, factory) -> true);
+    private Set<BeanDefinition> findCandidateBeanDefinitions() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false, environment);
+        provider.setResourceLoader(resourceLoader);
+        provider.setResourcePattern(format(CUSTOM_IMPLEMENTATION_RESOURCE_PATTERN, postfix));
+        provider.setMetadataReaderFactory(metadataReaderFactory);
+        provider.addIncludeFilter((reader, factory) -> true);
 
 //		config.getExcludeFilters().forEach(it -> provider.addExcludeFilter(it));
 
-		return basePackages.stream()//
-				.flatMap(it -> provider.findCandidateComponents(it).stream())//
-				.collect(Collectors.toSet());
-	}
+        return basePackages.stream()
+                .flatMap(it -> provider.findCandidateComponents(it).stream())
+                .collect(Collectors.toSet());
+    }
 
-	public StoreFragmentDefinition detectCustomImplementation(String iface, String storeInterface) {
+    public StoreFragmentDefinition detectCustomImplementation(String interfaceName, String storeInterface) {
 
-		Predicate pred = new InterfaceNamePredicate(iface, basePackages, postfix);
+        Predicate<BeanDefinition> predicate = new InterfaceNamePredicate(interfaceName, basePackages, postfix);
 
-		List<BeanDefinition> definitions = implementationCandidates.get().stream().filter(pred::test).collect(Collectors.toList());
+        List<BeanDefinition> definitions = implementationCandidates.get().stream().filter(predicate).toList();
 
-		if (definitions.isEmpty()) {
-			throw new IllegalStateException(format("No implementation found for store interface %s", iface));
-		}
+        if (definitions.isEmpty()) {
+            throw new IllegalStateException(format("No implementation found for store interface %s", interfaceName));
+        }
 
-		if (definitions.size() > 1) {
-			LOGGER.info(String.format("Found implementations found for %s.  Using %s", iface, definitions.get(0).getBeanClassName()));
-		}
+        if (definitions.size() > 1) {
+            LOGGER.info(String.format("Found implementations found for %s.  Using %s", interfaceName,
+                    definitions.get(0).getBeanClassName()));
+        }
 
-		StoreFragmentDefinition defn = new StoreFragmentDefinition(iface, definitions.get(0));
-		defn.setStoreInterfaceName(storeInterface);
-		return defn;
-	}
+        StoreFragmentDefinition def = new StoreFragmentDefinition(interfaceName, definitions.get(0));
+        def.setStoreInterfaceName(storeInterface);
+        return def;
+    }
 
+    private record InterfaceNamePredicate(String interfaceName, Set<String> basePackages,
+                                          String postfix) implements Predicate<BeanDefinition> {
 
-	private String concat(List<BeanDefinition> definitions) {
+        @Override
+        public boolean test(BeanDefinition definition) {
+            Assert.notNull(definition, "BeanDefinition must not be null!");
 
-		return definitions.stream()//
-				.map(BeanDefinition::getBeanClassName)//
-				.collect(Collectors.joining(", "));
-	}
+            String beanClassName = definition.getBeanClassName();
 
-	private static class InterfaceNamePredicate implements Predicate<BeanDefinition> {
+            if (beanClassName == null /*|| isExcluded(beanClassName, getExcludeFilters())*/) {
+                return false;
+            }
 
-		private final String interfaceName;
-		private final Set<String> basePackages;
-		private final String postfix;
+            String beanPackage = ClassUtils.getPackageName(beanClassName);
+            String shortName = ClassUtils.getShortName(beanClassName);
+            String localName = shortName.substring(shortName.lastIndexOf('.') + 1);
 
-		public InterfaceNamePredicate(String interfaceName, Set<String> basePackages, String postfix) {
-			this.interfaceName = interfaceName;
-			this.basePackages = basePackages;
-			this.postfix = postfix;
-		}
+            return localName.equals(getImplementationClassName(interfaceName))
+                    && basePackages.stream().anyMatch(beanPackage::startsWith);
+        }
 
-		@Override
-		public boolean test(BeanDefinition definition) {
-			Assert.notNull(definition, "BeanDefinition must not be null!");
-
-			String beanClassName = definition.getBeanClassName();
-
-			if (beanClassName == null /*|| isExcluded(beanClassName, getExcludeFilters())*/) {
-				return false;
-			}
-
-			String beanPackage = ClassUtils.getPackageName(beanClassName);
-			String shortName = ClassUtils.getShortName(beanClassName);
-			String localName = shortName.substring(shortName.lastIndexOf('.') + 1);
-
-			return localName.equals(getImplementationClassName(interfaceName)) //
-					&& basePackages.stream().anyMatch(it -> beanPackage.startsWith(it));
-
-		}
-
-		private String getImplementationClassName(String interfaceName) {
-			String shortName = ClassUtils.getShortName(interfaceName);
-			String localName = shortName.substring(shortName.lastIndexOf('.') + 1);
-			return localName.concat(postfix);
-		}
-	}
+        private String getImplementationClassName(String interfaceName) {
+            String shortName = ClassUtils.getShortName(interfaceName);
+            String localName = shortName.substring(shortName.lastIndexOf('.') + 1);
+            return localName.concat(postfix);
+        }
+    }
 }

@@ -29,9 +29,7 @@ public class FileSystemDeletableResourceTest {
 				delegate = mock(FileSystemResource.class);
 				fileService = mock(FileService.class);
 			});
-			JustBeforeEach(() -> {
-				resource = new FileSystemDeletableResource(delegate, fileService);
-			});
+			JustBeforeEach(() -> resource = new FileSystemDeletableResource(delegate, fileService));
 			It("should delegate isOpen", () -> {
 				resource.isOpen();
 				verify(delegate).isOpen();

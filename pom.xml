@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.paulcwarren</groupId>
     <artifactId>spring-content</artifactId>
-    <version>3.0.18-SNAPSHOT</version>
+    <version>4.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Spring Content</name>
@@ -34,6 +34,9 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
             <name>Paul Warren</name>
             <email>paul_c_warren@yahoo.com</email>
         </developer>
+        <developer>
+            <name>Vladimir Svyatski</name>
+        </developer>
     </developers>
 
     <licenses>
@@ -49,8 +52,8 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <spring-content.version>${project.version}</spring-content.version>
-        <ginkgo4j-version>1.0.15</ginkgo4j-version>
-        <springboot-version>3.5.11</springboot-version>
+        <ginkgo4j-version>2.2.0-SNAPSHOT</ginkgo4j-version>
+        <springboot-version>4.0.3</springboot-version>
         <spring-cloud.version>2024.0.3</spring-cloud.version>
         <commonsio-version>2.21.0</commonsio-version>
         <commons-lang.version>3.20.0</commons-lang.version>
@@ -64,6 +67,9 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
         <!-- Test dependencies -->
         <test-containers.version>1.17.6</test-containers.version>
         <mockito.version>3.12.4</mockito.version>
+        <mysql-connector.version>9.6.0</mysql-connector.version>
+        <ojdbc.version>23.26.1.0.0</ojdbc.version>
+        <hamcrest.version>3.0</hamcrest.version>
 
         <docs.output.dir>../target/generated-docs/refs/${env.BUILD_TYPE}/</docs.output.dir>
     </properties>
@@ -242,14 +248,14 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
              <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.4</version>
+                <version>3.5.5</version>
                 <configuration>
                    <argLine>${surefireArgLine}</argLine>
                     <skipTests>true</skipTests>
                     <properties>
                         <property>
                             <name>listener</name>
-                            <value>com.github.paulcwarren.ginkgo4j.maven.JUnitRunListener</value>
+                            <value>io.github.vsvyatski.ginkgo4j.maven.JUnitRunListener</value>
                         </property>
                     </properties>
                 </configuration>

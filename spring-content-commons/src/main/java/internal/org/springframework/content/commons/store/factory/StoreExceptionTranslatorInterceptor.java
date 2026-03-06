@@ -2,6 +2,7 @@ package internal.org.springframework.content.commons.store.factory;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.content.commons.store.StoreAccessException;
 import org.springframework.content.commons.store.StoreExceptionTranslator;
@@ -18,7 +19,7 @@ public class StoreExceptionTranslatorInterceptor implements MethodInterceptor {
     }
 
     @Override
-    public Object invoke(MethodInvocation invocation) throws Throwable {
+    public Object invoke(@NonNull MethodInvocation invocation) throws Throwable {
         try {
             return invocation.proceed();
         } catch (RuntimeException re) {
@@ -30,7 +31,7 @@ public class StoreExceptionTranslatorInterceptor implements MethodInterceptor {
                 beanFactory.getBeanProvider(StoreExceptionTranslator.class).orderedStream().forEach(translators::add);
             }
             StoreAccessException sae = null;
-            for (int i=0; i < translators.size() && sae == null; i++) {
+            for (int i = 0; i < translators.size() && sae == null; i++) {
                 sae = translators.get(i).translate(re);
             }
             throw sae != null ? sae : re;

@@ -15,29 +15,37 @@ import java.util.List;
 @Configuration
 public class FilesystemStoreConfiguration {
 
-	@Autowired(required = false)
-	private List<FilesystemStoreConfigurer> configurers;
+    @Autowired(required = false)
+    private List<FilesystemStoreConfigurer> configurers;
 
-	@Bean
-	public PlacementService filesystemStorePlacementService() {
-		PlacementService conversion = new PlacementServiceImpl();
-		conversion.addConverter(new Converter<URI, String>() {
-			@Override
-			public String convert(URI source) {
-				return source.toString();
-			}
-		});
+    @Bean
+    public PlacementService filesystemStorePlacementService() {
+        PlacementService conversion = new PlacementServiceImpl();
+        conversion.addConverter(new URIStringConverter());
 
-		addConverters(conversion);
-		return conversion;
-	}
+        addConverters(conversion);
+        return conversion;
+    }
 
-	protected void addConverters(ConverterRegistry registry) {
-		if (configurers == null)
-			return;
+    protected void addConverters(ConverterRegistry registry) {
+        if (configurers == null)
+            return;
 
-		for (FilesystemStoreConfigurer configurer : configurers) {
-			configurer.configureFilesystemStoreConverters(registry);
-		}
-	}
+        for (FilesystemStoreConfigurer configurer : configurers) {
+            configurer.configureFilesystemStoreConverters(registry);
+        }
+    }
+
+    /**
+     * Important! We have a dedicated class here instead of in-place interface creation (I guess the compiler just
+     * generates similar class on its own). The problem is, certain IDEs will show a warning and offer you to
+     * transform that into a lambda expression. Unfortunately, that causes an exception in runtime. To avoid that
+     * warning from IDEs we just implement the interface ourselves.
+     */
+    private static class URIStringConverter implements Converter<URI, String> {
+        @Override
+        public String convert(URI source) {
+            return source.toString();
+        }
+    }
 }

@@ -6,23 +6,15 @@ import java.util.Map;
 
 public class MappingContext {
 
-    private Map<Class<?>, Map<String, ContentProperty>> context = new HashMap<>();
+    private final Map<Class<?>, Map<String, ContentProperty>> context = new HashMap<>();
 
-    private CharSequence keySeparator = "/";
-    private CharSequence contentPropertySeparator = ".";
+    private final CharSequence keySeparator;
+    private final CharSequence contentPropertySeparator;
 
     public MappingContext(CharSequence keySeparator, CharSequence contentPropertySeparator) {
         this.keySeparator = keySeparator;
         this.contentPropertySeparator = contentPropertySeparator;
     }
-
-//    public MappingContext(Stores stores) {
-//        for (StoreInfo info : stores.getStores(Stores.MATCH_ALL)) {
-//            if (info.getDomainObjectClass() != null) {
-//                context.put(info.getDomainObjectClass(), resolveProperties(info.getDomainObjectClass()));
-//            }
-//        }
-//    }
 
     public boolean hasMapping(Class<?> domainClass, String path) {
         Map<String, ContentProperty> properties = context.get(domainClass);

@@ -10,7 +10,7 @@ import java.util.List;
 public class ObservableOutputStream extends OutputStream {
 
     private final OutputStream delegate;
-    private List<CloseableObserver> observers;
+    private final List<CloseableObserver> observers;
 
     public ObservableOutputStream(OutputStream delegate) {
         this.delegate = delegate;
