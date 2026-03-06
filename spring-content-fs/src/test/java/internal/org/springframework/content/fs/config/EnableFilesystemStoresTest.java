@@ -30,7 +30,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -39,170 +39,155 @@ import static org.mockito.Mockito.verify;
 @Ginkgo4jConfiguration(threads = 1)
 public class EnableFilesystemStoresTest {
 
-	private AnnotationConfigApplicationContext context;
+    private AnnotationConfigApplicationContext context;
 
-	// mocks
-	static FilesystemStoreConfigurer configurer;
+    // mocks
+    static FilesystemStoreConfigurer configurer;
 
-	{
-		Describe("EnableFilesystemStores", () -> {
+    {
+        Describe("EnableFilesystemStores", () -> {
 
-			Context("given a context and a configuartion with a filesystem content repository bean",
-					() -> {
-						BeforeEach(() -> {
-							context = new AnnotationConfigApplicationContext();
-							context.register(TestConfig.class);
-							context.refresh();
-						});
-						AfterEach(() -> {
-							context.close();
-						});
-						It("should have a ContentRepository bean", () -> {
-							assertThat(context.getBean(TestEntityContentRepository.class),
-									is(not(nullValue())));
-						});
-						It("should have a filesystem placement service bean", () -> {
-							assertThat(context.getBean("filesystemStorePlacementService"),
-									is(not(nullValue())));
-						});
-						It("should have a FileSystemResourceLoader bean", () -> {
-							assertThat(context.getBean("fileSystemResourceLoader"),
-									is(not(nullValue())));
-						});
-					});
+            Context("given a context and a configuration with a filesystem content repository bean",
+                    () -> {
+                        BeforeEach(() -> {
+                            context = new AnnotationConfigApplicationContext();
+                            context.register(TestConfig.class);
+                            context.refresh();
+                        });
+                        AfterEach(() -> context.close());
+                        It("should have a ContentRepository bean", () -> {
+                            assertThat(context.getBean(TestEntityContentRepository.class),
+                                    is(not(nullValue())));
+                        });
+                        It("should have a filesystem placement service bean", () -> {
+                            assertThat(context.getBean("filesystemStorePlacementService"),
+                                    is(not(nullValue())));
+                        });
+                        It("should have a FileSystemResourceLoader bean", () -> {
+                            assertThat(context.getBean("fileSystemResourceLoader"),
+                                    is(not(nullValue())));
+                        });
+                    });
 
-			Context("given a context with a configurer", () -> {
-				BeforeEach(() -> {
-					configurer = mock(FilesystemStoreConfigurer.class);
+            Context("given a context with a configurer", () -> {
+                BeforeEach(() -> {
+                    configurer = mock(FilesystemStoreConfigurer.class);
 
-					context = new AnnotationConfigApplicationContext();
-					context.register(ConverterConfig.class);
-					context.refresh();
-				});
-				AfterEach(() -> {
-					context.close();
-				});
-				It("should call that configurer to help customize the store", () -> {
-					verify(configurer).configureFilesystemStoreConverters(anyObject());
-				});
-			});
+                    context = new AnnotationConfigApplicationContext();
+                    context.register(ConverterConfig.class);
+                    context.refresh();
+                });
+                AfterEach(() -> context.close());
+                It("should call that configurer to help customize the store", () -> {
+                    verify(configurer).configureFilesystemStoreConverters(any());
+                });
+            });
 
-			Context("given a context with an empty configuration", () -> {
-				BeforeEach(() -> {
-					context = new AnnotationConfigApplicationContext();
-					context.register(EmptyConfig.class);
-					context.refresh();
-				});
-				AfterEach(() -> {
-					context.close();
-				});
-				It("should not contain any filesystem repository beans", () -> {
-					try {
-						context.getBean(TestEntityContentRepository.class);
-						fail("expected no such bean");
-					}
-					catch (NoSuchBeanDefinitionException e) {
-						assertThat(true, is(true));
-					}
-				});
-			});
-		});
+            Context("given a context with an empty configuration", () -> {
+                BeforeEach(() -> {
+                    context = new AnnotationConfigApplicationContext();
+                    context.register(EmptyConfig.class);
+                    context.refresh();
+                });
+                AfterEach(() -> context.close());
+                It("should not contain any filesystem repository beans", () -> {
+                    try {
+                        context.getBean(TestEntityContentRepository.class);
+                        fail("expected no such bean");
+                    } catch (NoSuchBeanDefinitionException e) {
+                        assertThat(true, is(true));
+                    }
+                });
+            });
+        });
 
-		Describe("EnableFilesystemContentRepositories", () -> {
+        Describe("EnableFilesystemContentRepositories", () -> {
 
-			Context("given a context and a configuration with a filesystem content repository bean",
-					() -> {
-						BeforeEach(() -> {
-							context = new AnnotationConfigApplicationContext();
-							context.register(BackwardCompatibilityConfig.class);
-							context.refresh();
-						});
-						AfterEach(() -> {
-							context.close();
-						});
-						It("should have a ContentRepository bean", () -> {
-							assertThat(context.getBean(TestEntityContentRepository.class),
-									is(not(nullValue())));
-						});
-					});
-		});
+            Context("given a context and a configuration with a filesystem content repository bean",
+                    () -> {
+                        BeforeEach(() -> {
+                            context = new AnnotationConfigApplicationContext();
+                            context.register(BackwardCompatibilityConfig.class);
+                            context.refresh();
+                        });
+                        AfterEach(() -> context.close());
+                        It("should have a ContentRepository bean", () -> assertThat(
+                                context.getBean(TestEntityContentRepository.class),
+                                is(not(nullValue()))
+                        ));
+                    });
+        });
 
-	}
+    }
 
-	@Test
-	public void noop() {
-	}
+    @Test
+    public void noop() {
+    }
 
-	@Configuration
-	@EnableFilesystemStores(basePackages = "contains.no.fs.repositories")
-	@PropertySource("classpath:/test.properties")
-	public static class EmptyConfig {
-	}
+    @Configuration
+    @EnableFilesystemStores(basePackages = "contains.no.fs.repositories")
+    @PropertySource("classpath:/test.properties")
+    public static class EmptyConfig {
+    }
 
-	@Configuration
-	@EnableFilesystemStores
-	@PropertySource("classpath:/test.properties")
-	public static class TestConfig {
+    @Configuration
+    @EnableFilesystemStores
+    @PropertySource("classpath:/test.properties")
+    public static class TestConfig {
 
-		@Value("${spring.content.fs.filesystemRoot:#{null}}")
-		private String filesystemRoot;
+        @Value("${spring.content.fs.filesystemRoot:#{null}}")
+        private String filesystemRoot;
 
-		@Bean
-		FileSystemResourceLoader fileSystemResourceLoader() {
-			return new FileSystemResourceLoader(filesystemRoot);
-		}
-	}
+        @Bean
+        FileSystemResourceLoader fileSystemResourceLoader() {
+            return new FileSystemResourceLoader(filesystemRoot);
+        }
+    }
 
-	@Configuration
-	@EnableFilesystemStores
-	@PropertySource("classpath:/test.properties")
-	public static class ConverterConfig {
+    @Configuration
+    @EnableFilesystemStores
+    @PropertySource("classpath:/test.properties")
+    public static class ConverterConfig {
 
-		@Value("${spring.content.fs.filesystemRoot:#{null}}")
-		private String filesystemRoot;
+        @Value("${spring.content.fs.filesystemRoot:#{null}}")
+        private String filesystemRoot;
 
-		@Bean
-		public FilesystemStoreConverter<UUID, String> uuidConverter() {
-			return new FilesystemStoreConverter<UUID, String>() {
+        @Bean
+        public FilesystemStoreConverter<UUID, String> uuidConverter() {
+            return source -> String.format("/%s", source.toString().replaceAll("-", "/"));
+        }
 
-				@Override
-				public String convert(UUID source) {
-					return String.format("/%s", source.toString().replaceAll("-", "/"));
-				}
-			};
-		}
+        @Bean
+        public FilesystemStoreConfigurer configurer() {
+            return configurer;
+        }
 
-		@Bean
-		public FilesystemStoreConfigurer configurer() {
-			return configurer;
-		}
+        @Bean
+        FileSystemResourceLoader fileSystemResourceLoader() {
+            return new FileSystemResourceLoader(filesystemRoot);
+        }
+    }
 
-		@Bean
-		FileSystemResourceLoader fileSystemResourceLoader() {
-			return new FileSystemResourceLoader(filesystemRoot);
-		}
-	}
+    @EnableFilesystemContentRepositories
+    @PropertySource("classpath:/test.properties")
+    public static class BackwardCompatibilityConfig {
 
-	@EnableFilesystemContentRepositories
-	@PropertySource("classpath:/test.properties")
-	public static class BackwardCompatibilityConfig {
+        @Value("${spring.content.fs.filesystemRoot:#{null}}")
+        private String filesystemRoot;
 
-		@Value("${spring.content.fs.filesystemRoot:#{null}}")
-		private String filesystemRoot;
+        @Bean
+        FileSystemResourceLoader fileSystemResourceLoader() {
+            return new FileSystemResourceLoader(filesystemRoot);
+        }
 
-		@Bean
-		FileSystemResourceLoader fileSystemResourceLoader() {
-			return new FileSystemResourceLoader(filesystemRoot);
-		}
+    }
 
-	}
+    public class TestEntity {
+        @ContentId
+        private String contentId;
+    }
 
-	public class TestEntity {
-		@ContentId
-		private String contentId;
-	}
-
-	public interface TestEntityContentRepository
-			extends ContentStore<TestEntity, String> {
-	}
+    public interface TestEntityContentRepository
+            extends ContentStore<TestEntity, String> {
+    }
 }

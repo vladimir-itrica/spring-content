@@ -34,6 +34,9 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
             <name>Paul Warren</name>
             <email>paul_c_warren@yahoo.com</email>
         </developer>
+        <developer>
+            <name>Vladimir Svyatski</name>
+        </developer>
     </developers>
 
     <licenses>
@@ -49,7 +52,7 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <spring-content.version>${project.version}</spring-content.version>
-        <ginkgo4j-version>1.0.15</ginkgo4j-version>
+        <ginkgo4j-version>2.2.0-SNAPSHOT</ginkgo4j-version>
         <springboot-version>4.0.3</springboot-version>
         <spring-cloud.version>2024.0.3</spring-cloud.version>
         <commonsio-version>2.21.0</commonsio-version>
@@ -245,14 +248,14 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
              <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.4</version>
+                <version>3.5.5</version>
                 <configuration>
                    <argLine>${surefireArgLine}</argLine>
                     <skipTests>true</skipTests>
                     <properties>
                         <property>
                             <name>listener</name>
-                            <value>com.github.paulcwarren.ginkgo4j.maven.JUnitRunListener</value>
+                            <value>io.github.vsvyatski.ginkgo4j.maven.JUnitRunListener</value>
                         </property>
                     </properties>
                 </configuration>
