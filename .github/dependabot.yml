@@ -24,7 +24,7 @@ updates:
     - ">= 11.a, < 12"
   - dependency-name: org.springframework.boot:spring-boot-dependencies
     versions:
-    - 2.4.5
+    - 4.0.3
   - dependency-name: jakarta.persistence:jakarta.persistence-api
     versions:
       - ">=3.2.0, <3.3.0"
