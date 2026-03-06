@@ -11,25 +11,21 @@ import org.springframework.context.annotation.Configuration;
 public class FsTypeSupportConfig {
     @Bean
     public UUIDBasedContentEntityStore uuidStore() {
-        // TODO: implement
-        return null;
+        return new UUIDBasedContentEntityStore();
     }
 
     @Bean
     public URIBasedContentEntityStore uriStore() {
-        // TODO: implement
-        return null;
+        return new URIBasedContentEntityStore();
     }
 
     @Bean
     public LongBasedContentEntityStore longStore() {
-        // TODO: implement
-        return null;
+        return new LongBasedContentEntityStore();
     }
 
     @Bean
     public BigIntegerBasedContentEntityStore bigIntStore() {
-        // TODO: implement
-        return null;
+        return new BigIntegerBasedContentEntityStore();
     }
 }
