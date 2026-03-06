@@ -1,33 +1,67 @@
 package it.typesupport.model;
 
+import org.apache.commons.io.IOUtils;
+import org.springframework.content.commons.annotations.ContentId;
 import org.springframework.content.commons.property.PropertyPath;
 import org.springframework.content.commons.store.ContentStore;
 import org.springframework.content.commons.store.GetResourceParams;
 import org.springframework.content.commons.store.SetContentParams;
 import org.springframework.content.commons.store.UnsetContentParams;
+import org.springframework.content.commons.utils.BeanUtils;
 import org.springframework.core.io.Resource;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
-public class ContentEntityStore<S, SID extends Serializable> implements ContentStore<S, SID> {
+public class ContentEntityStore<S extends IdGenerator<?>, SID extends Serializable> implements ContentStore<S, SID> {
     private final String NOT_SUPPORTED_OPERATION = "The method is not supported in the test class.";
+
+    private final Map<Object, byte[]> storage = new HashMap<>();
 
     @Override
     public S setContent(S entity, InputStream content) {
-        // TODO: implement
-        return null;
+        if (entity == null) return null;
+
+        Object contentId = BeanUtils.getFieldWithAnnotation(entity, ContentId.class);
+        if (contentId == null) {
+            contentId = entity.generateId();
+            BeanUtils.setFieldWithAnnotation(entity, ContentId.class, contentId);
+        }
+
+        try {
+            byte[] data = content != null ? IOUtils.toByteArray(content) : null;
+            storage.put(contentId, data);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to store an entity in the test storage.", e);
+        }
+
+        return entity;
     }
 
     @Override
     public S unsetContent(S entity) {
-        // TODO: implement
-        return null;
+        if (entity == null) return null;
+
+        Object contentId = BeanUtils.getFieldWithAnnotation(entity, ContentId.class);
+        if (contentId != null) {
+            storage.remove(contentId);
+            BeanUtils.setFieldWithAnnotation(entity, ContentId.class, null);
+        }
+        return entity;
     }
 
     @Override
     public InputStream getContent(S entity) {
-        // TODO: implement
+        if (entity == null) return null;
+
+        Object contentId = BeanUtils.getFieldWithAnnotation(entity, ContentId.class);
+        if (contentId != null) {
+            return new ByteArrayInputStream(storage.get(contentId));
+        }
         return null;
     }
 

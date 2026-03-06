@@ -73,7 +73,7 @@ public class FsTypeSupportTest {
                 BeforeEach(() -> entity = new URIBasedContentEntity());
                 Context("given the Application sets the ID", () -> {
                     BeforeEach(() -> {
-                        id = new URI("/some/deep/location");
+                        id = new URI("http://some.org/deep/location.html");
                         ((URIBasedContentEntity) entity).setContentId((URI) id);
 
                         uriStore.setContent((URIBasedContentEntity) entity, new ByteArrayInputStream("uri".getBytes()));
