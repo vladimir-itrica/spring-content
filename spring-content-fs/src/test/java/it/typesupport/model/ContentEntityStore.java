@@ -11,98 +11,103 @@ import java.io.InputStream;
 import java.io.Serializable;
 
 public class ContentEntityStore<S, SID extends Serializable> implements ContentStore<S, SID> {
+    private final String NOT_SUPPORTED_OPERATION = "The method is not supported in the test class.";
+
     @Override
     public S setContent(S entity, InputStream content) {
-        return null;
-    }
-
-    @Override
-    public S setContent(S entity, PropertyPath propertyPath, InputStream content) {
-        return null;
-    }
-
-    @Override
-    public S setContent(S entity, PropertyPath propertyPath, InputStream content, long contentLen) {
-        return null;
-    }
-
-    @Override
-    public S setContent(S entity, PropertyPath propertyPath, InputStream content, SetContentParams params) {
-        return null;
-    }
-
-    @Override
-    public S setContent(S entity, Resource resourceContent) {
-        return null;
-    }
-
-    @Override
-    public S setContent(S entity, PropertyPath propertyPath, Resource resourceContent) {
+        // TODO: implement
         return null;
     }
 
     @Override
     public S unsetContent(S entity) {
-        return null;
-    }
-
-    @Override
-    public S unsetContent(S entity, PropertyPath propertyPath) {
-        return null;
-    }
-
-    @Override
-    public S unsetContent(S entity, PropertyPath propertyPath, UnsetContentParams params) {
+        // TODO: implement
         return null;
     }
 
     @Override
     public InputStream getContent(S entity) {
+        // TODO: implement
         return null;
+    }
+
+    @Override
+    public S setContent(S entity, PropertyPath propertyPath, InputStream content) {
+        throw new UnsupportedOperationException(NOT_SUPPORTED_OPERATION);
+    }
+
+    @Override
+    public S setContent(S entity, PropertyPath propertyPath, InputStream content, long contentLen) {
+        throw new UnsupportedOperationException(NOT_SUPPORTED_OPERATION);
+    }
+
+    @Override
+    public S setContent(S entity, PropertyPath propertyPath, InputStream content, SetContentParams params) {
+        throw new UnsupportedOperationException(NOT_SUPPORTED_OPERATION);
+    }
+
+    @Override
+    public S setContent(S entity, Resource resourceContent) {
+        throw new UnsupportedOperationException(NOT_SUPPORTED_OPERATION);
+    }
+
+    @Override
+    public S setContent(S entity, PropertyPath propertyPath, Resource resourceContent) {
+        throw new UnsupportedOperationException(NOT_SUPPORTED_OPERATION);
+    }
+
+    @Override
+    public S unsetContent(S entity, PropertyPath propertyPath) {
+        throw new UnsupportedOperationException(NOT_SUPPORTED_OPERATION);
+    }
+
+    @Override
+    public S unsetContent(S entity, PropertyPath propertyPath, UnsetContentParams params) {
+        throw new UnsupportedOperationException(NOT_SUPPORTED_OPERATION);
     }
 
     @Override
     public InputStream getContent(S entity, PropertyPath propertyPath) {
-        return null;
+        throw new UnsupportedOperationException(NOT_SUPPORTED_OPERATION);
     }
 
     @Override
     public Resource getResource(S entity) {
-        return null;
+        throw new UnsupportedOperationException(NOT_SUPPORTED_OPERATION);
     }
 
     @Override
     public Resource getResource(S entity, PropertyPath propertyPath) {
-        return null;
+        throw new UnsupportedOperationException(NOT_SUPPORTED_OPERATION);
     }
 
     @Override
     public Resource getResource(S entity, PropertyPath propertyPath, GetResourceParams params) {
-        return null;
+        throw new UnsupportedOperationException(NOT_SUPPORTED_OPERATION);
     }
 
     @Override
     public void associate(S entity, SID id) {
-
+        throw new UnsupportedOperationException(NOT_SUPPORTED_OPERATION);
     }
 
     @Override
     public void associate(S entity, PropertyPath propertyPath, SID id) {
-
+        throw new UnsupportedOperationException(NOT_SUPPORTED_OPERATION);
     }
 
     @Override
     public void unassociate(S entity) {
-
+        throw new UnsupportedOperationException(NOT_SUPPORTED_OPERATION);
     }
 
     @Override
     public void unassociate(S entity, PropertyPath propertyPath) {
-
+        throw new UnsupportedOperationException(NOT_SUPPORTED_OPERATION);
     }
 
     @Override
     public Resource getResource(SID id) {
-        return null;
+        throw new UnsupportedOperationException(NOT_SUPPORTED_OPERATION);
     }
 }
