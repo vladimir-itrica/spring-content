@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.github.paulcwarren</groupId>
+        <groupId>io.github.vsvyatski</groupId>
         <artifactId>spring-content</artifactId>
         <version>4.0.0-SNAPSHOT</version>
     </parent>
@@ -15,80 +15,80 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-autoconfigure</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-azure-storage</artifactId>
                 <version>${spring-content.version}</version></dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-commons</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-docx4j</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-elasticsearch</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-elasticsearch-boot-starter</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-encryption</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-fs</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-fs-boot-starter</artifactId>
                 <version>${spring-content.version}</version></dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-gcs</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-jpa</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-jpa-boot-starter</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-mongo</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-mongo-boot-starter</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-renditions</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-renditions-boot-starter</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
@@ -169,5 +169,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
 </project>

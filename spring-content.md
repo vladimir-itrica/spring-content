@@ -30,11 +30,11 @@
 
 ## Todo
 - --Add S3 implementation--
-- Add support for basic transformations; i.e. (doc -> pdf)
+- Add support for basic transformations; i.e. (.doc → PDF)
 - Add File System implementation
 - Add a CDN implementation (TBD: which CDN?)
 - Add ALPs support
 - Add support for fulltext query methods similar to SD's findBy methods (look at Solr)
 - Add support for byte range content handling for clients like Adobe's PDF Reader
-- Possibly add a Spring Content-based Webdav library implementation?
+- Possibly add a Spring Content-based WebDAV library implementation?
 - Possibly add a Spring Content-based CMIS implementation
