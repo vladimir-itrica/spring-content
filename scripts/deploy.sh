@@ -1,10 +1,10 @@
-if [ ! -z "$TRAVIS_TAG" ]
+if [ -n "$TRAVIS_TAG" ]
 then
     export BUILD_TYPE=release/$TRAVIS_TAG
-    mvn org.codehaus.mojo:versions-maven-plugin:2.1:set -DnewVersion=$TRAVIS_TAG
+    mvn org.codehaus.mojo:versions-maven-plugin:2.1:set -DnewVersion="$TRAVIS_TAG"
 fi
 
-echo BUILD_TYPE: $BUILD_TYPE
+echo BUILD_TYPE: "$BUILD_TYPE"
 
 echo "Importing GPG keys"
 openssl aes-256-cbc -K $encrypted_2d46c2ddc73e_key -iv $encrypted_2d46c2ddc73e_iv -in codesigning.asc.enc -out codesigning.asc -d
