@@ -282,13 +282,13 @@ public class FilesystemStoreIT {
 					// content
 					try (InputStream content = store.getContent(entity)) {
 						assertThat(IOUtils.contentEquals(new ByteArrayInputStream("Hello Spring Content World!".getBytes()), content), is(true));
-					} catch (IOException ioe) {
+					} catch (IOException ignored) {
 					}
 
 					//rendition
 					try (InputStream content = store.getContent(entity, PropertyPath.from("rendition"))) {
 						assertThat(IOUtils.contentEquals(new ByteArrayInputStream("<html>Hello Spring Content World!</html>".getBytes()), content), is(true));
-					} catch (IOException ioe) {
+					} catch (IOException ignored) {
 					}
 				});
 
@@ -301,7 +301,7 @@ public class FilesystemStoreIT {
 					//rendition
 					assertThat(entity.getRenditionId(), is(notNullValue()));
 					assertThat(entity.getRenditionId().trim().length(), greaterThan(0));
-					Assert.assertEquals(entity.getRenditionLen(), 40L);
+					Assert.assertEquals(40L, entity.getRenditionLen());
 				});
 
 				Context("when content is updated", () -> {
@@ -347,14 +347,13 @@ public class FilesystemStoreIT {
 					});
 					It("should store only the new content", () -> {
 						//content
-						boolean matches = false;
+						boolean matches;
 						try (InputStream content = store.getContent(entity)) {
 							matches = IOUtils.contentEquals(new ByteArrayInputStream("Hello Spring World!".getBytes()), content);
 							assertThat(matches, is(true));
 						}
 
 						//rendition
-						matches = false;
 						try (InputStream content = store.getContent(entity, PropertyPath.from("rendition"))) {
 							matches = IOUtils.contentEquals(new ByteArrayInputStream("<html>Hello Spring World!</html>".getBytes()), content);
 							assertThat(matches, is(true));
@@ -417,7 +416,7 @@ public class FilesystemStoreIT {
 
 				Context("when content is unset but kept", () -> {
 					BeforeEach(() -> {
-						resourceLocation = entity.getContentId().toString();
+						resourceLocation = entity.getContentId();
 						entity = store.unsetContent(entity, PropertyPath.from("content"), UnsetContentParams.builder().disposition(UnsetContentParams.Disposition.Keep).build());
 						entity = repo.save(entity);
 					});
