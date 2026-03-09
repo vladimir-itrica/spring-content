@@ -3,7 +3,7 @@ package org.springframework.content.solr;
 import java.io.IOException;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.HttpJdkSolrClient;
 import org.testcontainers.containers.SolrContainer;
 import org.testcontainers.utility.DockerImageName;
 
@@ -26,10 +26,10 @@ public class SolrTestContainer extends SolrContainer {
     public static SolrClient getSolrClient() {
         String solrUrl = String.format(
                 CONNECTION_URL,
-                Singleton.INSTANCE.getContainerIpAddress(),
+                Singleton.INSTANCE.getHost(),
                 Singleton.INSTANCE.getMappedPort(SolrContainer.SOLR_PORT));
 
-        return new HttpSolrClient.Builder(solrUrl).build();
+        return new HttpJdkSolrClient.Builder(solrUrl).build();
     }
 
     @SuppressWarnings("unused") // Serializable safe singleton usage
