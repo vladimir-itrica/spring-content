@@ -27,7 +27,7 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>${commonsio-version}</version>
+			<version>${commonsio.version}</version>
 		</dependency>
   		<dependency>
   			<groupId>commons-logging</groupId>
