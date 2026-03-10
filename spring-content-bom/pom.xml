@@ -11,6 +11,7 @@
 
     <artifactId>spring-content-bom</artifactId>
     <packaging>pom</packaging>
+    <name>Spring Content BOM</name>
 
     <dependencyManagement>
         <dependencies>
@@ -22,7 +23,8 @@
             <dependency>
                 <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-azure-storage</artifactId>
-                <version>${spring-content.version}</version></dependency>
+                <version>${spring-content.version}</version>
+            </dependency>
             <dependency>
                 <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-commons</artifactId>
@@ -56,7 +58,8 @@
             <dependency>
                 <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-fs-boot-starter</artifactId>
-                <version>${spring-content.version}</version></dependency>
+                <version>${spring-content.version}</version>
+            </dependency>
             <dependency>
                 <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-gcs</artifactId>
