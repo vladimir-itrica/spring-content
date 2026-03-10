@@ -11,12 +11,12 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.github.paulcwarren</groupId>
+			<groupId>io.github.vsvyatski</groupId>
 			<artifactId>spring-content-fs</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.github.paulcwarren</groupId>
+			<groupId>io.github.vsvyatski</groupId>
 			<artifactId>spring-content-autoconfigure</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>

@@ -23,7 +23,7 @@ Spring Content REST is itself a Spring MVC application and is designed in such a
 The maven coordinates for this Spring Content library are as follows:
 ```xml
 <dependency>
-    <groupId>com.github.paulcwarren</groupId>
+    <groupId>io.github.vsvyatski</groupId>
     <artifactId>spring-content-rest</artifactId>
 </dependency>
 ```
@@ -31,7 +31,7 @@ The maven coordinates for this Spring Content library are as follows:
 As it is usual to use several Spring Content libraries together importing the bom is recommended:
 ```xml
 <dependency>
-    <groupId>com.github.paulcwarren</groupId>
+    <groupId>io.github.vsvyatski</groupId>
     <artifactId>spring-content-bom</artifactId>
     <version>${spring-content-version}</version>
     <type>pom</type>
@@ -62,7 +62,7 @@ dependencies {
  <dependencies>
 	...
     <dependency>
-      <groupId>com.github.paulcwarren</groupId>
+      <groupId>io.github.vsvyatski</groupId>
       <artifactId>spring-content-rest-boot-starter</artifactId>
       <version>${version}</version>
     </dependency>
@@ -97,7 +97,7 @@ To add Spring Content REST to a Maven-based project, add the spring-content-rest
  <dependencies>
 	...
     <dependency>
-      <groupId>com.github.paulcwarren</groupId>
+      <groupId>io.github.vsvyatski</groupId>
       <artifactId>spring-content-rest</artifactId>
       <version>${version}</version>
     </dependency>

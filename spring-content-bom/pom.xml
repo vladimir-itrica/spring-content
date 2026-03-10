@@ -93,77 +93,77 @@
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-rest</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-rest-boot-starter</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-s3</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-s3-boot-starter</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-solr</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-content-solr-boot-starter</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>content-fs-spring-boot-starter</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>content-jpa-spring-boot-starter</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>content-mongo-spring-boot-starter</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>content-rest-spring-boot-starter</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>content-s3-spring-boot-starter</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>content-solr-spring-boot-starter</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-versions-commons</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-versions-jpa</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.paulcwarren</groupId>
+                <groupId>io.github.vsvyatski</groupId>
                 <artifactId>spring-versions-jpa-boot-starter</artifactId>
                 <version>${spring-content.version}</version>
             </dependency>

@@ -36,7 +36,7 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.github.paulcwarren</groupId>
+            <groupId>io.github.vsvyatski</groupId>
             <artifactId>spring-content-mongo</artifactId>
             <version>${project.parent.version}</version>
             <optional>true</optional>
@@ -52,25 +52,25 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.github.paulcwarren</groupId>
+            <groupId>io.github.vsvyatski</groupId>
             <artifactId>spring-content-renditions</artifactId>
             <version>${project.parent.version}</version>
             <optional>true</optional>
         </dependency>
         <!--		<dependency>-->
-        <!--			<groupId>com.github.paulcwarren</groupId>-->
+        <!--			<groupId>io.github.vsvyatski</groupId>-->
         <!--			<artifactId>spring-content-docx4j</artifactId>-->
         <!--			<version>${project.parent.version}</version>-->
         <!--			<optional>true</optional>-->
         <!--		</dependency>-->
         <dependency>
-            <groupId>com.github.paulcwarren</groupId>
+            <groupId>io.github.vsvyatski</groupId>
             <artifactId>spring-content-rest</artifactId>
             <version>${project.parent.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.github.paulcwarren</groupId>
+            <groupId>io.github.vsvyatski</groupId>
             <artifactId>spring-content-s3</artifactId>
             <version>${project.parent.version}</version>
             <optional>true</optional>
@@ -82,7 +82,7 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.github.paulcwarren</groupId>
+            <groupId>io.github.vsvyatski</groupId>
             <artifactId>spring-content-solr</artifactId>
             <version>${project.parent.version}</version>
             <optional>true</optional>
@@ -104,7 +104,7 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.github.paulcwarren</groupId>
+            <groupId>io.github.vsvyatski</groupId>
             <artifactId>spring-content-elasticsearch</artifactId>
             <version>${project.parent.version}</version>
             <optional>true</optional>
@@ -116,7 +116,7 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.github.paulcwarren</groupId>
+            <groupId>io.github.vsvyatski</groupId>
             <artifactId>spring-versions-jpa</artifactId>
             <version>${project.parent.version}</version>
             <optional>true</optional>
