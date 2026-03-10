@@ -83,7 +83,7 @@ public class SpringBootContentRestConfigurerTest {
                         properties.setShortcutRequestMappings(mappings);
                     });
 
-                    It("should diabled the shortcut links", () -> {
+                    It("should disable the shortcut links", () -> {
                         verify(restConfig).setShortcutLinks(false);
                     });
                 });

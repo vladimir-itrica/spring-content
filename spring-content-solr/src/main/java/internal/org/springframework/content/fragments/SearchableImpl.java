@@ -1,15 +1,10 @@
 package internal.org.springframework.content.fragments;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import internal.org.springframework.content.solr.SolrFulltextIndexServiceImpl;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.QueryRequest;
+import org.apache.solr.client.solrj.request.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.BeanWrapperImpl;
@@ -34,19 +29,23 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 
-import internal.org.springframework.content.solr.SolrFulltextIndexServiceImpl;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class SearchableImpl implements Searchable<Object>, ContentStoreAware {
 
     private static final String field = "id";
 
-    private SolrClient solr;
-    private SolrProperties solrProperties;
+    private final SolrClient solr;
+    private final SolrProperties solrProperties;
     private Class<?> domainClass;
     private Class<?> idClass;
     private Class<?>[] genericArguments;
     private FilterQueryProvider filterProvider;
-    private ConversionService conversionService;
+    private final ConversionService conversionService;
 
     @Autowired
     public SearchableImpl(SolrClient solr, SolrProperties solrProperties) {
@@ -55,7 +54,7 @@ public class SearchableImpl implements Searchable<Object>, ContentStoreAware {
         this.conversionService = new DefaultConversionService();
     }
 
-    @Autowired(required=false)
+    @Autowired(required = false)
     public void setFilterQueryProvider(FilterQueryProvider provider) {
         this.filterProvider = provider;
     }
@@ -127,7 +126,7 @@ public class SearchableImpl implements Searchable<Object>, ContentStoreAware {
     }
 
     /* package */ String parseTermsAndWeights(String operator, String[] terms,
-            double[] weights) {
+                                              double[] weights) {
         Assert.state(terms.length == weights.length, "all terms must have a weight");
 
         StringBuilder builder = new StringBuilder();
@@ -136,7 +135,7 @@ public class SearchableImpl implements Searchable<Object>, ContentStoreAware {
             builder.append(terms[i]);
             builder.append(")^");
             builder.append(weights[i]);
-            builder.append(" " + operator + " ");
+            builder.append(' ').append(operator).append(' ');
         }
         builder.append("(");
         builder.append(terms[terms.length - 1]);
@@ -149,10 +148,9 @@ public class SearchableImpl implements Searchable<Object>, ContentStoreAware {
     /* package */ String parseTerms(String operator, String... terms) {
         String separator;
 
-        if (operator == "NONE") {
+        if ("NONE".equals(operator)) {
             separator = " ";
-        }
-        else {
+        } else {
             separator = " " + operator + " ";
         }
         StringBuilder builder = new StringBuilder();
@@ -214,9 +212,7 @@ public class SearchableImpl implements Searchable<Object>, ContentStoreAware {
         QueryResponse response = null;
         try {
             response = request.process(solr, null);
-        } catch (SolrServerException e) {
-            throw new StoreAccessException(String.format("Error running query %s on field %s against solr.", queryString, field), e);
-        } catch (IOException e) {
+        } catch (SolrServerException | IOException e) {
             throw new StoreAccessException(String.format("Error running query %s on field %s against solr.", queryString, field), e);
         }
 
@@ -229,14 +225,14 @@ public class SearchableImpl implements Searchable<Object>, ContentStoreAware {
 
         SolrDocumentList list = response.getResults();
 
-        if (results == null || list.size() == 0) {
+        if (list.isEmpty()) {
             return wrapResult(returnType, results, pageable, 0);
         }
 
-        for (int j = 0; j < list.size(); ++j) {
+        for (org.apache.solr.common.SolrDocument entries : list) {
 
-            String id = list.get(j).getFieldValue("id").toString();
-            String strippedId = id.substring(id.indexOf(':') + 1, id.length());
+            String id = entries.getFieldValue("id").toString();
+            String strippedId = id.substring(id.indexOf(':') + 1);
 
             if (ContentPropertyUtils.isPrimitiveContentPropertyClass(searchType)) {
                 results.add(conversionService.convert(strippedId, TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(idClass)));
@@ -245,12 +241,12 @@ public class SearchableImpl implements Searchable<Object>, ContentStoreAware {
                 try {
                     result = searchType.newInstance();
                 } catch (InstantiationException | IllegalAccessException e) {
-                    e.printStackTrace();
+                    e.printStackTrace(System.err);
                 }
 
                 Field idField = DomainObjectUtils.getIdField(searchType);
                 if (idField != null) {
-                    new BeanWrapperImpl(result).setPropertyValue(idField.getName(), list.get(j).getFirstValue(SolrFulltextIndexServiceImpl.ENTITY_ID));
+                    new BeanWrapperImpl(result).setPropertyValue(idField.getName(), entries.getFirstValue(SolrFulltextIndexServiceImpl.ENTITY_ID));
                 }
 
                 if (BeanUtils.findFieldWithAnnotation(searchType, ContentId.class) != null) {
@@ -263,12 +259,12 @@ public class SearchableImpl implements Searchable<Object>, ContentStoreAware {
                     BeanUtils.setFieldWithAnnotation(result, Highlight.class, highlight.get(0));
                 }
 
-                for (java.lang.reflect.Field field : BeanUtils.findFieldsWithAnnotation(searchType, Attribute.class, new BeanWrapperImpl(searchType))) {
+                for (Field field : BeanUtils.findFieldsWithAnnotation(searchType, Attribute.class, new BeanWrapperImpl(searchType))) {
                     Attribute fieldAnnotation = field.getAnnotation(Attribute.class);
                     if (field.getType().isPrimitive() || field.getType().equals(String.class)) {
-                        new BeanWrapperImpl(result).setPropertyValue(field.getName(), list.get(j).getFirstValue(fieldAnnotation.name()));
+                        new BeanWrapperImpl(result).setPropertyValue(field.getName(), entries.getFirstValue(fieldAnnotation.name()));
                     } else {
-                        new BeanWrapperImpl(result).setPropertyValue(field.getName(), list.get(j).getFieldValues(fieldAnnotation.name()));
+                        new BeanWrapperImpl(result).setPropertyValue(field.getName(), entries.getFieldValues(fieldAnnotation.name()));
                     }
                 }
 
@@ -295,9 +291,9 @@ public class SearchableImpl implements Searchable<Object>, ContentStoreAware {
     @SuppressWarnings("unchecked")
     private <T> T wrapResult(Class<T> returnType, List<Object> content, Pageable pageable, long total) {
 
-        T rc = null;
+        T rc;
         if (Page.class.isAssignableFrom(returnType)) {
-            rc = (T) new PageImpl<Object>(content, pageable, total);
+            rc = (T) new PageImpl<>(content, pageable, total);
         } else {
             rc = (T) content;
         }

@@ -1,36 +1,25 @@
 package internal.org.springframework.content.solr;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jRunner;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
-
 import org.springframework.content.commons.annotations.ContentId;
 import org.springframework.content.commons.repository.StoreAccessException;
 import org.springframework.content.solr.SolrProperties;
 
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.BeforeEach;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.Context;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.Describe;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.It;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.JustBeforeEach;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
 import static java.lang.String.format;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyObject;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -69,12 +58,12 @@ public class SolrFulltextIndexServiceImplTest {
                 }
             });
 
-            for (Exception ex : new Exception[] {new SolrServerException("badness"), new IOException("badness")}) {
+            for (Exception ex : new Exception[]{new SolrServerException("badness"), new IOException("badness")}) {
 
                 Context(format("when solr throws a %s", ex.getClass().getSimpleName()), () -> {
 
                     BeforeEach(() -> {
-                        when(solr.request(anyObject(), any())).thenThrow(ex);
+                        when(solr.request(any(), any())).thenThrow(ex);
                     });
 
                     It("should throw a StoreAccessException", () -> {
@@ -104,12 +93,12 @@ public class SolrFulltextIndexServiceImplTest {
                 }
             });
 
-            for (Exception ex : new Exception[] {new SolrServerException("badness"), new IOException("badness")}) {
+            for (Exception ex : new Exception[]{new SolrServerException("badness"), new IOException("badness")}) {
 
                 Context(format("when solr throws a %s", ex.getClass().getSimpleName()), () -> {
 
                     BeforeEach(() -> {
-                        when(solr.request(anyObject(), any())).thenThrow(ex);
+                        when(solr.request(any(), any())).thenThrow(ex);
                     });
 
                     It("should throw a StoreAccessException", () -> {

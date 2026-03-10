@@ -7,8 +7,10 @@ import org.springframework.content.commons.repository.Store;
 import org.springframework.content.commons.repository.StoreEvent;
 
 /**
- * @deprecated This class is deprecated. Use {@link org.springframework.content.commons.store.events.BeforeAssociateEvent} instead.
+ * @deprecated This class is deprecated. Use
+ * {@link org.springframework.content.commons.store.events.BeforeAssociateEvent} instead.
  */
+@Deprecated
 public class BeforeAssociateEvent extends StoreEvent {
 
     public BeforeAssociateEvent(Object source, Store<Serializable> store) {

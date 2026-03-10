@@ -8,6 +8,7 @@ import internal.org.springframework.content.solr.boot.autoconfigure.SolrExtensio
 import internal.org.springframework.versions.jpa.boot.autoconfigure.JpaVersionsAutoConfiguration;
 import internal.org.springframework.versions.jpa.boot.autoconfigure.JpaVersionsDatabaseInitializer;
 import org.assertj.core.api.Assertions;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -66,6 +67,7 @@ public class JpaVersionsAutoConfigurationTest {
     public void test() {
     }
 
+    @Ignore("This is not a test")
     @Configuration
     public static class JpaTestConfig {
         @Bean
@@ -96,17 +98,20 @@ public class JpaVersionsAutoConfigurationTest {
         }
     }
 
-    @SpringBootApplication(exclude={SolrAutoConfiguration.class, SolrExtensionAutoConfiguration.class, S3ContentAutoConfiguration.class})
+    @Ignore("This is not a test")
+    @SpringBootApplication(exclude = {SolrAutoConfiguration.class, SolrExtensionAutoConfiguration.class, S3ContentAutoConfiguration.class})
     @Import(JpaTestConfig.class)
     public static class StarterConfig /*extends BaseConfig*/ {
     }
 
-    @SpringBootApplication(exclude={SolrAutoConfiguration.class, SolrExtensionAutoConfiguration.class, S3ContentAutoConfiguration.class})
-    @EnableJpaRepositories(basePackages="org.springframework.versions",
-                           considerNestedRepositories=true)
+    @Ignore("This is not a test")
+    @SpringBootApplication(exclude = {SolrAutoConfiguration.class, SolrExtensionAutoConfiguration.class, S3ContentAutoConfiguration.class})
+    @EnableJpaRepositories(basePackages = "org.springframework.versions",
+            considerNestedRepositories = true)
     @Import(JpaTestConfig.class)
     public static class StarterWithAnnotationConfig /*extends BaseConfig*/ {
     }
 
-    public interface NestedTestEntityRepository extends CrudRepository<TestEntityVersioned, Long>, LockingAndVersioningRepository<TestEntityVersioned> {}
+    public interface NestedTestEntityRepository extends CrudRepository<TestEntityVersioned, Long>, LockingAndVersioningRepository<TestEntityVersioned> {
+    }
 }

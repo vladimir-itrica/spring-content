@@ -1,34 +1,17 @@
 package org.springframework.content.solr;
 
-import static com.github.grantwest.eventually.EventuallyLambdaMatcher.eventuallyEval;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
-import static com.github.paulcwarren.ginkgo4j.matchers.Ginkgo4jMatchers.eventually;
-import static java.lang.String.format;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.junit.Assert.fail;
-
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
-
+import com.github.paulcwarren.ginkgo4j.Ginkgo4jConfiguration;
+import com.github.paulcwarren.ginkgo4j.Ginkgo4jSpringRunner;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.request.QueryRequest;
+import org.apache.solr.client.solrj.request.SolrQuery;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
@@ -45,12 +28,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.test.context.ContextConfiguration;
 
-import com.github.paulcwarren.ginkgo4j.Ginkgo4jConfiguration;
-import com.github.paulcwarren.ginkgo4j.Ginkgo4jSpringRunner;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import static com.github.grantwest.eventually.EventuallyLambdaMatcher.eventuallyEval;
+import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
+import static com.github.paulcwarren.ginkgo4j.matchers.Ginkgo4jMatchers.eventually;
+import static java.lang.String.format;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.fail;
 
 @RunWith(Ginkgo4jSpringRunner.class)
 @Ginkgo4jConfiguration(threads=1)

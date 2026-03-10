@@ -3,14 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.vsvyatski</groupId>
     <artifactId>spring-content</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <version>4.0.0</version>
     <packaging>pom</packaging>
 
     <name>Spring Content</name>
     <url>https://github.com/vsvyatski/spring-content</url>
     <description>
         Cloud-Native Headless Content Management Services (CMS) for Spring. Integrates with Spring Data,
-        Spring Data REST and Apache Solr. Based on original code from Paul Warren.
+        Spring Data REST and Apache Solr. Based on original code from Paul Warren and is Spring Boot 4 compatible.
     </description>
     <licenses>
         <license>
@@ -138,6 +138,16 @@
                 <configuration>
                     <source>17</source>
                     <target>17</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- Can be used to set project version in this root project and all its children by
+                     invoking the following: mvnw versions:set "-DnewVersion=THE_VERSION_YOU_WANT" -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.21.0</version>
+                <configuration>
+                    <allowSnapshots>true</allowSnapshots>
                 </configuration>
             </plugin>
             <!--
@@ -312,24 +322,17 @@
         <profile>
             <id>ci</id>
             <build>
-                <!--                <pluginManagement>-->
-                <!--                    <plugins>-->
-                <!--                        <plugin>-->
-                <!--                            <groupId>org.simplify4u.plugins</groupId>-->
-                <!--                            <artifactId>sign-maven-plugin</artifactId>-->
-                <!--                            <version>1.0.1</version>-->
-                <!--                        </plugin>-->
-                <!--                    </plugins>-->
-                <!--                </pluginManagement>-->
                 <plugins>
                     <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.10.0</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>true</autoPublish>
+                            <!-- The "published" option can take quite a long time to wait. -->
+                            <waitUntil>validated</waitUntil>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -351,6 +354,8 @@
                         <version>3.12.0</version>
                         <configuration>
                             <failOnError>false</failOnError>
+                            <doclint>none</doclint>
+                            <quiet>true</quiet>
                         </configuration>
                         <executions>
                             <execution>
@@ -364,6 +369,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.2.8</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -372,7 +378,7 @@
                                     <goal>sign</goal>
                                 </goals>
                                 <configuration>
-                                    <!-- Prevent gpg from using pinentry programs -->
+                                    <!-- Required for gpg or gpg2 to avoid GUI prompts -->
                                     <gpgArguments>
                                         <arg>--pinentry-mode</arg>
                                         <arg>loopback</arg>

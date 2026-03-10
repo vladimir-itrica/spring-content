@@ -8,6 +8,7 @@ import internal.org.springframework.content.rest.boot.autoconfigure.SpringBootCo
 import internal.org.springframework.content.s3.boot.autoconfigure.S3ContentAutoConfiguration;
 import internal.org.springframework.content.solr.boot.autoconfigure.SolrAutoConfiguration;
 import internal.org.springframework.content.solr.boot.autoconfigure.SolrExtensionAutoConfiguration;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -87,6 +88,7 @@ public class ContentRestAutoConfigurationTest {
 		});
 	}
 
+	@Ignore("This is not a test")
 	@SpringBootApplication(exclude={SolrAutoConfiguration.class, SolrExtensionAutoConfiguration.class, S3ContentAutoConfiguration.class})
 	@ImportAutoConfiguration({ HibernateJpaAutoConfiguration.class, DataJpaRepositoriesAutoConfiguration.class,
 			PropertyPlaceholderAutoConfiguration.class, DataRestAutoConfiguration.class,
@@ -94,10 +96,12 @@ public class ContentRestAutoConfigurationTest {
 	public static class TestConfig {
 	}
 
+	@Ignore("This is not a test")
 	@Configuration
 	@ImportAutoConfiguration({HypermediaAutoConfiguration.class})
 	public static class HypermediaConfig {}
 
+	@Ignore("This is not a test")
 	@Document
 	public class TestEntity {
 		@Id

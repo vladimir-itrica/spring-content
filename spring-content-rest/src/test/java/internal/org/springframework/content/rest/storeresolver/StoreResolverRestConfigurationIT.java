@@ -15,15 +15,16 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.InputStream;
+import java.nio.charset.Charset;
 
 import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 @RunWith(Ginkgo4jSpringRunner.class)
-@Ginkgo4jConfiguration(threads=1)
-@SpringBootTest(classes = Application.class, webEnvironment=WebEnvironment.RANDOM_PORT)
+@Ginkgo4jConfiguration(threads = 1)
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class StoreResolverRestConfigurationIT {
 
     @Autowired
@@ -59,9 +60,9 @@ public class StoreResolverRestConfigurationIT {
                 });
                 It("should return the content from the correct store", () -> {
 
-                    assertThat(jpaStore, is(not(nullValue())));
-                    assertThat(fsStore, is(not(nullValue())));
-                    assertThat(repo, is(not(nullValue())));
+                    assertNotNull(jpaStore);
+                    assertNotNull(fsStore);
+                    assertNotNull(repo);
 
                     String newContent = "This is some new content";
 
@@ -74,14 +75,14 @@ public class StoreResolverRestConfigurationIT {
                             .statusCode(HttpStatus.SC_CREATED);
 
                     // refetch
-                    tEntity = repo.findById(tEntity.getId()).get();
+                    tEntity = repo.findById(tEntity.getId()).orElse(null);
 
                     try (InputStream is = fsStore.getContent(tEntity)) {
-                        assertThat(IOUtils.toString(is), is(newContent));
+                        assertEquals(newContent, IOUtils.toString(is, Charset.defaultCharset()));
                     }
 
                     try (InputStream is = jpaStore.getContent(tEntity)) {
-                        assertThat(is, is(nullValue()));
+                        assertNull(is);
                     }
                 });
             });
@@ -89,5 +90,6 @@ public class StoreResolverRestConfigurationIT {
     }
 
     @Test
-    public void noop() {}
+    public void noop() {
+    }
 }

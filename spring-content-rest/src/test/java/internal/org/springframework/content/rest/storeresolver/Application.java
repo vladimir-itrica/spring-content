@@ -38,6 +38,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -50,113 +51,108 @@ import java.nio.file.Files;
 })
 public class Application {
 
-   public static void main(String[] args) {
+    public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
-   
-   @Configuration
-   @Import({RestConfiguration.class, SecurityConfiguration.class})
-   @EnableJpaRepositories(basePackages= "internal.org.springframework.content.rest.storeresolver", considerNestedRepositories = true)
-   @EnableTransactionManagement
-   @EnableJpaStores(basePackages="internal.org.springframework.content.rest.storeresolver")
-   @EnableFilesystemStores(basePackages="internal.org.springframework.content.rest.storeresolver")
-   public static class AppConfig {
 
-       @Value("/org/springframework/content/jpa/schema-drop-h2.sql")
-       private ClassPathResource dropReopsitoryTables;
+    @Configuration
+    @Import({RestConfiguration.class, SecurityConfiguration.class})
+    @EnableJpaRepositories(basePackages = "internal.org.springframework.content.rest.storeresolver", considerNestedRepositories = true)
+    @EnableTransactionManagement
+    @EnableJpaStores(basePackages = "internal.org.springframework.content.rest.storeresolver")
+    @EnableFilesystemStores(basePackages = "internal.org.springframework.content.rest.storeresolver")
+    public static class AppConfig {
 
-       @Value("/org/springframework/content/jpa/schema-h2.sql")
-       private ClassPathResource dataReopsitorySchema;
+        @Value("/org/springframework/content/jpa/schema-drop-h2.sql")
+        private ClassPathResource dropRepositoryTables;
 
-       @Bean
-       DataSourceInitializer datasourceInitializer(DataSource dataSource) {
-           ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
+        @Value("/org/springframework/content/jpa/schema-h2.sql")
+        private ClassPathResource dataRepositorySchema;
 
-           databasePopulator.addScript(dropReopsitoryTables);
-           databasePopulator.addScript(dataReopsitorySchema);
-           databasePopulator.setIgnoreFailedDrops(true);
+        @Bean
+        DataSourceInitializer datasourceInitializer(DataSource dataSource) {
+            ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
 
-           DataSourceInitializer initializer = new DataSourceInitializer();
-           initializer.setDataSource(dataSource);
-           initializer.setDatabasePopulator(databasePopulator);
+            databasePopulator.addScript(dropRepositoryTables);
+            databasePopulator.addScript(dataRepositorySchema);
+            databasePopulator.setIgnoreFailedDrops(true);
 
-           return initializer;
-       }
+            DataSourceInitializer initializer = new DataSourceInitializer();
+            initializer.setDataSource(dataSource);
+            initializer.setDatabasePopulator(databasePopulator);
 
-       @Bean
-       public DataSource dataSource() {
-           EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-           return builder.setType(EmbeddedDatabaseType.H2).build();
-       }
-
-       @Bean
-       public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-           HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-           vendorAdapter.setDatabase(Database.H2);
-           vendorAdapter.setGenerateDdl(true);
-
-           LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
-           factory.setJpaVendorAdapter(vendorAdapter);
-           factory.setPackagesToScan("internal.org.springframework.content.rest.storeresolver");
-           factory.setDataSource(dataSource());
-
-           return factory;
-       }
-
-       @Bean
-       public PlatformTransactionManager transactionManager() {
-           JpaTransactionManager txManager = new JpaTransactionManager();
-           txManager.setEntityManagerFactory(entityManagerFactory().getObject());
-           return txManager;
-       }
-
-       @Bean
-       public FileSystemResourceLoader fileSystemResourceLoader() throws IOException {
-           return new FileSystemResourceLoader(Files.createTempDirectory("").toFile().getAbsolutePath());
-       }
-
-       @Bean
-       public ContentRestConfigurer contentRestConfigurer() {
-           return new ContentRestConfigurer() {
-               @Override
-               public void configure(RestConfiguration config) {
-                   config.addStoreResolver("tEntities", new StoreResolver() {
-
-                       @Override
-                       public StoreInfo resolve(StoreInfo... stores) {
-                           for (StoreInfo info : stores) {
-                               if (info.getImplementation(FilesystemContentStore.class) != null) {
-                                   return info;
-                               }
-                           }
-                           return null;
-                       }
-                   });
-               }
-           };
+            return initializer;
         }
-   }
 
-   @Entity
-   @Data
-   public static class TEntity {
+        @Bean
+        public DataSource dataSource() {
+            EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
+            return builder.setType(EmbeddedDatabaseType.H2).build();
+        }
 
-       @Id
-       @GeneratedValue
-       private Long id;
+        @Bean
+        public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+            HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+            vendorAdapter.setDatabase(Database.H2);
+            vendorAdapter.setGenerateDdl(true);
 
-       @ContentId
-       private String contentId;
+            LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+            factory.setJpaVendorAdapter(vendorAdapter);
+            factory.setPackagesToScan("internal.org.springframework.content.rest.storeresolver");
+            factory.setDataSource(dataSource());
 
-       @ContentLength
-       private Long contentLength;
+            return factory;
+        }
 
-       @MimeType
-       private String mimeType;
-   }
+        @Bean
+        public PlatformTransactionManager transactionManager() {
+            JpaTransactionManager txManager = new JpaTransactionManager();
+            txManager.setEntityManagerFactory(entityManagerFactory().getObject());
+            return txManager;
+        }
 
-   public interface TEntityRepository extends JpaRepository<TEntity, Long> {}
+        @Bean
+        public FileSystemResourceLoader fileSystemResourceLoader() throws IOException {
+            return new FileSystemResourceLoader(Files.createTempDirectory("").toFile().getAbsolutePath());
+        }
 
-   public interface TEntityFsStore extends FilesystemContentStore<TEntity, String> {}
-   public interface TEntityJpaStore extends JpaContentStore<TEntity, String> {}
+        @Bean
+        public ContentRestConfigurer contentRestConfigurer() {
+            return config -> config.addStoreResolver("tEntities", stores -> {
+                for (StoreInfo info : stores) {
+                    if (info.getImplementation(FilesystemContentStore.class) != null) {
+                        return info;
+                    }
+                }
+                return null;
+            });
+        }
+    }
+
+    @Entity
+    @Data
+    public static class TEntity {
+
+        @Id
+        @GeneratedValue
+        private Long id;
+
+        @ContentId
+        private String contentId;
+
+        @ContentLength
+        private Long contentLength;
+
+        @MimeType
+        private String mimeType;
+    }
+
+    public interface TEntityRepository extends JpaRepository<TEntity, Long> {
+    }
+
+    public interface TEntityFsStore extends FilesystemContentStore<TEntity, String> {
+    }
+
+    public interface TEntityJpaStore extends JpaContentStore<TEntity, String> {
+    }
 }

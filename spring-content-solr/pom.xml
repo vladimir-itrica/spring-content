@@ -2,14 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>spring-content</artifactId>
         <groupId>io.github.vsvyatski</groupId>
-        <version>4.0.0-SNAPSHOT</version>
+        <version>4.0.0</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>spring-content-solr</artifactId>
+    <packaging>jar</packaging>
+    <name>Spring Content Solr</name>
 
     <dependencies>
         <dependency>
@@ -26,25 +28,25 @@
             <artifactId>commons-io</artifactId>
             <version>${commons-io.version}</version>
         </dependency>
-		<dependency>
-			<groupId>org.apache.solr</groupId>
-			<artifactId>solr-solrj</artifactId>
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-solrj</artifactId>
             <version>${solr-solrj.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.codehaus.woodstox</groupId>
-					<artifactId>wstx-asl</artifactId>
-				</exclusion>
-				<exclusion>
-					<artifactId>log4j</artifactId>
-					<groupId>log4j</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.codehaus.woodstox</groupId>
+                    <artifactId>wstx-asl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j</artifactId>
+                    <groupId>log4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>io.github.vsvyatski</groupId>
             <artifactId>spring-content-commons</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
@@ -77,32 +79,27 @@
             <version>0.0.3</version>
             <scope>test</scope>
         </dependency>
-
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>io.github.vsvyatski</groupId>
-			<artifactId>spring-content-fs</artifactId>
-			<version>${parent.version}</version>
-			<scope>test</scope>
-		</dependency>
-		
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.vsvyatski</groupId>
+            <artifactId>spring-content-fs</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>solr</artifactId>
@@ -110,5 +107,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>
