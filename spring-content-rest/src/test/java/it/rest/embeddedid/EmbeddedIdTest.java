@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.util.UUID;
@@ -20,6 +21,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,9 +82,7 @@ public class EmbeddedIdTest {
     {
         Describe("EmbeddedId", () -> {
 
-            BeforeEach(() -> {
-                mvc = MockMvcBuilders.webAppContextSetup(context).build();
-            });
+            BeforeEach(() -> mvc = MockMvcBuilders.webAppContextSetup(context).build());
 
             It("should have a content handler mapping bean", () -> {
 
@@ -114,6 +114,7 @@ public class EmbeddedIdTest {
        });
     }
 
+    @Ignore("This is not a test and must not be treated as such.")
     @SpringBootApplication
     @EnableJpaRepositories(considerNestedRepositories = true, basePackages={"it.rest.embeddedid"})
     @EnableFilesystemStores(basePackages = "it.rest.embeddedid")
@@ -148,6 +149,7 @@ public class EmbeddedIdTest {
        }
     }
 
+    @Ignore("This is not a test and must not be treated as such.")
     @Entity
     @Getter
     @Setter
@@ -170,8 +172,10 @@ public class EmbeddedIdTest {
        private String mimeType = "text/plain";
     }
 
+    @Ignore("This is not a test and must not be treated as such.")
     public static class TestEntityId implements Serializable {
 
+       @Serial
        private static final long serialVersionUID = -1710555467685181030L;
 
        private String first;
