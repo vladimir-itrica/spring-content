@@ -1,6 +1,5 @@
 package org.springframework.content.commons.repository;
 
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 
 import org.springframework.content.commons.property.PropertyPath;
@@ -9,9 +8,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * @deprecated This class is deprecated. Use {@link org.springframework.content.commons.store.ReactiveContentStore} instead.
+ * @deprecated This interface is deprecated. Use {@link org.springframework.content.commons.store.ReactiveContentStore}
+ * instead.
  */
-public interface ReactiveContentStore<S, SID extends Serializable> extends ContentRepository {
+@Deprecated
+public interface ReactiveContentStore<S> extends ContentRepository {
 
     Mono<S> setContent(S entity, PropertyPath path, long contentLen, Flux<ByteBuffer> buffer);
 

@@ -5,8 +5,10 @@ import java.io.Serializable;
 import org.springframework.content.commons.property.PropertyPath;
 
 /**
- * @deprecated This class is deprecated. Use {@link org.springframework.content.commons.store.events.AfterStoreEvent} instead.
+ * @deprecated This class is deprecated. Use {@link org.springframework.content.commons.store.events.AfterStoreEvent}
+ * instead.
  */
+@Deprecated
 public class AfterStoreEvent extends StoreEvent {
 
     private Object result;
@@ -19,12 +21,10 @@ public class AfterStoreEvent extends StoreEvent {
         super(source, propertyPath, store);
     }
 
-    @Deprecated
     public void setResult(Object result) {
         this.result = result;
     }
 
-    @Deprecated
     public Object getResult() {
         return result;
     }

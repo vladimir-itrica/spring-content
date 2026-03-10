@@ -8,8 +8,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * @deprecated This class is deprecated. Use {@link org.springframework.content.commons.store.events.AfterGetResourceEvent} instead.
+ * @deprecated This class is deprecated. Use
+ * {@link org.springframework.content.commons.store.events.AfterGetResourceEvent} instead.
  */
+@Deprecated
 public class AfterGetResourceEvent extends AfterStoreEvent {
 
     @Serial

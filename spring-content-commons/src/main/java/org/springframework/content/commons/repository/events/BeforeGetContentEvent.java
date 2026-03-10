@@ -8,8 +8,10 @@ import org.springframework.content.commons.repository.Store;
 import org.springframework.content.commons.repository.StoreEvent;
 
 /**
- * @deprecated This class is deprecated. Use {@link org.springframework.content.commons.store.events.BeforeGetContentEvent} instead.
+ * @deprecated This class is deprecated. Use
+ * {@link org.springframework.content.commons.store.events.BeforeGetContentEvent} instead.
  */
+@Deprecated
 public class BeforeGetContentEvent extends StoreEvent {
 
 	@Serial

@@ -8,8 +8,10 @@ import org.springframework.content.commons.repository.AfterStoreEvent;
 import org.springframework.content.commons.repository.Store;
 
 /**
- * @deprecated This class is deprecated. Use {@link org.springframework.content.commons.store.events.AfterUnsetContentEvent} instead.
+ * @deprecated This class is deprecated. Use
+ * {@link org.springframework.content.commons.store.events.AfterUnsetContentEvent} instead.
  */
+@Deprecated
 public class AfterUnsetContentEvent extends AfterStoreEvent {
 
 	@Serial

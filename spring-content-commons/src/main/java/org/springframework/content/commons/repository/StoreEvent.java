@@ -7,13 +7,15 @@ import org.springframework.content.commons.property.PropertyPath;
 import org.springframework.context.ApplicationEvent;
 
 /**
- * @deprecated This class is deprecated. Use {@link org.springframework.content.commons.store.events.StoreEvent} instead.
+ * @deprecated This class is deprecated. Use {@link org.springframework.content.commons.store.events.StoreEvent}
+ * instead.
  */
+@Deprecated
 public class StoreEvent extends ApplicationEvent {
     @Serial
     private static final long serialVersionUID = -4985896308323075130L;
 
-    private Store<Serializable> store;
+    private final Store<Serializable> store;
     private PropertyPath propertyPath;
 
     public StoreEvent(Object source, Store<Serializable> store) {
@@ -21,9 +23,9 @@ public class StoreEvent extends ApplicationEvent {
         this.store = store;
     }
 
-    public StoreEvent(Object source, PropertyPath properyPath, Store<Serializable> store) {
+    public StoreEvent(Object source, PropertyPath propertyPath, Store<Serializable> store) {
         super(source);
-        this.propertyPath = properyPath;
+        this.propertyPath = propertyPath;
         this.store = store;
     }
 
