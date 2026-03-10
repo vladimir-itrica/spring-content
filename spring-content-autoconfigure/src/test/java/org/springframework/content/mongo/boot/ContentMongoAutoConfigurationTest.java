@@ -9,6 +9,7 @@ import internal.org.springframework.content.solr.boot.autoconfigure.SolrAutoConf
 import internal.org.springframework.content.solr.boot.autoconfigure.SolrExtensionAutoConfiguration;
 import org.assertj.core.api.Assertions;
 import org.jspecify.annotations.NonNull;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -45,6 +46,7 @@ public class ContentMongoAutoConfigurationTest {
         });
     }
 
+    @Ignore("This is not a test")
     @Configuration
     public static class InfrastructureConfig extends AbstractMongoClientConfiguration {
         @Override
@@ -70,11 +72,13 @@ public class ContentMongoAutoConfigurationTest {
         }
     }
 
+    @Ignore("This is not a test")
     @SpringBootApplication(exclude = {SolrAutoConfiguration.class, SolrExtensionAutoConfiguration.class, S3ContentAutoConfiguration.class})
     @Import(InfrastructureConfig.class)
     public static class TestConfig {
     }
 
+    @Ignore("This is not a test")
     @Document
     public static class TestEntity {
         @Id

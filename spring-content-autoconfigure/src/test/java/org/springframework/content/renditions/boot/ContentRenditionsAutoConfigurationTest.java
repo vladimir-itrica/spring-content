@@ -10,6 +10,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import internal.org.springframework.content.solr.boot.autoconfigure.SolrAutoConfiguration;
 import internal.org.springframework.content.solr.boot.autoconfigure.SolrExtensionAutoConfiguration;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -37,41 +38,37 @@ import internal.org.springframework.content.s3.boot.autoconfigure.S3ContentAutoC
 @Ginkgo4jConfiguration(threads = 1)
 public class ContentRenditionsAutoConfigurationTest {
 
-	{
-		Describe("ContentRenditionsAutoConfiguration", () -> {
+    {
+        Describe("ContentRenditionsAutoConfiguration", () ->
+                Context("given a default configuration", () -> It("should load the all renderers", () -> {
 
-			Context("given a default configuration", () -> {
+                    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+                    context.register(TestConfig.class);
+                    context.refresh();
 
-				It("should load the all renderers", () -> {
+                    assertThat(context.getBean(PdfToJpegRenderer.class), is(not(nullValue())));
+                    assertThat(context.getBean(TextplainToJpegRenderer.class), is(not(nullValue())));
+                    assertThat(context.getBean(WordToJpegRenderer.class), is(not(nullValue())));
 
-					AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-					context.register(TestConfig.class);
-					context.refresh();
-
-					assertThat(context.getBean(PdfToJpegRenderer.class),is(not(nullValue())));
-					assertThat(context.getBean(TextplainToJpegRenderer.class),is(not(nullValue())));
-					assertThat(context.getBean(WordToJpegRenderer.class),is(not(nullValue())));
-
-					assertThat(context.getBean(JpegToPngRenditionProvider.class),is(not(nullValue())));
+                    assertThat(context.getBean(JpegToPngRenditionProvider.class), is(not(nullValue())));
 //					assertThat(context.getBean(WordToHtmlRenditionProvider.class),is(not(nullValue())));
 //					assertThat(context.getBean(WordToPdfRenditionProvider.class),is(not(nullValue())));
 //					assertThat(context.getBean(WordToTextRenditionProvider.class),is(not(nullValue())));
 
-					context.close();
-				});
-			});
-		});
-	}
+                    context.close();
+                })));
+    }
 
-	@Configuration
-	@AutoConfigurationPackage
-	@EnableAutoConfiguration(exclude={SolrAutoConfiguration.class, SolrExtensionAutoConfiguration.class, S3ContentAutoConfiguration.class})
-	@EnableMBeanExport(registration = RegistrationPolicy.IGNORE_EXISTING)
-	public static class TestConfig {
-	}
+    @Ignore("This is not a test")
+    @Configuration
+    @AutoConfigurationPackage
+    @EnableAutoConfiguration(exclude = {SolrAutoConfiguration.class, SolrExtensionAutoConfiguration.class, S3ContentAutoConfiguration.class})
+    @EnableMBeanExport(registration = RegistrationPolicy.IGNORE_EXISTING)
+    public static class TestConfig {
+    }
 
 
-	public interface TestEntityContentStore
-			extends ContentStore<TestEntity, String>, Renderable<TestEntity> {
-	}
+    public interface TestEntityContentStore
+            extends ContentStore<TestEntity, String>, Renderable<TestEntity> {
+    }
 }

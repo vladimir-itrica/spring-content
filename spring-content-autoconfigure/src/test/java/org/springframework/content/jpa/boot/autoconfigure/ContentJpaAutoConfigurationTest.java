@@ -10,6 +10,7 @@ import internal.org.springframework.content.solr.boot.autoconfigure.SolrAutoConf
 import internal.org.springframework.content.solr.boot.autoconfigure.SolrExtensionAutoConfiguration;
 import internal.org.springframework.versions.jpa.boot.autoconfigure.JpaVersionsAutoConfiguration;
 import org.assertj.core.api.Assertions;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -82,6 +83,7 @@ public class ContentJpaAutoConfigurationTest {
 		});
 	}
 
+	@Ignore("This is not a test")
 	@Configuration
 	public static class JpaTestConfig {
 		@Bean
@@ -112,12 +114,14 @@ public class ContentJpaAutoConfigurationTest {
 		}
 	}
 
+	@Ignore("This is not a test")
 	@SpringBootApplication(exclude={JpaVersionsAutoConfiguration.class,SolrAutoConfiguration.class, SolrExtensionAutoConfiguration.class, S3ContentAutoConfiguration.class})
 	@Import(JpaTestConfig.class)
 	@PropertySource("classpath:/default.properties")
 	public static class TestConfig {
 	}
 
+	@Ignore("This is not a test")
 	@SpringBootApplication(exclude={JpaVersionsAutoConfiguration.class,SolrAutoConfiguration.class, SolrExtensionAutoConfiguration.class, S3ContentAutoConfiguration.class})
 	@Import(JpaTestConfig.class)
 	public static class CustomBeanConfig extends TestConfig {
@@ -132,11 +136,13 @@ public class ContentJpaAutoConfigurationTest {
 		}
 	}
 
+	@Ignore("This is not a test")
 	@SpringBootApplication(exclude={JpaVersionsAutoConfiguration.class,SolrAutoConfiguration.class, SolrExtensionAutoConfiguration.class, S3ContentAutoConfiguration.class})
 	@Import(JpaTestConfig.class)
 	@EnableJpaStores
 	public static class ConfigWithExplicitEnableJpaStores {}
 
+	@Ignore("This is not a test")
 	@SpringBootApplication(exclude={JpaVersionsAutoConfiguration.class,SolrAutoConfiguration.class, SolrExtensionAutoConfiguration.class, S3ContentAutoConfiguration.class})
 	@Import(JpaTestConfig.class)
 	@PropertySource("classpath:/custom-jpa.properties")
