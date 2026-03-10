@@ -7,6 +7,7 @@ import internal.org.springframework.content.solr.SolrFulltextIndexServiceImpl;
 import internal.org.springframework.content.solr.boot.autoconfigure.SolrAutoConfiguration;
 import org.apache.solr.client.solrj.SolrClient;
 import org.assertj.core.api.Assertions;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,51 +29,51 @@ import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
 @Ginkgo4jConfiguration(threads = 1)
 public class SolrAutoConfigurationTest {
 
-   private ApplicationContextRunner contextRunner;
+    private ApplicationContextRunner contextRunner;
 
-   {
-      Describe("solr", () -> {
-         Context("given an application context with a SolrClient bean and SolrAutoConfiguration", () -> {
-            BeforeEach(() -> {
-               contextRunner = new ApplicationContextRunner()
-                 .withConfiguration(AutoConfigurations.of(SolrAutoConfiguration.class));
+    {
+        Describe("solr", () -> {
+            Context("given an application context with a SolrClient bean and SolrAutoConfiguration", () -> {
+                BeforeEach(() -> contextRunner = new ApplicationContextRunner()
+                        .withConfiguration(AutoConfigurations.of(SolrAutoConfiguration.class)));
+                It("should include the autoconfigured annotated event handler bean", () ->
+                        contextRunner.withUserConfiguration(TestConfig.class)
+                                .run((context) ->
+                                        Assertions.assertThat(context).getBean("solrFulltextEventListener")
+                                                .isNotNull()));
             });
-            It("should include the autoconfigured annotated event handler bean", () -> {
-               contextRunner.withUserConfiguration(TestConfig.class).run((context) -> {
-                  Assertions.assertThat(context).getBean("solrFulltextEventListener").isNotNull();
-               });
-            });
-         });
-      });
-   }
+        });
+    }
 
-   @Test
-   public void test() {
-   }
+    @Test
+    public void test() {
+    }
 
-   @SpringBootApplication(exclude= ElasticsearchAutoConfiguration.class)
-   public static class TestConfig {
+    @Ignore("This is not a test")
+    @SpringBootApplication(exclude = ElasticsearchAutoConfiguration.class)
+    public static class TestConfig {
 
-      @Autowired
-      private SolrProperties props;
-      @Autowired
-      private SolrClient solrClient;
+        @Autowired
+        private SolrProperties props;
+        @Autowired
+        private SolrClient solrClient;
 
-      public TestConfig() {
-      }
+        public TestConfig() {
+        }
 
-      @Bean
-      public IndexService solrIndexService() {
-         return new SolrFulltextIndexServiceImpl(solrClient, props);
-      }
+        @Bean
+        public IndexService solrIndexService() {
+            return new SolrFulltextIndexServiceImpl(solrClient, props);
+        }
 
-      @Bean
-      public Object deprecatedSolrFulltextEventListener() {
-         return new DeprecatedSolrIndexerStoreEventHandler(solrIndexService());
-      }
+        @Bean
+        public Object deprecatedSolrFulltextEventListener() {
+            return new DeprecatedSolrIndexerStoreEventHandler(solrIndexService());
+        }
 
-      @Bean
-      public Object solrFulltextEventListener() {
-         return new SolrIndexerStoreEventHandler(solrIndexService());
-      }   }
+        @Bean
+        public Object solrFulltextEventListener() {
+            return new SolrIndexerStoreEventHandler(solrIndexService());
+        }
+    }
 }

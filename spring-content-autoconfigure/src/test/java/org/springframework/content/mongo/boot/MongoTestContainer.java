@@ -7,7 +7,7 @@ import org.testcontainers.containers.MongoDBContainer;
 
 public class MongoTestContainer extends MongoDBContainer {
 
-    private static final String DOCKER_IMAGE_NAME = "mongo:4.0.10";
+    private static final String DOCKER_IMAGE_NAME = "mongo:4.4.30";
 
     private MongoTestContainer() {
         super(DOCKER_IMAGE_NAME);
@@ -16,12 +16,11 @@ public class MongoTestContainer extends MongoDBContainer {
 
     // Strip the db name from the end of the replicaSetUrl
     public static String getTestDbName() {
-        return StringUtils.substringAfterLast(Singleton.INSTANCE.getReplicaSetUrl(), "/");
-
+        return StringUtils.substringAfterLast(INSTANCE.getReplicaSetUrl(), "/");
     }
 
     public static String getTestDbUrl() {
-        return StringUtils.substringBeforeLast(Singleton.INSTANCE.getReplicaSetUrl(), "/");
+        return StringUtils.substringBeforeLast(INSTANCE.getReplicaSetUrl(), "/");
     }
 
     public static MongoClient getMongoClient() {
@@ -30,10 +29,8 @@ public class MongoTestContainer extends MongoDBContainer {
 
     @SuppressWarnings("unused") // Serializable safe singleton usage
     protected MongoTestContainer readResolve() {
-        return Singleton.INSTANCE;
+        return INSTANCE;
     }
 
-    private static class Singleton {
-        private static final MongoTestContainer INSTANCE = new MongoTestContainer();
-    }
+    private static final MongoTestContainer INSTANCE = new MongoTestContainer();
 }

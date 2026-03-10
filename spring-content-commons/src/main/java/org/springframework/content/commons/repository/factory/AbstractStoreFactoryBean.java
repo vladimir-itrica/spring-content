@@ -31,7 +31,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @deprecated This class is deprecated. Use {@link org.springframework.content.commons.store.factory.AbstractStoreFactoryBean} instead.
+ * @deprecated This class is deprecated. Use
+ * {@link org.springframework.content.commons.store.factory.AbstractStoreFactoryBean} instead.
  */
 @Deprecated
 public abstract class AbstractStoreFactoryBean implements BeanFactoryAware, InitializingBean, BeanClassLoaderAware,

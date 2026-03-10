@@ -5,6 +5,7 @@ import java.nio.file.Files;
 
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jConfiguration;
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jRunner;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 import org.springframework.content.commons.annotations.ContentId;
@@ -77,6 +78,7 @@ public class RestConfigurationTest {
       });
    }
 
+   @Ignore("This is not a test and must not be treated as such.")
    @Configuration
    @EnableFilesystemStores
    public static class TestConfig {
@@ -92,6 +94,7 @@ public class RestConfigurationTest {
       }
    }
 
+   @Ignore("This is not a test and must not be treated as such.")
    @Document
    public class TestEntity {
       @Id

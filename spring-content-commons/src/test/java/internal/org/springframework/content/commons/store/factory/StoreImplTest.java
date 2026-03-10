@@ -1,27 +1,22 @@
 package internal.org.springframework.content.commons.store.factory;
 
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.BeforeEach;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.Context;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.Describe;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.It;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.JustBeforeEach;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyObject;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.github.paulcwarren.ginkgo4j.Ginkgo4jRunner;
+import org.junit.runner.RunWith;
+import org.springframework.content.commons.repository.ContentStore;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
-import org.junit.runner.RunWith;
-import org.springframework.content.commons.repository.ContentStore;
-import org.springframework.context.ApplicationEventPublisher;
-
-import com.github.paulcwarren.ginkgo4j.Ginkgo4jRunner;
+import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(Ginkgo4jRunner.class)
 public class StoreImplTest {
@@ -30,7 +25,6 @@ public class StoreImplTest {
 
     private ContentStore store;
     private ApplicationEventPublisher publisher;
-    private String tmpDir;
     private Path contentCopyPathRoot;
 
     {
@@ -42,9 +36,9 @@ public class StoreImplTest {
 
             });
             JustBeforeEach(() -> {
-                contentCopyPathRoot = Files.createTempDirectory("storeimpltest");
+                contentCopyPathRoot = Files.createTempDirectory("storeImplTest");
 
-                for (File f : contentCopyPathRoot.toFile().listFiles()) {
+                for (File f : Objects.requireNonNull(contentCopyPathRoot.toFile().listFiles())) {
                     if (f.getName().endsWith(".tmp")) {
                         f.delete(); // may fail mysteriously - returns boolean you may want to check
                     }
@@ -53,18 +47,16 @@ public class StoreImplTest {
                 stores = new StoreImpl(ContentStore.class, store, publisher, contentCopyPathRoot);
             });
 
-            Context("#setContent - inputstream", () -> {
+            Context("#setContent - inputStream", () -> {
 
-                BeforeEach(() -> {
-                    when(store.setContent(anyObject(), any(InputStream.class))).thenReturn(new Object());
-                });
+                BeforeEach(() -> when(store.setContent(any(), any(InputStream.class))).thenReturn(new Object()));
 
                 JustBeforeEach(() -> {
                     stores.setContent(new Object(), new ByteArrayInputStream("foo".getBytes()));
                 });
 
                 It("should delete the content copy file", () -> {
-                    for (File f : contentCopyPathRoot.toFile().listFiles()) {
+                    for (File f : Objects.requireNonNull(contentCopyPathRoot.toFile().listFiles())) {
                         if (f.getName().endsWith(".tmp")) {
                             fail("Found orphaned content copy path");
                         }

@@ -1,44 +1,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.github.paulcwarren</groupId>
+    <groupId>io.github.vsvyatski</groupId>
     <artifactId>spring-content</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <version>4.0.0</version>
     <packaging>pom</packaging>
 
     <name>Spring Content</name>
-    <url>https://github.com/paulcwarren/spring-content/</url>
-    <description>Cloud-Native Headless Content Management Services (CMS) for Spring.
-
-Integrates with Spring Data, Spring Data REST and Apache Solr</description>
-    <organization>
-        <name>Paul Warren</name>
-        <url>https://github.com/paulcwarren</url>
-    </organization>
-    <issueManagement>
-        <system>Github</system>
-        <url>https://github.com/paulcwarren/spring-content/issues</url>
-    </issueManagement>
-    <ciManagement>
-        <system>Travis CI</system>
-        <url>https://travis-ci.org/paulcwarren/spring-content</url>
-    </ciManagement>
-
-    <scm>
-        <url>https://github.com/paulcwarren/spring-content</url>
-        <developerConnection>Paul Warren</developerConnection>
-    </scm>
-
-    <developers>
-        <developer>
-            <name>Paul Warren</name>
-            <email>paul_c_warren@yahoo.com</email>
-        </developer>
-        <developer>
-            <name>Vladimir Svyatski</name>
-        </developer>
-    </developers>
-
+    <url>https://github.com/vsvyatski/spring-content</url>
+    <description>
+        Cloud-Native Headless Content Management Services (CMS) for Spring. Integrates with Spring Data,
+        Spring Data REST and Apache Solr. Based on original code from Paul Warren and is Spring Boot 4 compatible.
+    </description>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -47,6 +20,29 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
         </license>
     </licenses>
 
+    <developers>
+        <developer>
+            <id>paulcwarren</id>
+            <name>Paul Warren</name>
+            <email>paul_c_warren@yahoo.com</email>
+        </developer>
+        <developer>
+            <id>vsvyatski</id>
+            <name>Vladimir Svyatski</name>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/vsvyatski/spring-content.git</connection>
+        <developerConnection>scm:git:ssh://github.com:vsvyatski/spring-content.git</developerConnection>
+        <url>https://github.com/vsvyatski/spring-content/tree/master</url>
+        <tag>HEAD</tag>
+    </scm>
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/vsvyatski/spring-content/issues</url>
+    </issueManagement>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -54,19 +50,18 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
         <spring-content.version>${project.version}</spring-content.version>
         <ginkgo4j.version>2.2.0</ginkgo4j.version>
         <springboot.version>4.0.3</springboot.version>
-        <spring-cloud.version>2024.0.3</spring-cloud.version>
-        <commonsio.version>2.21.0</commonsio.version>
+        <commons-io.version>2.21.0</commons-io.version>
         <commons-lang.version>3.20.0</commons-lang.version>
         <common-logging.version>1.3.5</common-logging.version>
         <commons-text.version>1.15.0</commons-text.version>
         <jakarta-persistence-api.version>3.2.0</jakarta-persistence-api.version>
-        <hibernate-orm.version>6.6.42.Final</hibernate-orm.version>
-        <solr-solrj.version>9.10.1</solr-solrj.version>
+        <hibernate-orm.version>7.2.6.Final</hibernate-orm.version>
+        <solr-solrj.version>10.0.0</solr-solrj.version>
         <elasticsearch-rest-high-level-client.version>7.17.29</elasticsearch-rest-high-level-client.version>
 
         <!-- Test dependencies -->
-        <test-containers.version>1.17.6</test-containers.version>
-        <mockito.version>3.12.4</mockito.version>
+        <test-containers.version>1.21.4</test-containers.version>
+        <mockito.version>4.11.0</mockito.version>
         <mysql-connector.version>9.6.0</mysql-connector.version>
         <ojdbc.version>23.26.1.0.0</ojdbc.version>
         <hamcrest.version>3.0</hamcrest.version>
@@ -87,7 +82,7 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
+                <version>2025.1.1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -104,7 +99,7 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
         <module>./spring-content-azure-storage</module>
         <module>./spring-content-commons</module>
         <module>./spring-content-encryption</module>
-<!--        <module>./spring-content-docx4j</module>-->
+        <!--        <module>./spring-content-docx4j</module>-->
         <module>./spring-content-fs</module>
         <module>./spring-content-fs-boot-starter</module>
         <module>./spring-content-gcs</module>
@@ -134,17 +129,7 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
         <module>./spring-content-bom</module>
     </modules>
 
-
     <build>
-<!--        <pluginManagement>-->
-<!--            <plugins>-->
-<!--                <plugin>-->
-<!--                    <groupId>org.simplify4u.plugins</groupId>-->
-<!--                    <artifactId>sign-maven-plugin</artifactId>-->
-<!--                    <version>1.0.1</version>-->
-<!--                </plugin>-->
-<!--            </plugins>-->
-<!--        </pluginManagement>-->
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -155,45 +140,56 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
                     <target>17</target>
                 </configuration>
             </plugin>
-<!-- 
-            Doc Publishing
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-scm-publish-plugin</artifactId>
-                <version>3.0.0</version>
+                <!-- Can be used to set project version in this root project and all its children by
+                     invoking the following: mvnw versions:set "-DnewVersion=THE_VERSION_YOU_WANT" -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.21.0</version>
                 <configuration>
-                    <providerImplementations>
-                        <git>jgit</git>
-                    </providerImplementations>
-                    <checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
-                    <checkinComment>Publishing reference guides for
-                        ${project.artifactId}:${project.version}</checkinComment>
-                    <content>${basedir}/target/generated-docs</content>
-                    <skipDeletedFiles>true</skipDeletedFiles>
-                    <dryRun>true</dryRun>
-                    <pubScmUrl>scm:git:https://github.com/paulcwarren/spring-content.git</pubScmUrl>
-                    <scmBranch>gh-pages</scmBranch> branch with static site
-                    <username>${env.CI_USERNAME}</username>
-                    <password>${env.CI_PASSWORD}</password>
-                    <ignorePathsToDelete>
-                        <ignorePathToDelete>/*</ignorePathToDelete>
-                    </ignorePathsToDelete>
+                    <allowSnapshots>true</allowSnapshots>
                 </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.maven.scm</groupId>
-                        <artifactId>maven-scm-provider-jgit</artifactId>
-                        <artifactId>maven-scm-provider-gitexe</artifactId>
-                        <version>1.11.2</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.maven.scm</groupId>
-                        <artifactId>maven-scm-api</artifactId>
-                        <version>1.11.2</version>
-                    </dependency>
-                </dependencies>
             </plugin>
- -->        </plugins>
+            <!--
+                        Doc Publishing
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-scm-publish-plugin</artifactId>
+                            <version>3.0.0</version>
+                            <configuration>
+                                <providerImplementations>
+                                    <git>jgit</git>
+                                </providerImplementations>
+                                <checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
+                                <checkinComment>Publishing reference guides for
+                                    ${project.artifactId}:${project.version}</checkinComment>
+                                <content>${basedir}/target/generated-docs</content>
+                                <skipDeletedFiles>true</skipDeletedFiles>
+                                <dryRun>true</dryRun>
+                                <pubScmUrl>scm:git:https://github.com/paulcwarren/spring-content.git</pubScmUrl>
+                                <scmBranch>gh-pages</scmBranch> branch with static site
+                                <username>${env.CI_USERNAME}</username>
+                                <password>${env.CI_PASSWORD}</password>
+                                <ignorePathsToDelete>
+                                    <ignorePathToDelete>/*</ignorePathToDelete>
+                                </ignorePathsToDelete>
+                            </configuration>
+                            <dependencies>
+                                <dependency>
+                                    <groupId>org.apache.maven.scm</groupId>
+                                    <artifactId>maven-scm-provider-jgit</artifactId>
+                                    <artifactId>maven-scm-provider-gitexe</artifactId>
+                                    <version>1.11.2</version>
+                                </dependency>
+                                <dependency>
+                                    <groupId>org.apache.maven.scm</groupId>
+                                    <artifactId>maven-scm-api</artifactId>
+                                    <version>1.11.2</version>
+                                </dependency>
+                            </dependencies>
+                        </plugin>
+             -->
+        </plugins>
     </build>
 
     <profiles>
@@ -210,87 +206,87 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
             </properties>
         </profile>
 
-      <!-- test/coverage -->
+        <!-- test/coverage -->
         <profile>
-         <id>tests</id>
-         <build>
-            <plugins>
-             <plugin>
-                <groupId>org.eluder.coveralls</groupId>
-                <artifactId>coveralls-maven-plugin</artifactId>
-                <version>4.3.0</version>
-             </plugin>
-             <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.14</version>
-                <executions>
-                   <!-- Prepare execution with Surefire -->
-                   <execution>
-                      <id>pre-unit-test</id>
-                      <goals>
-                         <goal>prepare-agent</goal>
-                      </goals>
-                      <configuration>
-                         <propertyName>surefireArgLine</propertyName>
-                      </configuration>
-                   </execution>
-                   <!-- Generate report after tests are run -->
-                   <execution>
-                      <id>post-unit-test</id>
-                      <phase>integration-test</phase>
-                      <goals>
-                         <goal>report</goal>
-                      </goals>
-                   </execution>
-                </executions>
-             </plugin>
-             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.5</version>
-                <configuration>
-                   <argLine>${surefireArgLine}</argLine>
-                    <skipTests>true</skipTests>
-                    <properties>
-                        <property>
-                            <name>listener</name>
-                            <value>io.github.vsvyatski.ginkgo4j.maven.JUnitRunListener</value>
-                        </property>
-                    </properties>
-                </configuration>
-                <executions>
-                  <execution>
-                    <id>unit-tests</id>
-                    <phase>test</phase>
-                    <goals>
-                      <goal>test</goal>
-                     </goals>
-                    <configuration>
-                     <skipTests>false</skipTests>
-                     <includes>
-                       <include>**/*Test.java</include>
-                     </includes>
-                   </configuration>
-                  </execution>
-                  <execution>
-                   <id>integration-tests</id>
-                    <phase>integration-test</phase>
-                    <goals>
-                     <goal>test</goal>
-                   </goals>
-                    <configuration>
-                     <skipTests>false</skipTests>
-                     <includes>
-                       <include>**/*IT.*</include>
-                       <include>**/*Tests.*</include>
-                     </includes>
-                   </configuration>
-                 </execution>
-               </executions>
-             </plugin>
-            </plugins>
-         </build>
+            <id>tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.eluder.coveralls</groupId>
+                        <artifactId>coveralls-maven-plugin</artifactId>
+                        <version>4.3.0</version>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.8.14</version>
+                        <executions>
+                            <!-- Prepare execution with Surefire -->
+                            <execution>
+                                <id>pre-unit-test</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                                <configuration>
+                                    <propertyName>surefireArgLine</propertyName>
+                                </configuration>
+                            </execution>
+                            <!-- Generate report after tests are run -->
+                            <execution>
+                                <id>post-unit-test</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>3.5.5</version>
+                        <configuration>
+                            <argLine>${surefireArgLine}</argLine>
+                            <skipTests>true</skipTests>
+                            <properties>
+                                <property>
+                                    <name>listener</name>
+                                    <value>io.github.vsvyatski.ginkgo4j.maven.JUnitRunListener</value>
+                                </property>
+                            </properties>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>unit-tests</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <skipTests>false</skipTests>
+                                    <includes>
+                                        <include>**/*Test.java</include>
+                                    </includes>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>integration-tests</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <skipTests>false</skipTests>
+                                    <includes>
+                                        <include>**/*IT.*</include>
+                                        <include>**/*Tests.*</include>
+                                    </includes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
         <profile>
@@ -326,24 +322,17 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
         <profile>
             <id>ci</id>
             <build>
-<!--                <pluginManagement>-->
-<!--                    <plugins>-->
-<!--                        <plugin>-->
-<!--                            <groupId>org.simplify4u.plugins</groupId>-->
-<!--                            <artifactId>sign-maven-plugin</artifactId>-->
-<!--                            <version>1.0.1</version>-->
-<!--                        </plugin>-->
-<!--                    </plugins>-->
-<!--                </pluginManagement>-->
                 <plugins>
                     <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.10.0</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>true</autoPublish>
+                            <!-- The "published" option can take quite a long time to wait. -->
+                            <waitUntil>validated</waitUntil>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -365,6 +354,8 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
                         <version>3.12.0</version>
                         <configuration>
                             <failOnError>false</failOnError>
+                            <doclint>none</doclint>
+                            <quiet>true</quiet>
                         </configuration>
                         <executions>
                             <execution>
@@ -378,6 +369,7 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.2.8</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -386,51 +378,17 @@ Integrates with Spring Data, Spring Data REST and Apache Solr</description>
                                     <goal>sign</goal>
                                 </goals>
                                 <configuration>
-                                  <!-- Prevent gpg from using pinentry programs -->
-                                  <gpgArguments>
-                                    <arg>--pinentry-mode</arg>
-                                    <arg>loopback</arg>
-                                  </gpgArguments>
+                                    <!-- Required for gpg or gpg2 to avoid GUI prompts -->
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
                                 </configuration>
                             </execution>
                         </executions>
                     </plugin>
-<!--                    <plugin>-->
-<!--                        <groupId>org.simplify4u.plugins</groupId>-->
-<!--                        <artifactId>sign-maven-plugin</artifactId>-->
-<!--                        <version>1.0.1</version>-->
-<!--                    </plugin>-->
-
-<!--                    <plugin>-->
-<!--                        <groupId>org.apache.maven.plugins</groupId>-->
-<!--                        <artifactId>maven-gpg-plugin</artifactId>-->
-<!--                        <executions>-->
-<!--                            <execution>-->
-<!--                                <id>sign-artifacts</id>-->
-<!--                                <phase>verify</phase>-->
-<!--                                <goals>-->
-<!--                                    <goal>sign</goal>-->
-<!--                                </goals>-->
-<!--                                <configuration>-->
-<!--                                  &lt;!&ndash; Prevent gpg from using pinentry programs &ndash;&gt;-->
-<!--                                  <gpgArguments>-->
-<!--                                    <arg>&#45;&#45;pinentry-mode</arg>-->
-<!--                                    <arg>loopback</arg>-->
-<!--                                  </gpgArguments>-->
-<!--                                </configuration>-->
-<!--                            </execution>-->
-<!--                        </executions>-->
-<!--                    </plugin>-->
                 </plugins>
             </build>
         </profile>
     </profiles>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
 </project>

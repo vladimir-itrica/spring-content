@@ -4,13 +4,14 @@ import java.io.InputStream;
 import java.io.Serializable;
 
 /**
- * @deprecated This class is deprecated. Use fragments instead.
+ * @deprecated This interface is deprecated. Use fragments instead.
  */
+@Deprecated
 public interface StoreInvoker {
 
-	Class<?> getDomainClass();
+    Class<?> getDomainClass();
 
-	Class<? extends Serializable> getContentIdClass();
+    Class<? extends Serializable> getContentIdClass();
 
-	InputStream invokeGetContent();
+    InputStream invokeGetContent();
 }

@@ -4,7 +4,7 @@
 The maven coordinates for this Spring Content library are as follows:
 ```xml
 <dependency>
-    <groupId>com.github.paulcwarren</groupId>
+    <groupId>io.github.vsvyatski</groupId>
     <artifactId>spring-content-encryption</artifactId>
 </dependency>
 ```
@@ -12,7 +12,7 @@ The maven coordinates for this Spring Content library are as follows:
 As it is usual to use several Spring Content libraries together importing the bom is recommended:
 ```xml
 <dependency>
-    <groupId>com.github.paulcwarren</groupId>
+    <groupId>io.github.vsvyatski</groupId>
     <artifactId>spring-content-bom</artifactId>
     <version>${spring-content-version}</version>
     <type>pom</type>
@@ -39,7 +39,7 @@ Spring Content Encryption can be added to your application by adding the depende
 [source, xml]
 ----
 <dependency>
-    <groupId>com.github.paulcwarren</groupId>
+    <groupId>io.github.vsvyatski</groupId>
     <artifactId>spring-content-encryption</artifactId>
     <version>${spring-content-version}</version>
 </dependency>

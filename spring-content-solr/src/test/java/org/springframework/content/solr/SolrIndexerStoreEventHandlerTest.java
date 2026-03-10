@@ -26,7 +26,7 @@ import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.JustBeforeEach;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -39,51 +39,50 @@ import static org.mockito.Mockito.when;
 @Ginkgo4jConfiguration(threads = 1)
 public class SolrIndexerStoreEventHandlerTest {
 
-	private SolrIndexerStoreEventHandler handler;
+    private SolrIndexerStoreEventHandler handler;
 
-	// mocks
-	private ContentStore<Object, Serializable> store;
-	private IndexService indexer;
+    // mocks
+    private ContentStore<Object, Serializable> store;
+    private IndexService<Object> indexer;
 
-	// args
-	private Object contentEntity;
-	private AfterSetContentEvent afterSetEvent;
-	private BeforeUnsetContentEvent beforeUnsetEvent;
-	private InputStream content;
-	private StoreAccessException sae;
-	private Throwable e;
+    // args
+    private Object contentEntity;
+    private AfterSetContentEvent afterSetEvent;
+    private BeforeUnsetContentEvent beforeUnsetEvent;
+    private InputStream content;
+    private StoreAccessException sae;
+    private Throwable e;
 
-	{
-		Describe("SolrIndexerStoreEventHandler", () -> {
-			BeforeEach(() -> {
-				store = mock(ContentStore.class);
-				content = mock(InputStream.class);
-				indexer = mock(IndexService.class);
-				handler = new SolrIndexerStoreEventHandler(indexer);
-			});
-			Context("#onAfterSetContent", () -> {
-				JustBeforeEach(() -> {
-					try {
-						afterSetEvent = new AfterSetContentEvent(contentEntity, store);
-						handler.onAfterSetContent(afterSetEvent);
-					}
-					catch (Throwable e) {
-						this.e = e;
-					}
-				});
-				Context("given a content entity", () -> {
-					BeforeEach(() -> {
-						contentEntity = new ContentEntity();
-						((ContentEntity) contentEntity).contentId = UUID.randomUUID().toString();
-						((ContentEntity) contentEntity).contentLen = 128L;
-						((ContentEntity) contentEntity).mimeType = "text/plain";
+    {
+        Describe("SolrIndexerStoreEventHandler", () -> {
+            BeforeEach(() -> {
+                store = mock(ContentStore.class);
+                content = mock(InputStream.class);
+                indexer = mock(IndexService.class);
+                handler = new SolrIndexerStoreEventHandler(indexer);
+            });
+            Context("#onAfterSetContent", () -> {
+                JustBeforeEach(() -> {
+                    try {
+                        afterSetEvent = new AfterSetContentEvent(contentEntity, store);
+                        handler.onAfterSetContent(afterSetEvent);
+                    } catch (Throwable e) {
+                        this.e = e;
+                    }
+                });
+                Context("given a content entity", () -> {
+                    BeforeEach(() -> {
+                        contentEntity = new ContentEntity();
+                        ((ContentEntity) contentEntity).contentId = UUID.randomUUID().toString();
+                        ((ContentEntity) contentEntity).contentLen = 128L;
+                        ((ContentEntity) contentEntity).mimeType = "text/plain";
 
-						when(store.getContent(eq(contentEntity))).thenReturn(content);
-					});
-					It("should use the indexer to index the content", () -> {
-						assertThat(e, is(nullValue()));
-						verify(indexer).index(eq(contentEntity), eq(content));
-					});
+                        when(store.getContent(eq(contentEntity))).thenReturn(content);
+                    });
+                    It("should use the indexer to index the content", () -> {
+                        assertThat(e, is(nullValue()));
+                        verify(indexer).index(eq(contentEntity), eq(content));
+                    });
 
 //					Context("given a SolrServer Exception", () -> {
 //						BeforeEach(() -> {
@@ -94,56 +93,49 @@ public class SolrIndexerStoreEventHandlerTest {
 //							assertThat(e, is(instanceOf(StoreAccessException.class)));
 //						});
 //					});
-					Context("given the indexer throws an Exception", () -> {
-						BeforeEach(() -> {
-							sae = new StoreAccessException("badness");
-							doThrow(sae).when(indexer).index(anyObject(), anyObject());
-						});
-						It("should re-throw that exception", () -> {
-							assertThat(e, is(sae));
-						});
-					});
-				});
-				Context("given a content entity with a null contentId", () -> {
-					BeforeEach(() -> {
-						contentEntity = new ContentEntity();
-					});
-					It("should call update", () -> {
-						assertThat(e, is(nullValue()));
-						verify(indexer, never()).index(anyObject(), anyObject());
-					});
-				});
-				Context("given a bogus content entity", () -> {
-					BeforeEach(() -> {
-						contentEntity = new NotAContentEntity();
-					});
-					It("", () -> {
-						assertThat(e, is(nullValue()));
-						verify(indexer, never()).index(anyObject(), anyObject());
-					});
-				});
-			});
-			Context("#onBeforeUnsetContent", () -> {
-				JustBeforeEach(() -> {
-					try {
-						beforeUnsetEvent = new BeforeUnsetContentEvent(contentEntity, store);
-						handler.onBeforeUnsetContent(beforeUnsetEvent);
-					}
-					catch (Exception e) {
-						this.e = e;
-					}
-				});
-				Context("given a content entity", () -> {
-					BeforeEach(() -> {
-						contentEntity = new ContentEntity();
-						((ContentEntity) contentEntity).contentId = UUID.randomUUID().toString();
-						((ContentEntity) contentEntity).contentLen = 128L;
-						((ContentEntity) contentEntity).mimeType = "text/plain";
-					});
-					It("should use the indexer to unindex the content", () -> {
-						assertThat(e, is(nullValue()));
-						verify(indexer).unindex(eq(contentEntity));
-					});
+                    Context("given the indexer throws an Exception", () -> {
+                        BeforeEach(() -> {
+                            sae = new StoreAccessException("badness");
+                            doThrow(sae).when(indexer).index(any(), any());
+                        });
+                        It("should re-throw that exception", () -> assertThat(e, is(sae)));
+                    });
+                });
+                Context("given a content entity with a null contentId", () -> {
+                    BeforeEach(() -> contentEntity = new ContentEntity());
+                    It("should call update", () -> {
+                        assertThat(e, is(nullValue()));
+                        verify(indexer, never()).index(any(), any());
+                    });
+                });
+                Context("given a bogus content entity", () -> {
+                    BeforeEach(() -> contentEntity = new NotAContentEntity());
+                    It("", () -> {
+                        assertThat(e, is(nullValue()));
+                        verify(indexer, never()).index(any(), any());
+                    });
+                });
+            });
+            Context("#onBeforeUnsetContent", () -> {
+                JustBeforeEach(() -> {
+                    try {
+                        beforeUnsetEvent = new BeforeUnsetContentEvent(contentEntity, store);
+                        handler.onBeforeUnsetContent(beforeUnsetEvent);
+                    } catch (Exception e) {
+                        this.e = e;
+                    }
+                });
+                Context("given a content entity", () -> {
+                    BeforeEach(() -> {
+                        contentEntity = new ContentEntity();
+                        ((ContentEntity) contentEntity).contentId = UUID.randomUUID().toString();
+                        ((ContentEntity) contentEntity).contentLen = 128L;
+                        ((ContentEntity) contentEntity).mimeType = "text/plain";
+                    });
+                    It("should use the indexer to unindex the content", () -> {
+                        assertThat(e, is(nullValue()));
+                        verify(indexer).unindex(eq(contentEntity));
+                    });
 //					Context("given a username", () -> {
 //						BeforeEach(() -> {
 //							when(props.getUser()).thenReturn("username");
@@ -168,52 +160,45 @@ public class SolrIndexerStoreEventHandlerTest {
 //							assertThat(e, is(instanceOf(StoreAccessException.class)));
 //						});
 //					});
-					Context("given a IOException", () -> {
-						BeforeEach(() -> {
-							sae = new StoreAccessException("badness");
-							doThrow(sae).when(indexer).unindex(anyObject());
-						});
-						It("should throw a ContextAccessException", () -> {
-							assertThat(e, is(sae));
-						});
-					});
-				});
-				Context("given a content entity with a null contentId", () -> {
-					BeforeEach(() -> {
-						contentEntity = new ContentEntity();
-					});
-					It("should call update", () -> {
-						assertThat(e, is(nullValue()));
-						verify(indexer, never()).unindex(anyObject());
-					});
-				});
-				Context("given a bogus content entity", () -> {
-					BeforeEach(() -> {
-						contentEntity = new NotAContentEntity();
-					});
-					It("should never attempt deletion", () -> {
-						assertThat(e, is(nullValue()));
-						verify(indexer, never()).unindex(anyObject());
-					});
-				});
-			});
-		});
-	}
+                    Context("given a IOException", () -> {
+                        BeforeEach(() -> {
+                            sae = new StoreAccessException("badness");
+                            doThrow(sae).when(indexer).unindex(any());
+                        });
+                        It("should throw a ContextAccessException", () -> assertThat(e, is(sae)));
+                    });
+                });
+                Context("given a content entity with a null contentId", () -> {
+                    BeforeEach(() -> contentEntity = new ContentEntity());
+                    It("should call update", () -> {
+                        assertThat(e, is(nullValue()));
+                        verify(indexer, never()).unindex(any());
+                    });
+                });
+                Context("given a bogus content entity", () -> {
+                    BeforeEach(() -> contentEntity = new NotAContentEntity());
+                    It("should never attempt deletion", () -> {
+                        assertThat(e, is(nullValue()));
+                        verify(indexer, never()).unindex(any());
+                    });
+                });
+            });
+        });
+    }
 
-	public static class ContentEntity {
-		@ContentId
-		public String contentId;
-		@ContentLength
-		public Long contentLen;
-		@MimeType
-		public String mimeType;
-	}
+    @Test
+    public void test() {
+    }
 
-	public static class NotAContentEntity {
-	}
+    public static class ContentEntity {
+        @ContentId
+        public String contentId;
+        @ContentLength
+        public Long contentLen;
+        @MimeType
+        public String mimeType;
+    }
 
-	@Test
-	public void test() {
-	}
-
+    public static class NotAContentEntity {
+    }
 }

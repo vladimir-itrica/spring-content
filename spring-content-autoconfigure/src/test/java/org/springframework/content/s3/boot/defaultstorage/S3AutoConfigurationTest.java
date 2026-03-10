@@ -5,6 +5,7 @@ import com.github.paulcwarren.ginkgo4j.Ginkgo4jRunner;
 import internal.org.springframework.content.elasticsearch.boot.autoconfigure.ElasticsearchAutoConfiguration;
 import internal.org.springframework.content.s3.boot.autoconfigure.S3ContentAutoConfiguration;
 import org.assertj.core.api.Assertions;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -72,10 +73,11 @@ public class S3AutoConfigurationTest {
 		});
 	}
 
+    @Ignore("This is not a test")
     @SpringBootApplication(exclude={ElasticsearchAutoConfiguration.class})
 	@EnableS3Stores(basePackageClasses=S3AutoConfigurationTest.class)
 	public static class TestConfigWithoutBeans {
-		// will be supplied by auto-configuration
+		// will be supplied by autoconfiguration
 	}
 
 	public interface TestEntityRepository extends JpaRepository<TestEntity, Long> {

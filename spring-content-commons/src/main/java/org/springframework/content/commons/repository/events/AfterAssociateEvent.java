@@ -8,8 +8,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * @deprecated This class is deprecated. Use {@link org.springframework.content.commons.store.events.AfterAssociateEvent} instead.
+ * @deprecated This class is deprecated. Use
+ * {@link org.springframework.content.commons.store.events.AfterAssociateEvent} instead.
  */
+@Deprecated
 public class AfterAssociateEvent extends AfterStoreEvent {
 
     @Serial

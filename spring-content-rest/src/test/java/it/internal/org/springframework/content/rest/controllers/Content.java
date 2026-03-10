@@ -218,7 +218,7 @@ public class Content {
                 It("should return the original content and 200", () -> {
                     MockHttpServletResponse response = mvc.perform(get(url)
                             .contextPath(contextPath)
-                            .accept(new String[] { "text/html;charset=ISO-8859-1" }))
+                            .accept("text/html;charset=ISO-8859-1"))
                             .andExpect(status().isOk()).andReturn()
                             .getResponse();
 
@@ -295,7 +295,7 @@ public class Content {
                     assertThat(fetched.get().getContentId(), is(not(nullValue())));
                     assertThat(fetched.get().getOriginalFileName(), is("tests-file-modified.txt"));
                     assertThat(fetched.get().getMimeType(), is("text/plain"));
-                    assertThat(fetched.get().getLen(), is(Long.valueOf(content.length())));
+                    assertThat(fetched.get().getLen(), is((long) content.length()));
                 });
             });
             Context("a POST to /{store}/{id} with a missing content-type", () -> {
@@ -325,7 +325,7 @@ public class Content {
                     assertThat(fetched.get().getContentId(), is(not(nullValue())));
                     assertThat(fetched.get().getOriginalFileName(), is("tests-file-modified.txt"));
                     assertThat(fetched.get().getMimeType(), is("text/plain"));
-                    assertThat(fetched.get().getLen(), is(Long.valueOf(content.length())));
+                    assertThat(fetched.get().getLen(), is((long) content.length()));
                 });
             });
             Context("a DELETE to /{store}/{id} with the mimetype", () -> {

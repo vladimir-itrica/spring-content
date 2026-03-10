@@ -10,8 +10,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * @deprecated This class is deprecated. Use {@link org.springframework.content.commons.store.events.BeforeSetContentEvent} instead.
+ * @deprecated This class is deprecated. Use
+ * {@link org.springframework.content.commons.store.events.BeforeSetContentEvent} instead.
  */
+@Deprecated
 public class BeforeSetContentEvent extends StoreEvent {
 
     @Serial

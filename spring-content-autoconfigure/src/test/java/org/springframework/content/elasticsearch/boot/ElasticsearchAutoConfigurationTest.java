@@ -7,6 +7,7 @@ import internal.org.springframework.content.elasticsearch.ElasticsearchIndexer;
 import internal.org.springframework.content.elasticsearch.IndexManager;
 import internal.org.springframework.content.elasticsearch.boot.autoconfigure.ElasticsearchAutoConfiguration;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -19,102 +20,92 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 @RunWith(Ginkgo4jRunner.class)
-@Ginkgo4jConfiguration(threads=1)
+@Ginkgo4jConfiguration(threads = 1)
 public class ElasticsearchAutoConfigurationTest {
 
-    private static RestHighLevelClient client;
+    private static final RestHighLevelClient client;
 
     static {
         client = mock(RestHighLevelClient.class);
     }
 
     {
-        Describe("given a context without a rest high level client configured", () -> {
-            It("should create a client", () -> {
-                final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-                        .withConfiguration(AutoConfigurations.of(ElasticsearchAutoConfiguration.class));
+        Describe("given a context without a rest high level client configured", () ->
+                It("should create a client", () -> {
+                    final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+                            .withConfiguration(AutoConfigurations.of(ElasticsearchAutoConfiguration.class));
 
-                contextRunner.withUserConfiguration(ContextWithoutClientBean.class).run((context) -> {
-                    assertThat(context).hasSingleBean(RestHighLevelClient.class);
-                    assertThat(context).getBean(RestHighLevelClient.class).isNotEqualTo(client);
-                    assertThat(context).hasSingleBean(ElasticsearchAutoConfiguration.ElasticsearchProperties.class);
-                    assertThat(context).hasSingleBean(ElasticsearchIndexer.class);
+                    contextRunner.withUserConfiguration(ContextWithoutClientBean.class).run((context) -> {
+                        assertThat(context).hasSingleBean(RestHighLevelClient.class);
+                        assertThat(context).getBean(RestHighLevelClient.class).isNotEqualTo(client);
+                        assertThat(context).hasSingleBean(ElasticsearchAutoConfiguration.ElasticsearchProperties.class);
+                        assertThat(context).hasSingleBean(ElasticsearchIndexer.class);
 
-                    assertThat(context).hasSingleBean(ElasticsearchIndexServiceImpl.class);
-                    assertThat(context).hasSingleBean(IndexManager.class);
-                });
-            });
-        });
+                        assertThat(context).hasSingleBean(ElasticsearchIndexServiceImpl.class);
+                        assertThat(context).hasSingleBean(IndexManager.class);
+                    });
+                })
+        );
 
-        Describe("given a context with a rest high level client configured", () -> {
-            It("should use that client", () -> {
-                final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-                        .withConfiguration(AutoConfigurations.of(ElasticsearchAutoConfiguration.class));
+        Describe("given a context with a rest high level client configured", () ->
+                It("should use that client", () -> {
+                    final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+                            .withConfiguration(AutoConfigurations.of(ElasticsearchAutoConfiguration.class));
 
-                contextRunner.withUserConfiguration(ContextWithClientBean.class).run((context) -> {
-                    assertThat(context).getBean(RestHighLevelClient.class).isEqualTo(client);
-                });
-
-            });
-        });
+                    contextRunner.withUserConfiguration(ContextWithClientBean.class)
+                            .run((context) ->
+                                    assertThat(context).getBean(RestHighLevelClient.class).isEqualTo(client));
+                })
+        );
 
         Describe("given a context with auto indexing disabled", () -> {
-            BeforeEach(() -> {
-                System.setProperty("spring.content.elasticsearch.autoindex", "false");
-            });
-            AfterEach(() -> {
-                System.clearProperty("spring.content.elasticsearch.autoindex");
-            });
+            BeforeEach(() -> System.setProperty("spring.content.elasticsearch.autoindex", "false"));
+            AfterEach(() -> System.clearProperty("spring.content.elasticsearch.autoindex"));
 
             It("should not configure the indexing event handler", () -> {
                 final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
                         .withConfiguration(AutoConfigurations.of(ElasticsearchAutoConfiguration.class));
 
-                contextRunner.withUserConfiguration(ContextWithClientBean.class).run((context) -> {
-                    assertThat(context).doesNotHaveBean(ElasticsearchIndexer.class);
-                });
-
+                contextRunner.withUserConfiguration(ContextWithClientBean.class)
+                        .run((context) ->
+                                assertThat(context).doesNotHaveBean(ElasticsearchIndexer.class));
             });
         });
 
         Describe("given a context with auto-indexing configured", () -> {
-            BeforeEach(() -> {
-                System.setProperty("spring.content.elasticsearch.autoindex", "true");
-            });
-            AfterEach(() -> {
-                System.clearProperty("spring.content.elasticsearch.autoindex");
-            });
+            BeforeEach(() -> System.setProperty("spring.content.elasticsearch.autoindex", "true"));
+            AfterEach(() -> System.clearProperty("spring.content.elasticsearch.autoindex"));
 
             It("should load the context", () -> {
                 final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
                         .withConfiguration(AutoConfigurations.of(ElasticsearchAutoConfiguration.class));
 
-                contextRunner.withUserConfiguration(ContextWithClientBean.class).run((context) -> {
-                    assertThat(context).hasSingleBean(ElasticsearchIndexer.class);
-                });
+                contextRunner.withUserConfiguration(ContextWithClientBean.class)
+                        .run((context) ->
+                                assertThat(context).hasSingleBean(ElasticsearchIndexer.class));
 
             });
         });
 
 
-        Describe("given a context that already enables elasticsearch fulltext indexing", () -> {
+        Describe("given a context that already enables ElasticSearch fulltext indexing", () ->
+                It("should load the context and not throw a BeanDefinitionOverrideException", () -> {
+                    final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+                            .withConfiguration(AutoConfigurations.of(ElasticsearchAutoConfiguration.class));
 
-            It("should load the context and not throw a BeanDefinitionOverrideException", () -> {
-                final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-                        .withConfiguration(AutoConfigurations.of(ElasticsearchAutoConfiguration.class));
-
-                contextRunner.withUserConfiguration(ContextWithEnablement.class).run((context) -> {
-                    assertThat(context).hasSingleBean(RestHighLevelClient.class);
-                });
-
-            });
-        });
+                    contextRunner.withUserConfiguration(ContextWithEnablement.class)
+                            .run((context) ->
+                                    assertThat(context).hasSingleBean(RestHighLevelClient.class));
+                })
+        );
     }
 
+    @Ignore("This is not a test")
     @Configuration
     public static class ContextWithoutClientBean {
     }
 
+    @Ignore("This is not a test")
     @Configuration
     public static class ContextWithClientBean {
 
@@ -124,6 +115,7 @@ public class ElasticsearchAutoConfigurationTest {
         }
     }
 
+    @Ignore("This is not a test")
     @Configuration
     @EnableElasticsearchFulltextIndexing
     public static class ContextWithEnablement {

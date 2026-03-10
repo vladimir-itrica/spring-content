@@ -7,6 +7,7 @@ import internal.org.springframework.content.s3.boot.autoconfigure.S3ContentAutoC
 import internal.org.springframework.content.solr.boot.autoconfigure.SolrAutoConfiguration;
 import internal.org.springframework.content.solr.boot.autoconfigure.SolrExtensionAutoConfiguration;
 import org.assertj.core.api.Assertions;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -68,6 +69,7 @@ public class FilesystemAutoConfigurationTest {
         });
 	}
 
+    @Ignore("This is not a test")
     @SpringBootApplication(exclude={SolrAutoConfiguration.class, SolrExtensionAutoConfiguration.class, S3ContentAutoConfiguration.class})
 	public static class TestConfig {
 	}

@@ -2,6 +2,9 @@ package internal.org.springframework.content.s3.it;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.net.URIBuilder;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -25,25 +28,41 @@ public class LocalStack extends LocalStackContainer implements Serializable {
         start();
     }
 
-    private static class Singleton {
-        private static final LocalStack INSTANCE = new LocalStack();
-    }
+    private static final LocalStack INSTANCE = new LocalStack();
 
     public static S3Client getAmazonS3Client() throws URISyntaxException {
         return S3Client.builder()
-                .endpointOverride(new URI(Singleton.INSTANCE.getEndpointConfiguration(LocalStackContainer.Service.S3).getServiceEndpoint()))
+                .endpointOverride(new URI(INSTANCE.getEndpointConfiguration().getServiceEndpoint()))
                 .region(Region.US_EAST_1) // Set a region, so it does not need to be configured externally
-                .credentialsProvider(new CrossAwsCredentialsProvider(Singleton.INSTANCE.getDefaultCredentialsProvider()))
-                .serviceConfiguration((bldr) -> bldr.pathStyleAccessEnabled(true).build())
+                .credentialsProvider(new CrossAwsCredentialsProvider(INSTANCE.getDefaultCredentialsProvider()))
+                .serviceConfiguration((builder) -> builder.pathStyleAccessEnabled(true).build())
                 .build();
+    }
+
+    /**
+     * This method was removed from {@link LocalStackContainer}. We'll keep a little modified version here.
+     *
+     * @return an {@link AwsClientBuilder.EndpointConfiguration}
+     */
+    private AwsClientBuilder.EndpointConfiguration getEndpointConfiguration() {
+        return new AwsClientBuilder.EndpointConfiguration(getEndpointOverride(Service.S3).toString(), getRegion());
+    }
+
+    /**
+     * This method was removed from {@link LocalStackContainer}, we'll just add it here for now.
+     *
+     * @return an {@link AWSCredentialsProvider}
+     */
+    private AWSCredentialsProvider getDefaultCredentialsProvider() {
+        return new AWSStaticCredentialsProvider(new BasicAWSCredentials(getAccessKey(), getSecretKey()));
     }
 
     @Override
     public URI getEndpointOverride(EnabledService service) {
         try {
-            // super method converts localhost to 127.0.0.1 which fails on macos
+            // super method converts localhost to 127.0.0.1 which fails on macOS
             // need to revert it back to whatever getContainerIpAddress() returns
-            return new URIBuilder(super.getEndpointOverride(service)).setHost(getContainerIpAddress()).build();
+            return new URIBuilder(super.getEndpointOverride(service)).setHost(getHost()).build();
         } catch (URISyntaxException e) {
             throw new IllegalStateException("Cannot obtain endpoint URL", e);
         }
@@ -51,20 +70,18 @@ public class LocalStack extends LocalStackContainer implements Serializable {
 
     @SuppressWarnings("unused") // Serializable safe singleton usage
     protected LocalStack readResolve() {
-        return Singleton.INSTANCE;
+        return INSTANCE;
     }
 
 
-    private static class CrossAwsCredentialsProvider implements AwsCredentialsProvider {
-      private final AWSCredentials credentials;
+    private record CrossAwsCredentialsProvider(AWSCredentials credentials) implements AwsCredentialsProvider {
+        private CrossAwsCredentialsProvider(AWSCredentialsProvider credentials) {
+            this(credentials.getCredentials());
+        }
 
-      public CrossAwsCredentialsProvider(AWSCredentialsProvider provider) {
-        this.credentials = provider.getCredentials();
-      }
-
-      @Override
-      public AwsCredentials resolveCredentials() {
-        return AwsBasicCredentials.create(credentials.getAWSAccessKeyId(), credentials.getAWSSecretKey());
-      }
+        @Override
+        public AwsCredentials resolveCredentials() {
+            return AwsBasicCredentials.create(credentials.getAWSAccessKeyId(), credentials.getAWSSecretKey());
+        }
     }
 }

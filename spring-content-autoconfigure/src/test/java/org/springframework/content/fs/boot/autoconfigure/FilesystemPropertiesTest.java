@@ -1,5 +1,6 @@
 package org.springframework.content.fs.boot.autoconfigure;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.runner.RunWith;
 
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jRunner;
@@ -18,28 +19,25 @@ import internal.org.springframework.content.fs.boot.autoconfigure.FilesystemCont
 @RunWith(Ginkgo4jRunner.class)
 public class FilesystemPropertiesTest {
 
-	private FilesystemContentAutoConfiguration.FilesystemProperties props;
+    private FilesystemContentAutoConfiguration.FilesystemProperties props;
 
-	{
-		Describe("FilesystemProperties", () -> {
-			Context("given a filesystem properties with no root set", () -> {
-				BeforeEach(() -> {
-					props = new FilesystemContentAutoConfiguration.FilesystemProperties();
-				});
-				It("should return a JAVA.IO.TMPDIR based default", () -> {
-					assertThat(props.getFilesystemRoot(),
-							startsWith(System.getProperty("java.io.tmpdir")));
-				});
-			});
-			Context("given a filesystem properties with root set", () -> {
-				BeforeEach(() -> {
-					props = new FilesystemContentAutoConfiguration.FilesystemProperties();
-					props.setFilesystemRoot("/some/random/path");
-				});
-				It("should return a JAVA.IO.TMPDIR based default", () -> {
-					assertThat(props.getFilesystemRoot(), is("/some/random/path"));
-				});
-			});
-		});
-	}
+    {
+        Describe("FilesystemProperties", () -> {
+            Context("given a filesystem properties with no root set", () -> {
+                BeforeEach(() -> props = new FilesystemContentAutoConfiguration.FilesystemProperties());
+                It("should return a JAVA.IO.TMPDIR based default", () ->
+                        assertThat(props.getFilesystemRoot(), startsWith(System.getProperty("java.io.tmpdir"))));
+            });
+            Context("given a filesystem properties with root set", () -> {
+                final String someRandomPath = SystemUtils.IS_OS_WINDOWS ?
+                        "C:\\some\\random\\path" : "/some/random/path";
+                BeforeEach(() -> {
+                    props = new FilesystemContentAutoConfiguration.FilesystemProperties();
+                    props.setFilesystemRoot(someRandomPath);
+                });
+                It("should return a JAVA.IO.TMPDIR based default", () ->
+                        assertThat(props.getFilesystemRoot(), is(someRandomPath)));
+            });
+        });
+    }
 }

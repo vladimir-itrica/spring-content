@@ -14,7 +14,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.content.commons.annotations.MimeType;
 import org.springframework.content.commons.repository.AfterStoreEvent;
 import org.springframework.content.commons.repository.ContentStore;
@@ -32,18 +31,18 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.Map;
 import java.util.UUID;
 
 import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
@@ -53,536 +52,497 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 @Ginkgo4jConfiguration(threads = 1)
 public class StoreMethodInterceptorTest {
 
-	private static Method getResourceMethod;
-	private static Method getResourceEntityMethod;
-	private static Method associateMethod;
-	private static Method unassociateMethod;
-	private static Method getContentMethod;
-	private static Method setContentMethod;
-	private static Method setContentFromResourceMethod;
-	private static Method unsetContentMethod;
-	private static Method toStringMethod;
-
-	static {
-		getResourceMethod = ReflectionUtils.findMethod(Store.class, "getResource", Serializable.class);
-		getResourceEntityMethod = ReflectionUtils.findMethod(AssociativeStore.class, "getResource", Object.class);
-		associateMethod = ReflectionUtils.findMethod(AssociativeStore.class, "associate", Object.class, Serializable.class);
-		unassociateMethod = ReflectionUtils.findMethod(AssociativeStore.class, "unassociate", Object.class);
-		getContentMethod = ReflectionUtils.findMethod(ContentStore.class, "getContent", Object.class);
-		setContentMethod = ReflectionUtils.findMethod(ContentStore.class, "setContent", Object.class, InputStream.class);
-		setContentFromResourceMethod = ReflectionUtils.findMethod(ContentStore.class, "setContent", Object.class, Resource.class);
-		unsetContentMethod = ReflectionUtils.findMethod(ContentStore.class, "unsetContent", Object.class);
-		toStringMethod = ReflectionUtils.findMethod(Object.class, "toString");
-	}
-
-	private StoreMethodInterceptor interceptor;
-
-	// mocks
-	private ContentStore<Object, Serializable> store;
-	private MethodInvocation invocation;
-	private ApplicationEventPublisher publisher;
-
-	private Object result;
-	private Exception e;
-
-	private ByteArrayInputStream modifiedStream = null;
-
-	{
-		Describe("#invoke", () -> {
-
-			BeforeEach(() -> {
-				store = mock(ContentStore.class);
-				publisher = mock(ApplicationEventPublisher.class);
-			});
-
-			JustBeforeEach(() -> {
-				interceptor = new StoreMethodInterceptor();
-				StoreFragments fragments = new StoreFragments(Collections.singletonList(new StoreFragment(TestContentStore.class, new StoreImpl(TestContentStore.class, store, publisher, Paths.get(System.getProperty("java.io.tmpdir"))))));
-				interceptor.setStoreFragments(fragments);
-				try {
-					interceptor.invoke(invocation);
-				}
-				catch (Exception invokeException) {
-					e = invokeException;
-				}
-			});
-
-			Describe("#getContent", () -> {
-
-				BeforeEach(() -> {
-
-					result = new ByteArrayInputStream(new byte[]{});
-
-					store = mock(ContentStore.class);
-					when(store.getContent(anyObject())).thenReturn((InputStream)result);
-
-					invocation = new TestMethodInvocation(store, getContentMethod, new Object[]{new Object()});
-				});
-
-				It("should proceed", () -> {
-					assertThat(e, is(nullValue()));
-
-					ArgumentCaptor<AfterStoreEvent> captor = ArgumentCaptor.forClass(AfterStoreEvent.class);
-					InOrder inOrder = Mockito.inOrder(publisher, store);
-
-					inOrder.verify(publisher, times(1)).publishEvent(argThat(isA(StoreEvent.class)));
-					inOrder.verify(store).getContent(anyObject());
-					inOrder.verify(publisher, times(1)).publishEvent(captor.capture());
-					assertThat(captor.getValue().getResult(), is(result));
-				});
-
-				Context("when getContent is invoked with illegal arguments", () -> {
-
-					BeforeEach(() -> {
-						invocation = new TestMethodInvocation(store, getContentMethod, new Object[]{});
-					});
-
-					It("should proceed", () -> {
-						assertThat(e, is(not(nullValue())));
-					});
-				});
-			});
-
-			Describe("#setContent", () -> {
-
-				BeforeEach(() -> {
-
-					result = new Object();
-
-					store = mock(ContentStore.class);
-					when(store.setContent(anyObject(), any(InputStream.class))).thenReturn(result);
+    private static final Method getResourceMethod;
+    private static final Method getResourceEntityMethod;
+    private static final Method associateMethod;
+    private static final Method unassociateMethod;
+    private static final Method getContentMethod;
+    private static final Method setContentMethod;
+    private static final Method setContentFromResourceMethod;
+    private static final Method unsetContentMethod;
+    private static final Method toStringMethod;
 
-					invocation = new TestMethodInvocation(store, setContentMethod, new Object[]{new Object(), new ByteArrayInputStream("test".getBytes())});
-				});
+    static {
+        getResourceMethod = ReflectionUtils.findMethod(Store.class, "getResource", Serializable.class);
+        getResourceEntityMethod = ReflectionUtils.findMethod(AssociativeStore.class, "getResource", Object.class);
+        associateMethod = ReflectionUtils.findMethod(AssociativeStore.class, "associate", Object.class, Serializable.class);
+        unassociateMethod = ReflectionUtils.findMethod(AssociativeStore.class, "unassociate", Object.class);
+        getContentMethod = ReflectionUtils.findMethod(ContentStore.class, "getContent", Object.class);
+        setContentMethod = ReflectionUtils.findMethod(ContentStore.class, "setContent", Object.class, InputStream.class);
+        setContentFromResourceMethod = ReflectionUtils.findMethod(ContentStore.class, "setContent", Object.class, Resource.class);
+        unsetContentMethod = ReflectionUtils.findMethod(ContentStore.class, "unsetContent", Object.class);
+        toStringMethod = ReflectionUtils.findMethod(Object.class, "toString");
+    }
 
-				It("should proceed", () -> {
-					assertThat(e, is(nullValue()));
+    private StoreMethodInterceptor interceptor;
 
-					ArgumentCaptor<BeforeSetContentEvent> beforeArgCaptor = ArgumentCaptor.forClass(BeforeSetContentEvent.class);
-					ArgumentCaptor<InputStream> setContentArgCaptor = ArgumentCaptor.forClass(InputStream.class);
-					ArgumentCaptor<AfterStoreEvent> afterArgCaptor = ArgumentCaptor.forClass(AfterStoreEvent.class);
-					InOrder inOrder = Mockito.inOrder(publisher, store);
+    // mocks
+    private ContentStore<Object, Serializable> store;
+    private MethodInvocation invocation;
+    private ApplicationEventPublisher publisher;
 
-					inOrder.verify(publisher, times(1)).publishEvent(beforeArgCaptor.capture());
-					assertThat(beforeArgCaptor.getValue().getResource(), is(nullValue()));
-					assertThat(beforeArgCaptor.getValue().getInputStream(), is(not(nullValue())));
+    private Object result;
+    private Exception e;
 
-					inOrder.verify(store).setContent(anyObject(), setContentArgCaptor.capture());
-					try (InputStream setContentInputStream = setContentArgCaptor.getValue()) {
-						assertThat(IOUtils.toString(setContentInputStream), is("test"));
-					}
+    private ByteArrayInputStream modifiedStream = null;
+
+    {
+        Describe("#invoke", () -> {
 
-					inOrder.verify(publisher, times(1)).publishEvent(afterArgCaptor.capture());
-					assertThat(afterArgCaptor.getValue().getResult(), is(result));
-				});
+            BeforeEach(() -> {
+                store = mock(ContentStore.class);
+                publisher = mock(ApplicationEventPublisher.class);
+            });
 
-				Context("when the BeforeSetContentEvent consumes the entire inputstream", () -> {
+            JustBeforeEach(() -> {
+                interceptor = new StoreMethodInterceptor();
+                StoreFragments fragments = new StoreFragments(Collections.singletonList(new StoreFragment(TestContentStore.class, new StoreImpl(TestContentStore.class, store, publisher, Paths.get(System.getProperty("java.io.tmpdir"))))));
+                interceptor.setStoreFragments(fragments);
+                try {
+                    interceptor.invoke(invocation);
+                } catch (Exception invokeException) {
+                    e = invokeException;
+                }
+            });
 
-					BeforeEach(() -> {
-						onBeforeSetContentPublishEvent((invocationOnMock) -> {
-							try (InputStream is = ((BeforeSetContentEvent)invocationOnMock.getArgument(0)).getInputStream()) {
-								assertThat(IOUtils.toString(is), is("test"));
-							}
-							return null;
-						});
-					});
+            Describe("#getContent", () -> {
+
+                BeforeEach(() -> {
 
-					It("should still receive the inputstream in the setContent invocation", () -> {
-						assertThat(e, is(nullValue()));
+                    result = new ByteArrayInputStream(new byte[]{});
 
-						ArgumentCaptor<InputStream> setContentArgCaptor = ArgumentCaptor.forClass(InputStream.class);
-						ArgumentCaptor<AfterStoreEvent> afterArgCaptor = ArgumentCaptor.forClass(AfterStoreEvent.class);
-						InOrder inOrder = Mockito.inOrder(publisher, store);
+                    store = mock(ContentStore.class);
+                    when(store.getContent(any())).thenReturn((InputStream) result);
 
-						inOrder.verify(publisher).publishEvent(argThat(isA(BeforeSetContentEvent.class)));
+                    invocation = new TestMethodInvocation(store, getContentMethod, new Object());
+                });
 
-						inOrder.verify(store).setContent(anyObject(), setContentArgCaptor.capture());
-						try (InputStream setContentInputStream = setContentArgCaptor.getValue()) {
-							assertThat(IOUtils.toString(setContentInputStream), is("test"));
-						}
+                It("should proceed", () -> {
+                    assertThat(e, is(nullValue()));
 
-						inOrder.verify(publisher, times(1)).publishEvent(afterArgCaptor.capture());
-						assertThat(afterArgCaptor.getValue().getResult(), is(result));
-					});
-				});
+                    ArgumentCaptor<AfterStoreEvent> captor = ArgumentCaptor.forClass(AfterStoreEvent.class);
+                    InOrder inOrder = Mockito.inOrder(publisher, store);
 
-				Context("when the BeforeSetContentEvent consumes partial inputstream", () -> {
+                    inOrder.verify(publisher, times(1)).publishEvent(argThat(isA(StoreEvent.class)));
+                    inOrder.verify(store).getContent(any());
+                    inOrder.verify(publisher, times(1)).publishEvent(captor.capture());
+                    assertThat(captor.getValue().getResult(), is(result));
+                });
 
-					BeforeEach(() -> {
-						onBeforeSetContentPublishEvent((invocationOnMock) -> {
-							InputStream is = ((BeforeSetContentEvent)invocationOnMock.getArgument(0)).getInputStream();
-							assertThat((char)is.read(), is('t'));
-							assertThat((char)is.read(), is('e'));
-							return null;
-						});
-					});
+                Context("when getContent is invoked with illegal arguments", () -> {
 
-					It("should still receive the inputstream in the setContent invocation", () -> {
-						assertThat(e, is(nullValue()));
+                    BeforeEach(() -> invocation = new TestMethodInvocation(store, getContentMethod));
 
-						InOrder inOrder = Mockito.inOrder(publisher, store);
+                    It("should proceed", () -> assertThat(e, is(not(nullValue()))));
+                });
+            });
 
-						ArgumentCaptor<InputStream> setContentArgCaptor = ArgumentCaptor.forClass(InputStream.class);
-						ArgumentCaptor<AfterStoreEvent> afterArgCaptor = ArgumentCaptor.forClass(AfterStoreEvent.class);
+            Describe("#setContent", () -> {
 
-						inOrder.verify(publisher).publishEvent(argThat(isA(BeforeSetContentEvent.class)));
+                BeforeEach(() -> {
 
-						inOrder.verify(store).setContent(anyObject(), setContentArgCaptor.capture());
+                    result = new Object();
 
-						try (InputStream setContentInputStream = setContentArgCaptor.getValue()) {
-							assertThat(IOUtils.toString(setContentInputStream), is("test"));
-						}
+                    store = mock(ContentStore.class);
+                    when(store.setContent(any(), any(InputStream.class))).thenReturn(result);
 
-						inOrder.verify(publisher, times(1)).publishEvent(afterArgCaptor.capture());
-						assertThat(afterArgCaptor.getValue().getResult(), is(result));
-					});
-				});
+                    invocation = new TestMethodInvocation(store, setContentMethod, new Object(), new ByteArrayInputStream("test".getBytes()));
+                });
 
-				Context("when the BeforeSetContentEvent does not consume any of the inputstream", () -> {
+                It("should proceed", () -> {
+                    assertThat(e, is(nullValue()));
 
-					BeforeEach(() -> {
-						onBeforeSetContentPublishEvent((invocationOnMock) -> {
-							return null;
-						});
-					});
+                    ArgumentCaptor<BeforeSetContentEvent> beforeArgCaptor = ArgumentCaptor.forClass(BeforeSetContentEvent.class);
+                    ArgumentCaptor<InputStream> setContentArgCaptor = ArgumentCaptor.forClass(InputStream.class);
+                    ArgumentCaptor<AfterStoreEvent> afterArgCaptor = ArgumentCaptor.forClass(AfterStoreEvent.class);
+                    InOrder inOrder = Mockito.inOrder(publisher, store);
 
-					It("should still receive the inputstream in the setContent invocation", () -> {
-						assertThat(e, is(nullValue()));
+                    inOrder.verify(publisher, times(1)).publishEvent(beforeArgCaptor.capture());
+                    assertThat(beforeArgCaptor.getValue().getResource(), is(nullValue()));
+                    assertThat(beforeArgCaptor.getValue().getInputStream(), is(not(nullValue())));
 
-						InOrder inOrder = Mockito.inOrder(publisher, store);
+                    inOrder.verify(store).setContent(any(), setContentArgCaptor.capture());
+                    try (InputStream setContentInputStream = setContentArgCaptor.getValue()) {
+                        assertThat(IOUtils.toString(setContentInputStream), is("test"));
+                    }
 
-						ArgumentCaptor<InputStream> setContentArgCaptor = ArgumentCaptor.forClass(InputStream.class);
-						ArgumentCaptor<AfterStoreEvent> afterArgCaptor = ArgumentCaptor.forClass(AfterStoreEvent.class);
+                    inOrder.verify(publisher, times(1)).publishEvent(afterArgCaptor.capture());
+                    assertThat(afterArgCaptor.getValue().getResult(), is(result));
+                });
 
-						inOrder.verify(publisher).publishEvent(argThat(isA(BeforeSetContentEvent.class)));
+                Context("when the BeforeSetContentEvent consumes the entire inputStream", () -> {
 
-						inOrder.verify(store).setContent(anyObject(), setContentArgCaptor.capture());
+                    BeforeEach(() -> onBeforeSetContentPublishEvent((invocationOnMock) -> {
+                        try (InputStream is = ((BeforeSetContentEvent) invocationOnMock.getArgument(0)).getInputStream()) {
+                            assertThat(IOUtils.toString(is, Charset.defaultCharset()), is("test"));
+                        }
+                        return null;
+                    }));
 
-						try (InputStream setContentInputStream = setContentArgCaptor.getValue()) {
-							assertThat(IOUtils.toString(setContentInputStream), is("test"));
-						}
+                    It("should still receive the inputStream in the setContent invocation", () -> {
+                        assertThat(e, is(nullValue()));
 
-						inOrder.verify(publisher, times(1)).publishEvent(afterArgCaptor.capture());
-						assertThat(afterArgCaptor.getValue().getResult(), is(result));
-					});
-				});
+                        ArgumentCaptor<InputStream> setContentArgCaptor = ArgumentCaptor.forClass(InputStream.class);
+                        ArgumentCaptor<AfterStoreEvent> afterArgCaptor = ArgumentCaptor.forClass(AfterStoreEvent.class);
+                        InOrder inOrder = Mockito.inOrder(publisher, store);
 
-				Context("when the BeforeSetContentEvent replaces the inputstream", () -> {
+                        inOrder.verify(publisher).publishEvent(argThat(isA(BeforeSetContentEvent.class)));
 
-					BeforeEach(() -> {
-						onBeforeSetContentPublishEvent((invocationOnMock) -> {
-							modifiedStream = new ByteArrayInputStream("encrypted".getBytes());
-							((BeforeSetContentEvent)invocationOnMock.getArgument(0)).setInputStream(modifiedStream);
-							return null;
-						});
-					});
+                        inOrder.verify(store).setContent(any(), setContentArgCaptor.capture());
+                        try (InputStream setContentInputStream = setContentArgCaptor.getValue()) {
+                            assertThat(IOUtils.toString(setContentInputStream, Charset.defaultCharset()), is("test"));
+                        }
 
-					It("should still receive the replaced inputstream in the setContent invocation", () -> {
-						assertThat(e, is(nullValue()));
+                        inOrder.verify(publisher, times(1)).publishEvent(afterArgCaptor.capture());
+                        assertThat(afterArgCaptor.getValue().getResult(), is(result));
+                    });
+                });
 
-						InOrder inOrder = Mockito.inOrder(publisher, store);
+                Context("when the BeforeSetContentEvent consumes partial inputStream", () -> {
 
-						ArgumentCaptor<InputStream> setContentArgCaptor = ArgumentCaptor.forClass(InputStream.class);
-						ArgumentCaptor<AfterStoreEvent> afterArgCaptor = ArgumentCaptor.forClass(AfterStoreEvent.class);
+                    BeforeEach(() -> onBeforeSetContentPublishEvent((invocationOnMock) -> {
+                        InputStream is = ((BeforeSetContentEvent) invocationOnMock.getArgument(0)).getInputStream();
+                        assertThat((char) is.read(), is('t'));
+                        assertThat((char) is.read(), is('e'));
+                        return null;
+                    }));
 
-						inOrder.verify(publisher).publishEvent(argThat(isA(BeforeSetContentEvent.class)));
+                    It("should still receive the inputStream in the setContent invocation", () -> {
+                        assertThat(e, is(nullValue()));
 
-						inOrder.verify(store).setContent(anyObject(), setContentArgCaptor.capture());
+                        InOrder inOrder = Mockito.inOrder(publisher, store);
 
-						try (InputStream setContentInputStream = setContentArgCaptor.getValue()) {
-							assertThat(setContentInputStream, is(modifiedStream));
-						}
+                        ArgumentCaptor<InputStream> setContentArgCaptor = ArgumentCaptor.forClass(InputStream.class);
+                        ArgumentCaptor<AfterStoreEvent> afterArgCaptor = ArgumentCaptor.forClass(AfterStoreEvent.class);
 
-						inOrder.verify(publisher, times(1)).publishEvent(afterArgCaptor.capture());
-						assertThat(afterArgCaptor.getValue().getResult(), is(result));
-					});
-				});
+                        inOrder.verify(publisher).publishEvent(argThat(isA(BeforeSetContentEvent.class)));
 
-				Context("when setContent is invoked with illegal arguments", () -> {
+                        inOrder.verify(store).setContent(any(), setContentArgCaptor.capture());
 
-					BeforeEach(() -> {
-						invocation = new TestMethodInvocation(store, setContentMethod, new Object[]{});
-					});
+                        try (InputStream setContentInputStream = setContentArgCaptor.getValue()) {
+                            assertThat(IOUtils.toString(setContentInputStream, Charset.defaultCharset()), is("test"));
+                        }
 
-					It("should proceed", () -> {
-						assertThat(e, is(not(nullValue())));
-					});
-				});
-			});
+                        inOrder.verify(publisher, times(1)).publishEvent(afterArgCaptor.capture());
+                        assertThat(afterArgCaptor.getValue().getResult(), is(result));
+                    });
+                });
 
-			Describe("#setContent from Resource", () -> {
+                Context("when the BeforeSetContentEvent does not consume any of the inputStream", () -> {
 
-				BeforeEach(() -> {
+                    BeforeEach(() -> onBeforeSetContentPublishEvent((invocationOnMock) -> null));
 
-					result = new Object();
+                    It("should still receive the inputStream in the setContent invocation", () -> {
+                        assertThat(e, is(nullValue()));
 
-					store = mock(ContentStore.class);
-					when(store.setContent(anyObject(), any(Resource.class))).thenReturn(result);
+                        InOrder inOrder = Mockito.inOrder(publisher, store);
 
-					invocation = new TestMethodInvocation(store, setContentFromResourceMethod, new Object[]{new Object(), new InputStreamResource(new ByteArrayInputStream("test".getBytes()))});
-				});
+                        ArgumentCaptor<InputStream> setContentArgCaptor = ArgumentCaptor.forClass(InputStream.class);
+                        ArgumentCaptor<AfterStoreEvent> afterArgCaptor = ArgumentCaptor.forClass(AfterStoreEvent.class);
 
-				It("should proceed", () -> {
-					assertThat(e, is(nullValue()));
+                        inOrder.verify(publisher).publishEvent(argThat(isA(BeforeSetContentEvent.class)));
 
-					ArgumentCaptor<BeforeSetContentEvent> beforeArgCaptor = ArgumentCaptor.forClass(BeforeSetContentEvent.class);
-					ArgumentCaptor<Resource> setContentArgCaptor = ArgumentCaptor.forClass(Resource.class);
-					ArgumentCaptor<AfterStoreEvent> afterArgCaptor = ArgumentCaptor.forClass(AfterStoreEvent.class);
-					InOrder inOrder = Mockito.inOrder(publisher, store);
+                        inOrder.verify(store).setContent(any(), setContentArgCaptor.capture());
 
-					inOrder.verify(publisher, times(1)).publishEvent(beforeArgCaptor.capture());
-					assertThat(beforeArgCaptor.getValue().getResource(), is(not(nullValue())));
-					assertThat(beforeArgCaptor.getValue().getInputStream(), is(nullValue()));
+                        try (InputStream setContentInputStream = setContentArgCaptor.getValue()) {
+                            assertThat(IOUtils.toString(setContentInputStream, Charset.defaultCharset()), is("test"));
+                        }
 
-					inOrder.verify(store).setContent(anyObject(), setContentArgCaptor.capture());
-					try (InputStream setContentInputStream = setContentArgCaptor.getValue().getInputStream()) {
-						assertThat(IOUtils.toString(setContentInputStream), is("test"));
-					}
+                        inOrder.verify(publisher, times(1)).publishEvent(afterArgCaptor.capture());
+                        assertThat(afterArgCaptor.getValue().getResult(), is(result));
+                    });
+                });
 
-					inOrder.verify(publisher, times(1)).publishEvent(afterArgCaptor.capture());
-					assertThat(afterArgCaptor.getValue().getResult(), is(result));
-				});
-			});
+                Context("when the BeforeSetContentEvent replaces the inputStream", () -> {
 
-			Describe("#unsetContent", () -> {
+                    BeforeEach(() -> onBeforeSetContentPublishEvent((invocationOnMock) -> {
+                        modifiedStream = new ByteArrayInputStream("encrypted".getBytes());
+                        ((BeforeSetContentEvent) invocationOnMock.getArgument(0)).setInputStream(modifiedStream);
+                        return null;
+                    }));
 
-			BeforeEach(() -> {
+                    It("should still receive the replaced inputStream in the setContent invocation", () -> {
+                        assertThat(e, is(nullValue()));
 
-				result = new Object();
-				store = mock(ContentStore.class);
-				when(store.unsetContent(anyObject())).thenReturn(result);
+                        InOrder inOrder = Mockito.inOrder(publisher, store);
 
-				invocation = new TestMethodInvocation(store, unsetContentMethod, new Object[]{new Object()});
-			});
+                        ArgumentCaptor<InputStream> setContentArgCaptor = ArgumentCaptor.forClass(InputStream.class);
+                        ArgumentCaptor<AfterStoreEvent> afterArgCaptor = ArgumentCaptor.forClass(AfterStoreEvent.class);
 
-			Context("when unsetContent is invoked", () -> {
+                        inOrder.verify(publisher).publishEvent(argThat(isA(BeforeSetContentEvent.class)));
 
-				It("should proceed", () -> {
-					assertThat(e, is(nullValue()));
+                        inOrder.verify(store).setContent(any(), setContentArgCaptor.capture());
 
-					InOrder inOrder = Mockito.inOrder(publisher, store);
+                        try (InputStream setContentInputStream = setContentArgCaptor.getValue()) {
+                            assertThat(setContentInputStream, is(modifiedStream));
+                        }
 
-					inOrder.verify(publisher).publishEvent(argThat(isA(BeforeUnsetContentEvent.class)));
-					inOrder.verify(store).unsetContent(anyObject());
+                        inOrder.verify(publisher, times(1)).publishEvent(afterArgCaptor.capture());
+                        assertThat(afterArgCaptor.getValue().getResult(), is(result));
+                    });
+                });
 
-					ArgumentCaptor<AfterStoreEvent> captor = ArgumentCaptor.forClass(AfterStoreEvent.class);
-					inOrder.verify(publisher, times(1)).publishEvent(captor.capture());
-					assertThat(captor.getValue().getResult(), is(result));
-				});
-			});
+                Context("when setContent is invoked with illegal arguments", () -> {
 
-			Context("when unsetContent is invoked with illegal arguments", () -> {
+                    BeforeEach(() -> invocation = new TestMethodInvocation(store, setContentMethod));
 
-				BeforeEach(() -> {
-					invocation = new TestMethodInvocation(store, unsetContentMethod, new Object[]{});
-				});
+                    It("should proceed", () -> assertThat(e, is(not(nullValue()))));
+                });
+            });
 
-				It("should not publish events", () -> {
-					assertThat(e, is(not(nullValue())));
-				});
-			});
-		});
+            Describe("#setContent from Resource", () -> {
 
-			Describe("#getResource", () -> {
+                BeforeEach(() -> {
 
-				Context("when getResource is invoked", () -> {
+                    result = new Object();
 
-					BeforeEach(() -> {
-						result = mock(Resource.class);
+                    store = mock(ContentStore.class);
+                    when(store.setContent(any(), any(Resource.class))).thenReturn(result);
 
-						store = mock(ContentStore.class);
-						when(store.getResource(any(Serializable.class))).thenReturn((Resource)result);
+                    invocation = new TestMethodInvocation(store, setContentFromResourceMethod, new Object(), new InputStreamResource(new ByteArrayInputStream("test".getBytes())));
+                });
 
-						invocation = new TestMethodInvocation(store, getResourceMethod, new Serializable(){});
-					});
+                It("should proceed", () -> {
+                    assertThat(e, is(nullValue()));
 
-					It("should proceed", () -> {
-						assertThat(e, is(nullValue()));
+                    ArgumentCaptor<BeforeSetContentEvent> beforeArgCaptor = ArgumentCaptor.forClass(BeforeSetContentEvent.class);
+                    ArgumentCaptor<Resource> setContentArgCaptor = ArgumentCaptor.forClass(Resource.class);
+                    ArgumentCaptor<AfterStoreEvent> afterArgCaptor = ArgumentCaptor.forClass(AfterStoreEvent.class);
+                    InOrder inOrder = Mockito.inOrder(publisher, store);
 
-						ArgumentCaptor<AfterStoreEvent> captor = ArgumentCaptor.forClass(AfterStoreEvent.class);
-						InOrder inOrder = Mockito.inOrder(publisher, store);
+                    inOrder.verify(publisher, times(1)).publishEvent(beforeArgCaptor.capture());
+                    assertThat(beforeArgCaptor.getValue().getResource(), is(not(nullValue())));
+                    assertThat(beforeArgCaptor.getValue().getInputStream(), is(nullValue()));
 
-						inOrder.verify(publisher, times(1)).publishEvent(argThat(instanceOf(StoreEvent.class)));
-						verify(store).getResource(any(Serializable.class));
-						inOrder.verify(publisher, times(1)).publishEvent(captor.capture());
-						assertThat(captor.getValue().getResult(), is(result));
-					});
-				});
+                    inOrder.verify(store).setContent(any(), setContentArgCaptor.capture());
+                    try (InputStream setContentInputStream = setContentArgCaptor.getValue().getInputStream()) {
+                        assertThat(IOUtils.toString(setContentInputStream), is("test"));
+                    }
 
-				Context("when getResource(entity) is invoked", () -> {
+                    inOrder.verify(publisher, times(1)).publishEvent(afterArgCaptor.capture());
+                    assertThat(afterArgCaptor.getValue().getResult(), is(result));
+                });
+            });
 
-					BeforeEach(() -> {
-						result = mock(Resource.class);
+            Describe("#unsetContent", () -> {
 
-						store = mock(ContentStore.class);
-						when(store.getResource(argThat(isA(ContentObject.class)))).thenReturn((Resource)result);
+                BeforeEach(() -> {
 
-						invocation = new TestMethodInvocation(store, getResourceEntityMethod, new Object[]{new ContentObject("text/plain")});
-					});
+                    result = new Object();
+                    store = mock(ContentStore.class);
+                    when(store.unsetContent(any())).thenReturn(result);
 
-					It("should proceed", () -> {
-						assertThat(e, is(nullValue()));
+                    invocation = new TestMethodInvocation(store, unsetContentMethod, new Object());
+                });
 
+                Context("when unsetContent is invoked", () -> {
 
-						InOrder inOrder = Mockito.inOrder(publisher, store);
+                    It("should proceed", () -> {
+                        assertThat(e, is(nullValue()));
 
-						inOrder.verify(publisher).publishEvent(argThat(instanceOf(BeforeGetResourceEvent.class)));
-						inOrder.verify(store).getResource(argThat(isA(ContentObject.class)));
+                        InOrder inOrder = Mockito.inOrder(publisher, store);
 
-						ArgumentCaptor<AfterStoreEvent> captor = ArgumentCaptor.forClass(AfterStoreEvent.class);
-						inOrder.verify(publisher, times(1)).publishEvent(captor.capture());
-						assertThat(captor.getValue().getResult(), is(result));
-					});
-				});
-			});
+                        inOrder.verify(publisher).publishEvent(argThat(isA(BeforeUnsetContentEvent.class)));
+                        inOrder.verify(store).unsetContent(any());
 
-			Describe("#associate", () -> {
+                        ArgumentCaptor<AfterStoreEvent> captor = ArgumentCaptor.forClass(AfterStoreEvent.class);
+                        inOrder.verify(publisher, times(1)).publishEvent(captor.capture());
+                        assertThat(captor.getValue().getResult(), is(result));
+                    });
+                });
 
-				BeforeEach(() -> {
-					result = mock(Resource.class);
+                Context("when unsetContent is invoked with illegal arguments", () -> {
 
-					store = mock(ContentStore.class);
+                    BeforeEach(() -> invocation = new TestMethodInvocation(store, unsetContentMethod));
 
-					invocation = new TestMethodInvocation(store, associateMethod, new Object[]{"", 123});
-				});
+                    It("should not publish events", () -> assertThat(e, is(not(nullValue()))));
+                });
+            });
 
-				Context("when associate is invoked", () -> {
+            Describe("#getResource", () -> {
 
-					It("should proceed", () -> {
-						ArgumentCaptor<AfterAssociateEvent> captor = ArgumentCaptor.forClass(AfterAssociateEvent.class);
-						InOrder inOrder = Mockito.inOrder(publisher, store);
+                Context("when getResource is invoked", () -> {
 
-						inOrder.verify(publisher).publishEvent(argThat(instanceOf(BeforeAssociateEvent.class)));
-						inOrder.verify(store).associate(eq(""), eq(123));
-						inOrder.verify(publisher).publishEvent(argThat(instanceOf(AfterAssociateEvent.class)));
-					});
-				});
-			});
+                    BeforeEach(() -> {
+                        result = mock(Resource.class);
 
-			Describe("#unassociate", () -> {
+                        store = mock(ContentStore.class);
+                        when(store.getResource(any(Serializable.class))).thenReturn((Resource) result);
 
-				BeforeEach(() -> {
-					result = mock(Resource.class);
+                        invocation = new TestMethodInvocation(store, getResourceMethod, new Serializable() {
+                        });
+                    });
 
-					store = mock(ContentStore.class);
+                    It("should proceed", () -> {
+                        assertThat(e, is(nullValue()));
 
-					invocation = new TestMethodInvocation(store, unassociateMethod, new Object[]{"foo"});
-				});
+                        ArgumentCaptor<AfterStoreEvent> captor = ArgumentCaptor.forClass(AfterStoreEvent.class);
+                        InOrder inOrder = Mockito.inOrder(publisher, store);
 
-				Context("when unassociate is invoked", () -> {
+                        inOrder.verify(publisher, times(1)).publishEvent(argThat(instanceOf(StoreEvent.class)));
+                        verify(store).getResource(any(Serializable.class));
+                        inOrder.verify(publisher, times(1)).publishEvent(captor.capture());
+                        assertThat(captor.getValue().getResult(), is(result));
+                    });
+                });
 
-					It("should proceed", () -> {
-						ArgumentCaptor<AfterUnassociateEvent> captor = ArgumentCaptor.forClass(AfterUnassociateEvent.class);
-						InOrder inOrder = Mockito.inOrder(publisher, store);
+                Context("when getResource(entity) is invoked", () -> {
 
-						inOrder.verify(publisher).publishEvent(argThat(instanceOf(BeforeUnassociateEvent.class)));
-						verify(store).unassociate("foo");
-						inOrder.verify(publisher).publishEvent(argThat(instanceOf(AfterUnassociateEvent.class)));
-					});
-				});
-			});
+                    BeforeEach(() -> {
+                        result = mock(Resource.class);
 
-			Describe("#toString", () -> {
+                        store = mock(ContentStore.class);
+                        when(store.getResource(argThat(isA(ContentObject.class)))).thenReturn((Resource) result);
 
-				BeforeEach(() -> {
-					result = mock(Resource.class);
+                        invocation = new TestMethodInvocation(store, getResourceEntityMethod, new ContentObject("text/plain"));
+                    });
 
-					store = mock(ContentStore.class);
+                    It("should proceed", () -> {
+                        assertThat(e, is(nullValue()));
 
-					invocation = new TestMethodInvocation(store, toStringMethod, new Object[]{});
-				});
 
-				Context("when toString is invoked", () -> {
+                        InOrder inOrder = Mockito.inOrder(publisher, store);
 
-					It("should proceed", () -> {
-						verify(publisher, never()).publishEvent(anyObject());
-					});
-				});
-			});
-		});
+                        inOrder.verify(publisher).publishEvent(argThat(instanceOf(BeforeGetResourceEvent.class)));
+                        inOrder.verify(store).getResource(argThat(isA(ContentObject.class)));
 
-		Describe("#findMethod", () -> {
+                        ArgumentCaptor<AfterStoreEvent> captor = ArgumentCaptor.forClass(AfterStoreEvent.class);
+                        inOrder.verify(publisher, times(1)).publishEvent(captor.capture());
+                        assertThat(captor.getValue().getResult(), is(result));
+                    });
+                });
+            });
 
-			It("should resolve the method when not overridden", () -> {
-				store = mock(ContentStore.class);
-				publisher = mock(ApplicationEventPublisher.class);
-				interceptor = new StoreMethodInterceptor();
-				try {
-					Method m = ReflectionUtils.findMethod(TestContentStore.class, "unsetContent", Object.class);
-					assertThat(m, is(not(nullValue())));
-					Method actual = interceptor.getMethod(m, new StoreFragment(TestContentStore.class, new StoreImpl(TestContentStore.class, store, publisher, Paths.get(System.getProperty("java.io.tmpdir")))));
-					assertThat(actual, is(ReflectionUtils.findMethod(StoreImpl.class, "unsetContent", Object.class)));
-				}
-				catch (Exception invokeException) {
-					e = invokeException;
-				}
-			});
+            Describe("#associate", () -> {
 
-			It("should resolve the method when it is overridden in the interface", () -> {
-				store = mock(ContentStore.class);
-				publisher = mock(ApplicationEventPublisher.class);
-				interceptor = new StoreMethodInterceptor();
-				try {
-					Method m = ReflectionUtils.findMethod(TestContentStore.class, "setContent", TEntity.class, InputStream.class);
-					assertThat(m, is(not(nullValue())));
-					Method actual = interceptor.getMethod(m, new StoreFragment(TestContentStore.class, new StoreImpl(TestContentStore.class, store, publisher, Paths.get(System.getProperty("java.io.tmpdir")))));
-					assertThat(actual, is(ReflectionUtils.findMethod(StoreImpl.class, "setContent", Object.class, InputStream.class)));
-				}
-				catch (Exception invokeException) {
-					e = invokeException;
-				}
-			});
-		});
-	}
+                BeforeEach(() -> {
+                    result = mock(Resource.class);
 
-	private void onBeforeSetContentPublishEvent(PublishEventAction action) {
-		doAnswer(new Answer(){
-			@Override
-			public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-				return action.doAction(invocationOnMock);
-			}
-		}).when(publisher).publishEvent(argThat(isA(BeforeSetContentEvent.class)));
-	}
+                    store = mock(ContentStore.class);
 
-	public interface PublishEventAction {
-		Object doAction(InvocationOnMock invocationOnMock) throws Exception;
-	}
+                    invocation = new TestMethodInvocation(store, associateMethod, "", 123);
+                });
 
-	public static class TestMethodInvocation extends SimpleMethodInvocation {
+                Context("when associate is invoked", () -> It("should proceed", () -> {
+                    ArgumentCaptor<AfterAssociateEvent> captor = ArgumentCaptor.forClass(AfterAssociateEvent.class);
+                    InOrder inOrder = Mockito.inOrder(publisher, store);
 
-		TestMethodInvocation(Object targetObject, Method method, Object... arguments) {
-			super(targetObject, method, arguments);
-		}
+                    inOrder.verify(publisher).publishEvent(argThat(instanceOf(BeforeAssociateEvent.class)));
+                    inOrder.verify(store).associate(eq(""), eq(123));
+                    inOrder.verify(publisher).publishEvent(argThat(instanceOf(AfterAssociateEvent.class)));
+                }));
+            });
 
-		@Override
-		public Object proceed() {
-			return ReflectionUtils.invokeMethod(getMethod(), getThis(), getArguments());
-		}
-	}
+            Describe("#unassociate", () -> {
 
-	@EqualsAndHashCode
-	public static class ContentObject {
-		@MimeType
-		public String mimeType;
+                BeforeEach(() -> {
+                    result = mock(Resource.class);
 
-		public ContentObject(String mimeType) {
-			this.mimeType = mimeType;
-		}
-	}
+                    store = mock(ContentStore.class);
 
-	public interface AContentRepositoryExtension<S> {
-		void getCustomContent(S property);
-	}
+                    invocation = new TestMethodInvocation(store, unassociateMethod, "foo");
+                });
 
-	@Getter
-	@Setter
-	public class TEntity {
+                Context("when unassociate is invoked", () -> It("should proceed", () -> {
+                    ArgumentCaptor<AfterUnassociateEvent> captor = ArgumentCaptor.forClass(AfterUnassociateEvent.class);
+                    InOrder inOrder = Mockito.inOrder(publisher, store);
 
-		private UUID contentId;
-	}
+                    inOrder.verify(publisher).publishEvent(argThat(instanceOf(BeforeUnassociateEvent.class)));
+                    verify(store).unassociate("foo");
+                    inOrder.verify(publisher).publishEvent(argThat(instanceOf(AfterUnassociateEvent.class)));
+                }));
+            });
 
-	public interface TestContentStore extends ContentStore<TEntity, UUID> {
-		@Override
-		TEntity setContent(TEntity property, InputStream content);
-	}
+            Describe("#toString", () -> {
+
+                BeforeEach(() -> {
+                    result = mock(Resource.class);
+
+                    store = mock(ContentStore.class);
+
+                    invocation = new TestMethodInvocation(store, toStringMethod);
+                });
+
+                Context("when toString is invoked", () ->
+                        It("should proceed", () -> verify(publisher, never()).publishEvent(any())));
+            });
+        });
+
+        Describe("#findMethod", () -> {
+
+            It("should resolve the method when not overridden", () -> {
+                store = mock(ContentStore.class);
+                publisher = mock(ApplicationEventPublisher.class);
+                interceptor = new StoreMethodInterceptor();
+                try {
+                    Method m = ReflectionUtils.findMethod(TestContentStore.class, "unsetContent", Object.class);
+                    assertThat(m, is(not(nullValue())));
+                    Method actual = interceptor.getMethod(m, new StoreFragment(TestContentStore.class, new StoreImpl(TestContentStore.class, store, publisher, Paths.get(System.getProperty("java.io.tmpdir")))));
+                    assertThat(actual, is(ReflectionUtils.findMethod(StoreImpl.class, "unsetContent", Object.class)));
+                } catch (Exception invokeException) {
+                    e = invokeException;
+                }
+            });
+
+            It("should resolve the method when it is overridden in the interface", () -> {
+                store = mock(ContentStore.class);
+                publisher = mock(ApplicationEventPublisher.class);
+                interceptor = new StoreMethodInterceptor();
+                try {
+                    Method m = ReflectionUtils.findMethod(TestContentStore.class, "setContent", TEntity.class, InputStream.class);
+                    assertThat(m, is(not(nullValue())));
+                    Method actual = interceptor.getMethod(m, new StoreFragment(TestContentStore.class, new StoreImpl(TestContentStore.class, store, publisher, Paths.get(System.getProperty("java.io.tmpdir")))));
+                    assertThat(actual, is(ReflectionUtils.findMethod(StoreImpl.class, "setContent", Object.class, InputStream.class)));
+                } catch (Exception invokeException) {
+                    e = invokeException;
+                }
+            });
+        });
+    }
+
+    private void onBeforeSetContentPublishEvent(PublishEventAction action) {
+        doAnswer(action::doAction).when(publisher).publishEvent(argThat(isA(BeforeSetContentEvent.class)));
+    }
+
+    public interface PublishEventAction {
+        Object doAction(InvocationOnMock invocationOnMock) throws Exception;
+    }
+
+    public interface AContentRepositoryExtension<S> {
+        void getCustomContent(S property);
+    }
+
+    public interface TestContentStore extends ContentStore<TEntity, UUID> {
+        @Override
+        TEntity setContent(TEntity property, InputStream content);
+    }
+
+    public static class TestMethodInvocation extends SimpleMethodInvocation {
+
+        TestMethodInvocation(Object targetObject, Method method, Object... arguments) {
+            super(targetObject, method, arguments);
+        }
+
+        @Override
+        public Object proceed() {
+            return ReflectionUtils.invokeMethod(getMethod(), getThis(), getArguments());
+        }
+    }
+
+    @EqualsAndHashCode
+    public static class ContentObject {
+        @MimeType
+        public String mimeType;
+
+        public ContentObject(String mimeType) {
+            this.mimeType = mimeType;
+        }
+    }
+
+    @Getter
+    @Setter
+    public static class TEntity {
+
+        private UUID contentId;
+    }
 }

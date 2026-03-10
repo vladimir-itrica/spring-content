@@ -1,11 +1,5 @@
 package it.events;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jSpringRunner;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +7,6 @@ import lombok.Setter;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.content.commons.annotations.ContentId;
 import org.springframework.content.commons.annotations.HandleBeforeSetContent;
@@ -26,18 +19,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+
 import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.anyObject;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 @RunWith(Ginkgo4jSpringRunner.class)
-@ContextConfiguration(classes = { BeforeSetEventIT.TestConfig.class })
+@ContextConfiguration(classes = {BeforeSetEventIT.TestConfig.class})
 public class BeforeSetEventIT {
 
     static TestConfig.ExampleAnnotatedEventHandler ev;
@@ -48,7 +42,7 @@ public class BeforeSetEventIT {
     {
         Describe("BeforeSetEvent InputStream Access", () -> {
 
-            Context("when the content input stream is consumed by a beforesetevent", () -> {
+            Context("when the content input stream is consumed by a beforeSetEvent", () -> {
 
                 It("should still set the content in the store", () -> {
                     TestEntity te = new TestEntity();
@@ -56,7 +50,7 @@ public class BeforeSetEventIT {
                     te = store.setContent(te, bais);
                     IOUtils.closeQuietly(bais);
                     try (InputStream foo = store.getContent(te)) {
-                        assertThat(IOUtils.toString(foo), is("Still here!"));
+                        assertEquals("Still here!", IOUtils.toString(foo, Charset.defaultCharset()));
                     }
 
                     verify(ev, times(1));
@@ -103,5 +97,6 @@ public class BeforeSetEventIT {
     }
 
     @Test
-    public void noop() {}
+    public void noop() {
+    }
 }

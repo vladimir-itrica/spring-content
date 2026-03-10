@@ -9,6 +9,7 @@ import internal.org.springframework.content.s3.boot.autoconfigure.S3ContentAutoC
 import internal.org.springframework.content.solr.boot.autoconfigure.SolrAutoConfiguration;
 import internal.org.springframework.content.solr.boot.autoconfigure.SolrExtensionAutoConfiguration;
 import org.assertj.core.api.Assertions;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,7 +29,7 @@ import static org.mockito.Mockito.mock;
 @Ginkgo4jConfiguration(threads = 1)
 public class ContentS3AutoConfigurationTest {
 
-	private static S3Client client;
+	private static final S3Client client;
 
 	static {
 		client = mock(S3Client.class);
@@ -91,6 +92,7 @@ public class ContentS3AutoConfigurationTest {
 		});
 	}
 
+	@Ignore("This is not a test")
 	@SpringBootApplication(exclude={FilesystemContentAutoConfiguration.class, MongoContentAutoConfiguration.class, SolrAutoConfiguration.class, SolrExtensionAutoConfiguration.class})
 	public static class TestConfig {
 
@@ -100,20 +102,23 @@ public class ContentS3AutoConfigurationTest {
 		}
 	}
 
+	@Ignore("This is not a test")
 	@SpringBootApplication
 	public static class TestConfigWithoutBeans {
-		// will be supplied by auto-configuration
+		// will be supplied by autoconfiguration
 	}
 
+	@Ignore("This is not a test")
 	@SpringBootApplication
 	@EnableS3Stores
 	public static class TestConfigWithExplicitEnableS3Stores {
-		// will be supplied by auto-configuration
+		// will be supplied by autoconfiguration
 	}
 
+	@Ignore("This is not a test")
 	@SpringBootApplication
     public static class TestConfigWithProperties {
-        // will be supplied by auto-configuration
+        // will be supplied by autoconfiguration
     }
 
 	public interface TestEntityRepository extends JpaRepository<TestEntity, Long> {

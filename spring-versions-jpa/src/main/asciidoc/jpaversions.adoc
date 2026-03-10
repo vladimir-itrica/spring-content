@@ -43,7 +43,7 @@ dependencies {
  <dependencies>
 	...
     <dependency>
-      <groupId>com.github.paulcwarren</groupId>
+      <groupId>io.github.vsvyatski</groupId>
       <artifactId>spring-versions-jpa-boot-starter</artifactId>
       <version>${version}</version>
     </dependency>
@@ -76,7 +76,7 @@ dependencies {
  <dependencies>
 	...
     <dependency>
-      <groupId>com.github.paulcwarren</groupId>
+      <groupId>io.github.vsvyatski</groupId>
       <artifactId>spring-versions-jpa</artifactId>
       <version>${version}</version>
     </dependency>

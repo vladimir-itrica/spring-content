@@ -1,13 +1,9 @@
 package org.springframework.content.rest.config;
 
-import java.io.IOException;
-import java.nio.file.Files;
-
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jRunner;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
-
 import org.springframework.content.commons.annotations.ContentId;
-import org.springframework.content.commons.repository.ContentStore;
 import org.springframework.content.fs.config.EnableFilesystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
 import org.springframework.content.fs.store.FilesystemContentStore;
@@ -21,62 +17,59 @@ import org.springframework.mock.web.MockServletContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
 
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.BeforeEach;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.Context;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.Describe;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.It;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import java.io.IOException;
+import java.nio.file.Files;
+
+import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(Ginkgo4jRunner.class)
 public class HypermediaConfigurationTest {
 
-	private AnnotationConfigWebApplicationContext context;
+    private AnnotationConfigWebApplicationContext context;
 
-	{
-		Describe("HypermediaConfiguration", () -> {
-			Context("given a context with a ContentRestConfiguration", () -> {
-				BeforeEach(() -> {
-					context = new AnnotationConfigWebApplicationContext();
-					context.setServletContext(new MockServletContext());
-					context.register(TestConfig.class,
-							DelegatingWebMvcConfiguration.class,
-							RepositoryRestMvcConfiguration.class,
-							HypermediaConfiguration.class);
-					context.refresh();
-				});
+    {
+        Describe("HypermediaConfiguration", () ->
+                Context("given a context with a ContentRestConfiguration", () -> {
+                    BeforeEach(() -> {
+                        context = new AnnotationConfigWebApplicationContext();
+                        context.setServletContext(new MockServletContext());
+                        context.register(TestConfig.class,
+                                DelegatingWebMvcConfiguration.class,
+                                RepositoryRestMvcConfiguration.class,
+                                HypermediaConfiguration.class);
+                        context.refresh();
+                    });
 
-				It("should have a content links processor bean", () -> {
-					assertThat(context.getBean("contentLinksProcessor"), is(not(nullValue())));
-				});
-			});
-		});
-	}
+                    It("should have a content links processor bean", () ->
+                            assertThat(context.getBean("contentLinksProcessor"), is(not(nullValue()))));
+                }));
+    }
 
-	@Configuration
-	@EnableFilesystemStores
-	public static class TestConfig {
+    @Ignore("This is not a test and must not be treated as such.")
+    @Configuration
+    @EnableFilesystemStores
+    public static class TestConfig {
 
-		@Bean
-		public FileSystemResourceLoader filesystemRoot() throws IOException {
-			return new FileSystemResourceLoader(Files.createTempDirectory("").toFile().getAbsolutePath());
-		}
-	}
+        @Bean
+        public FileSystemResourceLoader filesystemRoot() throws IOException {
+            return new FileSystemResourceLoader(Files.createTempDirectory("").toFile().getAbsolutePath());
+        }
+    }
 
-	@Document
-	public class TestEntity {
-		@Id
-		private String id;
-		@ContentId
-		private String contentId;
-	}
+    @Ignore("This is not a test and must not be treated as such.")
+    @Document
+    public static class TestEntity {
+        @Id
+        private String id;
+        @ContentId
+        private String contentId;
+    }
 
-	public interface TestEntityRepository extends MongoRepository<TestEntity, String> {
-	}
+    public interface TestEntityRepository extends MongoRepository<TestEntity, String> {
+    }
 
-	public interface TestEntityContentStore extends FilesystemContentStore<TestEntity, String> {
-	}
-
+    public interface TestEntityContentStore extends FilesystemContentStore<TestEntity, String> {
+    }
 }

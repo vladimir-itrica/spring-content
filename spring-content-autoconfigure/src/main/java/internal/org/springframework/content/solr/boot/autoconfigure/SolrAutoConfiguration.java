@@ -1,7 +1,7 @@
 package internal.org.springframework.content.solr.boot.autoconfigure;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.HttpJdkSolrClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.content.solr.SolrProperties;
@@ -25,7 +25,7 @@ public class SolrAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(SolrClient.class)
     public SolrClient solrClient() {
-        return new HttpSolrClient.Builder(solrProperties().getUrl()).build();
+        return new HttpJdkSolrClient.Builder(solrProperties().getUrl()).build();
     }
 
     @Bean

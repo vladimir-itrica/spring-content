@@ -6,10 +6,11 @@ import java.util.Set;
 import org.aopalliance.intercept.MethodInvocation;
 
 /**
- * @deprecated This class is deprecated. Use fragments instead.
+ * @deprecated This interface is deprecated. Use fragments instead.
  */
+@Deprecated
 public interface StoreExtension {
-	Set<Method> getMethods();
+    Set<Method> getMethods();
 
-	Object invoke(MethodInvocation invocation, StoreInvoker invoker);
+    Object invoke(MethodInvocation invocation, StoreInvoker invoker);
 }
