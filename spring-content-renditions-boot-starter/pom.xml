@@ -15,12 +15,12 @@
         <dependency>
             <groupId>io.github.vsvyatski</groupId>
             <artifactId>spring-content-renditions</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.vsvyatski</groupId>
             <artifactId>spring-content-autoconfigure</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 </project>

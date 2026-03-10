@@ -44,7 +44,7 @@
         <dependency>
             <groupId>io.github.vsvyatski</groupId>
             <artifactId>spring-content-commons</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
@@ -99,7 +99,7 @@
 		<dependency>
 			<groupId>io.github.vsvyatski</groupId>
 			<artifactId>spring-content-fs</artifactId>
-			<version>${parent.version}</version>
+			<version>${project.parent.version}</version>
 			<scope>test</scope>
 		</dependency>
 		

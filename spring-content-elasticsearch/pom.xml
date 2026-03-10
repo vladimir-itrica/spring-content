@@ -14,7 +14,7 @@
 		<dependency>
 			<groupId>io.github.vsvyatski</groupId>
 			<artifactId>spring-content-commons</artifactId>
-			<version>${parent.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 
 		<dependency>
@@ -62,14 +62,14 @@
 		<dependency>
 			<groupId>io.github.vsvyatski</groupId>
 			<artifactId>spring-content-jpa</artifactId>
-			<version>${parent.version}</version>
+			<version>${project.parent.version}</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>io.github.vsvyatski</groupId>
 			<artifactId>spring-content-renditions</artifactId>
-			<version>${parent.version}</version>
+			<version>${project.parent.version}</version>
 			<scope>test</scope>
 		</dependency>
 

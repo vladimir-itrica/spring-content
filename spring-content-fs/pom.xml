@@ -33,7 +33,7 @@
 		<dependency>
 			<groupId>io.github.vsvyatski</groupId>
 			<artifactId>spring-versions-jpa</artifactId>
-			<version>${parent.version}</version>
+			<version>${project.parent.version}</version>
 			<optional>true</optional>
 		</dependency>
 		<!-- Locking and Versioning -->
@@ -45,7 +45,7 @@
 		<dependency>
 			<groupId>io.github.vsvyatski</groupId>
 			<artifactId>spring-content-commons</artifactId>
-			<version>${parent.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 
 		<!-- Test Dependencies -->

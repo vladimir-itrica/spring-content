@@ -20,25 +20,25 @@
         <dependency>
             <groupId>io.github.vsvyatski</groupId>
             <artifactId>spring-content-commons</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>io.github.vsvyatski</groupId>
             <artifactId>spring-content-fs</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>io.github.vsvyatski</groupId>
             <artifactId>spring-content-jpa</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.github.paulcwarren</groupId>
             <artifactId>spring-content-mongo</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -54,25 +54,25 @@
         <dependency>
             <groupId>com.github.paulcwarren</groupId>
             <artifactId>spring-content-renditions</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
             <optional>true</optional>
         </dependency>
         <!--		<dependency>-->
         <!--			<groupId>com.github.paulcwarren</groupId>-->
         <!--			<artifactId>spring-content-docx4j</artifactId>-->
-        <!--			<version>${parent.version}</version>-->
+        <!--			<version>${project.parent.version}</version>-->
         <!--			<optional>true</optional>-->
         <!--		</dependency>-->
         <dependency>
             <groupId>com.github.paulcwarren</groupId>
             <artifactId>spring-content-rest</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.github.paulcwarren</groupId>
             <artifactId>spring-content-s3</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
             <optional>true</optional>
             <exclusions>
                 <exclusion>
@@ -84,7 +84,7 @@
         <dependency>
             <groupId>com.github.paulcwarren</groupId>
             <artifactId>spring-content-solr</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -106,7 +106,7 @@
         <dependency>
             <groupId>com.github.paulcwarren</groupId>
             <artifactId>spring-content-elasticsearch</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -118,7 +118,7 @@
         <dependency>
             <groupId>com.github.paulcwarren</groupId>
             <artifactId>spring-versions-jpa</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -189,5 +189,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>
