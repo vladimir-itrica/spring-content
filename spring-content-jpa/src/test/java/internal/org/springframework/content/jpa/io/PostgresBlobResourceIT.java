@@ -1,20 +1,8 @@
 package internal.org.springframework.content.jpa.io;
 
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.BeforeEach;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.Context;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.Describe;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.It;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
-import java.io.OutputStream;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.UUID;
-
-import javax.sql.DataSource;
-
+import com.github.f4b6a3.uuid.UuidCreator;
+import com.github.paulcwarren.ginkgo4j.Ginkgo4jConfiguration;
+import com.github.paulcwarren.ginkgo4j.Ginkgo4jSpringRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +25,15 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import com.github.paulcwarren.ginkgo4j.Ginkgo4jConfiguration;
-import com.github.paulcwarren.ginkgo4j.Ginkgo4jSpringRunner;
+import javax.sql.DataSource;
+import java.io.OutputStream;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(Ginkgo4jSpringRunner.class)
 @ContextConfiguration(classes = PostgresBlobResourceIT.PostgresConfig.class)
@@ -63,7 +58,7 @@ public class PostgresBlobResourceIT {
 
             BeforeEach(() -> {
 
-                entityId = UUID.randomUUID().toString();
+                entityId = UuidCreator.getTimeOrdered().toString();
                 template = new JdbcTemplate(ds);
 
                 r = new PostgresBlobResource(entityId, template, txn);
@@ -74,6 +69,7 @@ public class PostgresBlobResourceIT {
                 BeforeEach(() -> {
 
                     DataSource ds = this.template.getDataSource();
+                    assert ds != null;
                     Connection conn = DataSourceUtils.getConnection(ds);
 
                     TransactionStatus status = txn.getTransaction(new DefaultTransactionDefinition());
@@ -114,13 +110,12 @@ public class PostgresBlobResourceIT {
 
                 Context("when the content is deleted", () -> {
 
-                    BeforeEach(()-> {
-                        r.delete();
-                    });
+                    BeforeEach(() -> r.delete());
 
                     It("should delete the associated lob resources", () -> {
 
                         DataSource ds = this.template.getDataSource();
+                        assert ds != null;
                         Connection conn = DataSourceUtils.getConnection(ds);
 
                         String sql = "SELECT * from pg_largeobject where loid = " + lobId;
@@ -199,5 +194,6 @@ public class PostgresBlobResourceIT {
     }
 
     @Test
-    public void noop() {}
+    public void noop() {
+    }
 }
