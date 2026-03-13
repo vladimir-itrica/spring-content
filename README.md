@@ -1,7 +1,3 @@
-[![Build](https://github.com/paulcwarren/spring-content/workflows/Branch%20Build/badge.svg?branch=1.2.x)](https://github.com/paulcwarren/spring-content/actions?query=workflow%3A%22Branch+Build%22)
-[![codecov](https://codecov.io/gh/paulcwarren/spring-content/branch/1.1.x/graph/badge.svg?token=Q7uPi3zXTB)](https://codecov.io/gh/paulcwarren/spring-content)
-[![Join the chat at https://gitter.im/spring-content/Lobby](https://badges.gitter.im/spring-content/Lobby.svg)](https://gitter.im/spring-content/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 # Spring Content
 
 Cloud-Native Content Services for Spring.
@@ -76,12 +72,3 @@ Content step-by-step:
 ## License
 Spring Content is Open Source software released under the
 [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).
-
-## Acknowledgements
-
-* Spring Content uses YourKit.  YourKit supports open source projects with its full-featured Java Profiler.
-  YourKit, LLC is the creator of <a href="https://www.yourkit.com/java/profiler/index.jsp">YourKit Java Profiler</a>
-  and <a href="https://www.yourkit.com/.net/profiler/index.jsp">YourKit .NET Profiler</a>,
-  innovative and intelligent tools for profiling Java and .NET applications.
-  
-  [![](https://www.yourkit.com/images/yklogo.png)](https://www.yourkit.com/java/profiler/index.jsp) 
