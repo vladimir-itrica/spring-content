@@ -8,7 +8,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.content.commons.annotations.ContentId;
 import org.springframework.content.commons.repository.ContentStore;
-import org.springframework.content.fs.config.EnableFilesystemContentRepositories;
+import org.springframework.content.fs.config.EnableFileSystemContentRepositories;
 import org.springframework.content.fs.config.EnableFilesystemStores;
 import org.springframework.content.fs.config.FilesystemStoreConfigurer;
 import org.springframework.content.fs.config.FilesystemStoreConverter;
@@ -101,7 +101,7 @@ public class EnableFilesystemStoresTest {
             });
         });
 
-        Describe("EnableFilesystemContentRepositories", () -> {
+        Describe("EnableFileSystemContentRepositories", () -> {
 
             Context("given a context and a configuration with a filesystem content repository bean",
                     () -> {
@@ -168,7 +168,7 @@ public class EnableFilesystemStoresTest {
         }
     }
 
-    @EnableFilesystemContentRepositories
+    @EnableFileSystemContentRepositories
     @PropertySource("classpath:/test.properties")
     public static class BackwardCompatibilityConfig {
 

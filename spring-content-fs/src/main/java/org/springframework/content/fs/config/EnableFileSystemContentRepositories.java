@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Inherited
 @Import({FileSystemContentRepositoriesRegistrar.class, FileSystemStoreConfiguration.class})
 @Deprecated
-public @interface EnableFilesystemContentRepositories {
+public @interface EnableFileSystemContentRepositories {
 
     /**
      * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation

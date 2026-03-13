@@ -1,17 +1,17 @@
 package internal.org.springframework.content.fs.config;
 
-import org.springframework.content.fs.config.EnableFilesystemContentRepositories;
+import org.springframework.content.fs.config.EnableFileSystemContentRepositories;
 
 import java.lang.annotation.Annotation;
 
-@SuppressWarnings("deprecation")
 public class FileSystemContentRepositoriesRegistrar extends FileSystemStoreRegistrar {
 
-	public FileSystemContentRepositoriesRegistrar() {
-	}
+    public FileSystemContentRepositoriesRegistrar() {
+    }
 
-	@Override
-	protected Class<? extends Annotation> getAnnotation() {
-		return EnableFilesystemContentRepositories.class;
-	}
+    @SuppressWarnings("deprecation")
+    @Override
+    protected Class<? extends Annotation> getAnnotation() {
+        return EnableFileSystemContentRepositories.class;
+    }
 }
