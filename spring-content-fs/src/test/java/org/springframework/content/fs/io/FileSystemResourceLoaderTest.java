@@ -66,7 +66,7 @@ public class FileSystemResourceLoaderTest {
         );
 
         Describe("DeletableResource", () -> Context("#delete", () -> {
-            BeforeEach(() -> parent = Files.createTempDirectory("content-fs").toFile());
+            BeforeEach(() -> parent = Files.createTempDirectory("fs-").toFile());
             JustBeforeEach(() -> {
                 loader = new FileSystemResourceLoader(parent.getPath() + "/");
                 Resource resource = loader.getResource(location);

@@ -26,7 +26,7 @@ public class FileServiceTest {
 
 	{
 		Describe("mkdirs", () -> {
-			BeforeEach(() -> parent = Files.createTempDirectory("contentCommons").toFile());
+			BeforeEach(() -> parent = Files.createTempDirectory("commons-").toFile());
 
 			JustBeforeEach(() -> {
 				fileService = new FileServiceImpl();
