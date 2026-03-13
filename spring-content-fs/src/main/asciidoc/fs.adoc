@@ -1,4 +1,4 @@
-= Filesystem Content Stores
+= File System Content Stores
 
 == Maven Central Coordinates
 The maven coordinates for this Spring Content library are:
@@ -22,9 +22,9 @@ As it is usual to use several Spring Content libraries together importing the bo
 
 == Annotation-based Configuration
 
-Spring Content Filesystem Stores are enabled with the following Java Config.
+Spring Content File System Stores are enabled with the following Java Config.
 
-.Spring Content Filesystem Stores using Java Config
+.Spring Content File System Stores using Java Config
 ====
 [source, java]
 ----

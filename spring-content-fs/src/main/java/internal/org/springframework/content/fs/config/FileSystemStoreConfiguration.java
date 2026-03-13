@@ -13,7 +13,7 @@ import java.net.URI;
 import java.util.List;
 
 @Configuration
-public class FilesystemStoreConfiguration {
+public class FileSystemStoreConfiguration {
 
     @Autowired(required = false)
     private List<FilesystemStoreConfigurer> configurers;

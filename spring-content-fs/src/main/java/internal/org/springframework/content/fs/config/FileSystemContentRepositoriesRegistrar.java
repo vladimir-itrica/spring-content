@@ -5,9 +5,9 @@ import org.springframework.content.fs.config.EnableFilesystemContentRepositories
 import java.lang.annotation.Annotation;
 
 @SuppressWarnings("deprecation")
-public class FilesystemContentRepositoriesRegistrar extends FilesystemStoreRegistrar {
+public class FileSystemContentRepositoriesRegistrar extends FileSystemStoreRegistrar {
 
-	public FilesystemContentRepositoriesRegistrar() {
+	public FileSystemContentRepositoriesRegistrar() {
 	}
 
 	@Override
