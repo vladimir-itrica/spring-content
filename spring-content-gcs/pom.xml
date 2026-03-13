@@ -41,6 +41,11 @@
             <artifactId>hibernate-core</artifactId>
             <version>${hibernate-orm.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.f4b6a3</groupId>
+            <artifactId>uuid-creator</artifactId>
+            <version>${uuid-creator.version}</version>
+        </dependency>
 
         <!-- Test Dependencies -->
         <dependency>
