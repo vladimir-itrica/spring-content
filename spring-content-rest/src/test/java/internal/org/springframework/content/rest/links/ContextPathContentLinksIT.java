@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.content.commons.renditions.RenditionProvider;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
 import org.springframework.content.rest.config.HypermediaConfiguration;
 import org.springframework.content.rest.config.RestConfiguration;
@@ -97,7 +97,7 @@ public class ContextPathContentLinksIT {
 	@Configuration
 	@EnableJpaRepositories(basePackages = "internal.org.springframework.content.rest.support")
 	@EnableTransactionManagement
-	@EnableFilesystemStores(basePackages = "internal.org.springframework.content.rest.support")
+	@EnableFileSystemStores(basePackages = "internal.org.springframework.content.rest.support")
 	@Profile("store")
 	public static class ContextPathConfig extends JpaInfrastructureConfig {
 

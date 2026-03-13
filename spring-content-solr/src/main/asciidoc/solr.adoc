@@ -63,7 +63,7 @@ And the following Java Config:
 ----
 @Configuration
 @EnableFullTextSolrIndexing                 <1>
-@EnableFilesystemStores                     <2>
+@EnableFileSystemStores                     <2>
 public static class ApplicationConfig {
 
     @Bean                                   <3>

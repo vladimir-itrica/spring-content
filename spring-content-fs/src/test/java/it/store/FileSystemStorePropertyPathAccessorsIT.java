@@ -1,32 +1,31 @@
-package internal.org.springframework.content.gcs.it;
+package it.store;
 
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jConfiguration;
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jRunner;
-import com.google.api.gax.paging.Page;
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.contrib.nio.testing.LocalStorageHelper;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import junit.framework.Assert;
+import internal.org.springframework.content.fs.store.DefaultFileSystemStoreImpl;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.bytebuddy.utility.RandomString;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.boot.jpa.EntityManagerFactoryBuilder;
+import org.springframework.boot.jpa.autoconfigure.JpaProperties;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.content.commons.annotations.ContentId;
 import org.springframework.content.commons.annotations.ContentLength;
+import org.springframework.content.commons.annotations.MimeType;
+import org.springframework.content.commons.annotations.OriginalFileName;
 import org.springframework.content.commons.io.DeletableResource;
 import org.springframework.content.commons.property.PropertyPath;
 import org.springframework.content.commons.repository.ContentStore;
-import org.springframework.content.commons.repository.GetResourceParams;
 import org.springframework.content.commons.repository.StoreAccessException;
-import org.springframework.content.gcs.config.EnableGCPStorage;
+import org.springframework.content.fs.config.EnableFileSystemStores;
+import org.springframework.content.fs.io.FileSystemResourceLoader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,51 +43,47 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.nio.file.Files;
 import java.util.UUID;
 
 import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.notNullValue;
 
 @RunWith(Ginkgo4jRunner.class)
-@Ginkgo4jConfiguration(threads=1)
-public class DeprecatedGCPStorageIT {
+@Ginkgo4jConfiguration(threads = 1)
+public class FileSystemStorePropertyPathAccessorsIT {
 
-    private TestEntity entity;
+    private DefaultFileSystemStoreImpl<Object, String> mongoContentRepoImpl;
+    private FileSystemStorePropertyPathAccessorsIT.TEntity entity;
     private Resource genericResource;
 
+    private InputStream content;
+    private InputStream result;
     private Exception e;
 
     private AnnotationConfigApplicationContext context;
 
     private TestEntityRepository repo;
     private TestEntityStore store;
-    private Storage storage;
 
     private String resourceLocation;
 
-    static {
-        System.setProperty("spring.content.gcp.storage.bucket", "test-bucket");
-    }
-
     {
-        Describe("DefaultGCPStorageImpl", () -> {
+        Describe("DefaultFileSystemStoreImpl PropertyPath Accessors", () -> {
 
             BeforeEach(() -> {
                 context = new AnnotationConfigApplicationContext();
-                context.register(TestConfig.class);
+                context.register(FileSystemStorePropertyPathAccessorsIT.TestConfig.class);
                 context.refresh();
 
                 repo = context.getBean(TestEntityRepository.class);
                 store = context.getBean(TestEntityStore.class);
-                storage = context.getBean(Storage.class);
 
-                RandomString random  = new RandomString(5);
+                RandomString random = new RandomString(5);
                 resourceLocation = random.nextString();
             });
 
@@ -105,14 +100,7 @@ public class DeprecatedGCPStorageIT {
                     });
 
                     AfterEach(() -> {
-                        if (genericResource != null) {
-                            ((DeletableResource)genericResource).delete();
-                        }
-
-                        Page<Blob> blobs = storage.list("delete-me-please-please", Storage.BlobListOption.currentDirectory());
-                        for(Blob blob : blobs.iterateAll()) {
-                            storage.delete(blob.getBlobId());
-                        }
+                        ((DeletableResource) genericResource).delete();
                     });
 
                     It("should get Resource", () -> {
@@ -127,7 +115,7 @@ public class DeprecatedGCPStorageIT {
 
                         BeforeEach(() -> {
                             try (InputStream is = new ByteArrayInputStream("Hello Spring Content World!".getBytes())) {
-                                try (OutputStream os = ((WritableResource)genericResource).getOutputStream()) {
+                                try (OutputStream os = ((WritableResource) genericResource).getOutputStream()) {
                                     IOUtils.copy(is, os);
                                 }
                             }
@@ -149,7 +137,7 @@ public class DeprecatedGCPStorageIT {
 
                             BeforeEach(() -> {
                                 try (InputStream is = new ByteArrayInputStream("Hello Updated Spring Content World!".getBytes())) {
-                                    try (OutputStream os = ((WritableResource)genericResource).getOutputStream()) {
+                                    try (OutputStream os = ((WritableResource) genericResource).getOutputStream()) {
                                         IOUtils.copy(is, os);
                                     }
                                 }
@@ -189,13 +177,13 @@ public class DeprecatedGCPStorageIT {
                 Context("given a new entity", () -> {
 
                     BeforeEach(() -> {
-                        entity = new TestEntity();
+                        entity = new FileSystemStorePropertyPathAccessorsIT.TEntity();
                         entity = repo.save(entity);
                     });
 
                     It("should not have an associated resource", () -> {
-                        assertThat(entity.getContentId(), is(nullValue()));
-                        assertThat(store.getResource(entity), is(nullValue()));
+                        assertThat(entity.getContent().getId(), is(nullValue()));
+                        assertThat(store.getResource(entity, PropertyPath.from("content")), is(nullValue()));
                     });
 
                     Context("given a resource", () -> {
@@ -207,40 +195,21 @@ public class DeprecatedGCPStorageIT {
                         Context("when the resource is associated", () -> {
 
                             BeforeEach(() -> {
-                                store.associate(entity, resourceLocation);
-                                store.associate(entity, PropertyPath.from("rendition"), resourceLocation);
+                                store.associate(entity, PropertyPath.from("content"), resourceLocation);
                             });
 
                             It("should be recorded as such on the entity's @ContentId", () -> {
-                                assertThat(entity.getContentId(), is(resourceLocation));
-                                assertThat(entity.getRenditionId(), is(resourceLocation));
+                                assertThat(entity.getContent().getId(), is(resourceLocation));
                             });
 
-                            Context("when the resource has content", () -> {
-                                BeforeEach(() -> {
-                                    try (OutputStream os = ((WritableResource)genericResource).getOutputStream()) {
-                                        os.write("Hello Client-side World!".getBytes());
-                                    }
-                                });
-
-                                It("should not honor byte ranges", () -> {
-                                    // relies on REST-layer to serve byte range
-                                    Resource r = store.getResource(entity, PropertyPath.from("content"), GetResourceParams.builder().range("5-10").build());
-                                    try (InputStream is = r.getInputStream()) {
-                                        assertThat(IOUtils.toString(is), is("Hello Client-side World!"));
-                                    }
-                                });
-                            });
                             Context("when the resource is unassociated", () -> {
 
                                 BeforeEach(() -> {
-                                    store.unassociate(entity);
-                                    store.unassociate(entity, PropertyPath.from("rendition"));
+                                    store.unassociate(entity, PropertyPath.from("content"));
                                 });
 
                                 It("should reset the entity's @ContentId", () -> {
-                                    assertThat(entity.getContentId(), is(nullValue()));
-                                    assertThat(entity.getRenditionId(), is(nullValue()));
+                                    assertThat(entity.getContent().getId(), is(nullValue()));
                                 });
                             });
 
@@ -284,56 +253,37 @@ public class DeprecatedGCPStorageIT {
             Describe("ContentStore", () -> {
 
                 BeforeEach(() -> {
-                    entity = new TestEntity();
+                    entity = new FileSystemStorePropertyPathAccessorsIT.TEntity();
                     entity = repo.save(entity);
 
-                    store.setContent(entity, new ByteArrayInputStream("Hello Spring Content World!".getBytes()));
-                    store.setContent(entity, PropertyPath.from("rendition"), new ByteArrayInputStream("<html>Hello Spring Content World!</html>".getBytes()));
+                    store.setContent(entity, PropertyPath.from("content"), new ByteArrayInputStream("Hello Spring Content World!".getBytes()));
                 });
 
                 It("should be able to store new content", () -> {
                     // content
-                    try (InputStream content = store.getContent(entity)) {
+                    try (InputStream content = store.getContent(entity, PropertyPath.from("content"))) {
                         assertThat(IOUtils.contentEquals(new ByteArrayInputStream("Hello Spring Content World!".getBytes()), content), is(true));
-                    } catch (IOException ioe) {}
-
-                    //rendition
-                    try (InputStream content = store.getContent(entity, PropertyPath.from("rendition"))) {
-                        assertThat(IOUtils.contentEquals(new ByteArrayInputStream("<html>Hello Spring Content World!</html>".getBytes()), content), is(true));
-                    } catch (IOException ioe) {}
+                    } catch (IOException ignored) {
+                    }
                 });
 
                 It("should have content metadata", () -> {
                     // content
-                    assertThat(entity.getContentId(), is(notNullValue()));
-                    assertThat(entity.getContentId().trim().length(), greaterThan(0));
-                    Assert.assertEquals(entity.getContentLen(), 27L);
-
-                    //rendition
-                    assertThat(entity.getRenditionId(), is(notNullValue()));
-                    assertThat(entity.getRenditionId().trim().length(), greaterThan(0));
-                    Assert.assertEquals(entity.getRenditionLen(), 40L);
+                    assertThat(entity.getContent().getId(), is(notNullValue()));
+                    assertThat(entity.getContent().getId().trim().length(), greaterThan(0));
+                    Assert.assertEquals(entity.getContent().getLength(), 27L);
                 });
 
                 Context("when content is updated", () -> {
-                    BeforeEach(() ->{
-                        store.setContent(entity, new ByteArrayInputStream("Hello Updated Spring Content World!".getBytes()));
-                        store.setContent(entity, PropertyPath.from("rendition"), new ByteArrayInputStream("<html>Hello Updated Spring Content World!</html>".getBytes()));
+                    BeforeEach(() -> {
+                        store.setContent(entity, PropertyPath.from("content"), new ByteArrayInputStream("Hello Updated Spring Content World!".getBytes()));
                         entity = repo.save(entity);
                     });
 
                     It("should have the updated content", () -> {
                         //content
-                        boolean matches = false;
-                        try (InputStream content = store.getContent(entity)) {
-                            matches = IOUtils.contentEquals(new ByteArrayInputStream("Hello Updated Spring Content World!".getBytes()), content);
-                            assertThat(matches, is(true));
-                        }
-
-                        //rendition
-                        matches = false;
-                        try (InputStream content = store.getContent(entity, PropertyPath.from("rendition"))) {
-                            matches = IOUtils.contentEquals(new ByteArrayInputStream("<html>Hello Updated Spring Content World!</html>".getBytes()), content);
+                        try (InputStream content = store.getContent(entity, PropertyPath.from("content"))) {
+                            boolean matches = IOUtils.contentEquals(new ByteArrayInputStream("Hello Updated Spring Content World!".getBytes()), content);
                             assertThat(matches, is(true));
                         }
                     });
@@ -341,22 +291,13 @@ public class DeprecatedGCPStorageIT {
 
                 Context("when content is updated with shorter content", () -> {
                     BeforeEach(() -> {
-                        store.setContent(entity, new ByteArrayInputStream("Hello Spring World!".getBytes()));
-                        store.setContent(entity, PropertyPath.from("rendition"), new ByteArrayInputStream("<html>Hello Spring World!</html>".getBytes()));
+                        store.setContent(entity, PropertyPath.from("content"), new ByteArrayInputStream("Hello Spring World!".getBytes()));
                         entity = repo.save(entity);
                     });
                     It("should store only the new content", () -> {
                         //content
-                        boolean matches = false;
-                        try (InputStream content = store.getContent(entity)) {
-                            matches = IOUtils.contentEquals(new ByteArrayInputStream("Hello Spring World!".getBytes()), content);
-                            assertThat(matches, is(true));
-                        }
-
-                        //rendition
-                        matches = false;
-                        try (InputStream content = store.getContent(entity, PropertyPath.from("rendition"))) {
-                            matches = IOUtils.contentEquals(new ByteArrayInputStream("<html>Hello Spring World!</html>".getBytes()), content);
+                        try (InputStream content = store.getContent(entity, PropertyPath.from("content"))) {
+                            boolean matches = IOUtils.contentEquals(new ByteArrayInputStream("Hello Spring World!".getBytes()), content);
                             assertThat(matches, is(true));
                         }
                     });
@@ -364,28 +305,19 @@ public class DeprecatedGCPStorageIT {
 
                 Context("when content is deleted", () -> {
                     BeforeEach(() -> {
-                        resourceLocation = entity.getContentId().toString();
-                        entity = store.unsetContent(entity);
-                        entity = store.unsetContent(entity, PropertyPath.from("rendition"));
+                        resourceLocation = entity.getContent().getId().toString();
+                        entity = store.unsetContent(entity, PropertyPath.from("content"));
                         entity = repo.save(entity);
                     });
 
                     It("should have no content", () -> {
                         //content
-                        try (InputStream content = store.getContent(entity)) {
+                        try (InputStream content = store.getContent(entity, PropertyPath.from("content"))) {
                             assertThat(content, is(Matchers.nullValue()));
                         }
 
-                        assertThat(entity.getContentId(), is(Matchers.nullValue()));
-                        Assert.assertEquals(entity.getContentLen(), 0);
-
-                        //rendition
-                        try (InputStream content = store.getContent(entity, PropertyPath.from("rendition"))) {
-                            assertThat(content, is(Matchers.nullValue()));
-                        }
-
-                        assertThat(entity.getContentId(), is(Matchers.nullValue()));
-                        Assert.assertEquals(entity.getContentLen(), 0);
+                        assertThat(entity.getContent().getId(), is(Matchers.nullValue()));
+                        Assert.assertEquals(entity.getContent().getLength(), 0);
                     });
                 });
 
@@ -421,41 +353,6 @@ public class DeprecatedGCPStorageIT {
                         assertThat(e, is(instanceOf(StoreAccessException.class)));
                     });
                 });
-
-                Context("when content is deleted and the content id field is shared with entity id", () -> {
-
-                    It("should not reset the id field", () -> {
-                        SharedIdRepository sharedIdRepository = context.getBean(SharedIdRepository.class);
-                        SharedIdStore sharedIdStore = context.getBean(SharedIdStore.class);
-
-                        SharedIdContentIdEntity sharedIdContentIdEntity = sharedIdRepository.save(new SharedIdContentIdEntity());
-
-                        sharedIdContentIdEntity = sharedIdStore.setContent(sharedIdContentIdEntity, new ByteArrayInputStream("Hello Spring Content World!".getBytes()));
-                        sharedIdContentIdEntity = sharedIdRepository.save(sharedIdContentIdEntity);
-                        String id = sharedIdContentIdEntity.getContentId();
-                        sharedIdContentIdEntity = sharedIdStore.unsetContent(sharedIdContentIdEntity);
-                        assertThat(sharedIdContentIdEntity.getContentId(), is(id));
-                        assertThat(sharedIdContentIdEntity.getContentLen(), is(0L));
-                    });
-                });
-
-//                Context("when content is deleted and the id field is shared with spring id", () -> {
-//
-//                    It("should not reset the id field", () -> {
-//                        SharedSpringIdRepository SharedSpringIdRepository = context.getBean(SharedSpringIdRepository.class);
-//                        SharedSpringIdStore SharedSpringIdStore = context.getBean(SharedSpringIdStore.class);
-//
-//                        SharedSpringIdContentIdEntity SharedSpringIdContentIdEntity = SharedSpringIdRepository.save(new SharedSpringIdContentIdEntity());
-//
-//                        SharedSpringIdContentIdEntity = SharedSpringIdStore.setContent(SharedSpringIdContentIdEntity, new ByteArrayInputStream("Hello Spring Content World!".getBytes()));
-//                        SharedSpringIdContentIdEntity = SharedSpringIdRepository.save(SharedSpringIdContentIdEntity);
-//                        String id = SharedSpringIdContentIdEntity.getContentId();
-//                        SharedSpringIdContentIdEntity = SharedSpringIdStore.unsetContent(SharedSpringIdContentIdEntity);
-//                        assertThat(SharedSpringIdContentIdEntity.getContentId(), is(id));
-//                        assertThat(SharedSpringIdContentIdEntity.getContentLen(), is(0L));
-//                    });
-//                });
-
             });
         });
     }
@@ -466,111 +363,105 @@ public class DeprecatedGCPStorageIT {
     }
 
     @Configuration
-    @EnableJpaRepositories(basePackages="internal.org.springframework.content.gcs.it", considerNestedRepositories = true)
-    @EnableGCPStorage(basePackages="internal.org.springframework.content.gcs.it")
+    @EnableJpaRepositories(considerNestedRepositories = true)
+    @EntityScan(basePackageClasses = TEntity.class)
+    @EnableFileSystemStores
     @Import(InfrastructureConfig.class)
     public static class TestConfig {
-
-        @Bean
-        public static Storage storage() {
-            return LocalStorageHelper.getOptions().getService();
-        }
+        //
     }
 
     @Configuration
     public static class InfrastructureConfig {
 
         @Bean
+        File filesystemRoot() {
+            try {
+                return Files.createTempDirectory("").toFile();
+            } catch (IOException ignored) {
+            }
+            return null;
+        }
+
+        @Bean
+        FileSystemResourceLoader fileSystemResourceLoader() {
+            return new FileSystemResourceLoader(filesystemRoot().getAbsolutePath());
+        }
+
+        @Bean
         public DataSource dataSource() {
             EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-            return builder.setType(EmbeddedDatabaseType.H2).build();
+            return builder.setType(EmbeddedDatabaseType.HSQL).build();
         }
 
         @Bean
-        public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+        public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
 
             HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-            vendorAdapter.setDatabase(Database.H2);
+            vendorAdapter.setDatabase(Database.HSQL);
             vendorAdapter.setGenerateDdl(true);
 
-            LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
-            factory.setJpaVendorAdapter(vendorAdapter);
-            factory.setPackagesToScan("internal.org.springframework.content.gcs.it");
-            factory.setDataSource(dataSource());
+            EntityManagerFactoryBuilder builder = createEntityManagerFactoryBuilder(new JpaProperties());
+            return builder.dataSource(dataSource).packages(TEntity.class).persistenceUnit("firstDs").build();
+        }
 
-            return factory;
+        private EntityManagerFactoryBuilder createEntityManagerFactoryBuilder(JpaProperties jpaProperties) {
+
+            HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+            vendorAdapter.setDatabase(Database.HSQL);
+            vendorAdapter.setGenerateDdl(true);
+
+            return new EntityManagerFactoryBuilder(vendorAdapter, dataSource -> jpaProperties.getProperties(), null);
         }
 
         @Bean
-        public PlatformTransactionManager transactionManager() {
+        public PlatformTransactionManager transactionManager(DataSource dataSource) {
 
             JpaTransactionManager txManager = new JpaTransactionManager();
-            txManager.setEntityManagerFactory(entityManagerFactory().getObject());
+            txManager.setEntityManagerFactory(entityManagerFactory(dataSource).getObject());
             return txManager;
         }
     }
 
     @Entity
-    @Setter
-    @Getter
     @NoArgsConstructor
-    public static class TestEntity {
+    @Getter
+    @Setter
+    @Table(name = "tentity_content")
+    public static class TEntity {
 
         @Id
-        @GeneratedValue(strategy=GenerationType.AUTO)
-        private Long id;
+        @GeneratedValue(strategy = GenerationType.AUTO)
+        private UUID id;
 
-        @ContentId
-        private String contentId;
+        private String number;
 
-        @ContentLength
-        private long contentLen;
-
-        @ContentId
-        private String renditionId;
-
-        @ContentLength
-        private long renditionLen;
-
-        public TestEntity(String contentId) {
-            this.contentId = new String(contentId);
-        }
+        @Embedded
+        @AttributeOverride(name = "id", column = @Column(name = "content__id"))
+        private EmbeddedContent content = new EmbeddedContent();
     }
 
-    public interface TestEntityRepository extends JpaRepository<TestEntity, Long> {}
-    public interface TestEntityStore extends ContentStore<TestEntity, String> {}
-
-    @Entity
-    @Setter
-    @Getter
+    @Embeddable
     @NoArgsConstructor
-    public static class SharedIdContentIdEntity {
-
-        @Id
+    @Getter
+    @Setter
+    public static class EmbeddedContent {
         @ContentId
-        private String contentId = UUID.randomUUID().toString();
+        private String id;
 
         @ContentLength
-        private long contentLen;
+        private long length;
+
+        @MimeType
+        private String mimetype;
+
+        @OriginalFileName
+        private String filename;
     }
 
-    public interface SharedIdRepository extends JpaRepository<SharedIdContentIdEntity, String> {}
-    public interface SharedIdStore extends ContentStore<SharedIdContentIdEntity, String> {}
+    public interface TestEntityRepository extends JpaRepository<TEntity, UUID> {
+    }
 
-//    @Entity
-//    @Setter
-//    @Getter
-//    @NoArgsConstructor
-//    public static class SharedSpringIdContentIdEntity {
-//
-//        @org.springframework.data.annotation.Id
-//        @ContentId
-//        private String contentId;
-//
-//        @ContentLength
-//        private long contentLen;
-//    }
-//
-//    public interface SharedSpringIdRepository extends JpaRepository<SharedSpringIdContentIdEntity, String> {}
-//    public interface SharedSpringIdStore extends ContentStore<SharedSpringIdContentIdEntity, String> {}
+    public interface TestEntityStore extends ContentStore<TEntity, String> {
+    }
 }

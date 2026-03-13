@@ -36,9 +36,9 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.content.commons.annotations.ContentId;
 import org.springframework.content.commons.annotations.ContentLength;
 import org.springframework.content.commons.annotations.MimeType;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
-import org.springframework.content.fs.store.FilesystemContentStore;
+import org.springframework.content.fs.store.FileSystemContentStore;
 import org.springframework.content.rest.config.ContentRestConfigurer;
 import org.springframework.content.rest.config.RestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -117,7 +117,7 @@ public class EmbeddedIdTest {
     @Ignore("This is not a test and must not be treated as such.")
     @SpringBootApplication
     @EnableJpaRepositories(considerNestedRepositories = true, basePackages={"it.rest.embeddedid"})
-    @EnableFilesystemStores(basePackages = "it.rest.embeddedid")
+    @EnableFileSystemStores(basePackages = "it.rest.embeddedid")
     @Import({RestConfiguration.class})
     public static class Application {
 
@@ -201,7 +201,7 @@ public class EmbeddedIdTest {
     public interface TestEntityRepository extends JpaRepository<TestEntity, TestEntityId> {
     }
 
-    public interface TestEntityContentRepository extends FilesystemContentStore<TestEntity, TestEntityId> {
+    public interface TestEntityContentRepository extends FileSystemContentStore<TestEntity, TestEntityId> {
     }
 
     @Test

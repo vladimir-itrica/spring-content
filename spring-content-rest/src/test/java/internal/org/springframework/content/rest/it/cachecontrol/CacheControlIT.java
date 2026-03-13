@@ -17,9 +17,9 @@ import org.springframework.boot.mongodb.autoconfigure.MongoAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
-import org.springframework.content.fs.store.FilesystemContentStore;
+import org.springframework.content.fs.store.FileSystemContentStore;
 import org.springframework.content.rest.config.ContentRestConfigurer;
 import org.springframework.content.rest.config.RestConfiguration;
 import org.springframework.context.ApplicationContext;
@@ -118,7 +118,7 @@ public class CacheControlIT {
     public interface CacheControlRepository extends CrudRepository<TestEntity, Long> {
     }
 
-    private interface CacheControlStore extends FilesystemContentStore<TestEntity, UUID> {
+    private interface CacheControlStore extends FileSystemContentStore<TestEntity, UUID> {
     }
 
     @SpringBootApplication(exclude = {
@@ -135,7 +135,7 @@ public class CacheControlIT {
        @Configuration
        @Import({RestConfiguration.class, SecurityConfiguration.class})
        @EnableJpaRepositories(basePackages="internal.org.springframework.content.rest.it.cachecontrol", considerNestedRepositories = true)
-       @EnableFilesystemStores(basePackages="internal.org.springframework.content.rest.it.cachecontrol")
+       @EnableFileSystemStores(basePackages="internal.org.springframework.content.rest.it.cachecontrol")
        public static class AppConfig {
 
            @Value("/org/springframework/content/jpa/schema-drop-h2.sql")

@@ -1,5 +1,5 @@
 internal.org.springframework.content.elasticsearch.boot.autoconfigure.ElasticsearchAutoConfiguration
-internal.org.springframework.content.fs.boot.autoconfigure.FilesystemContentAutoConfiguration
+internal.org.springframework.content.fs.boot.autoconfigure.FileSystemContentAutoConfiguration
 internal.org.springframework.content.jpa.boot.autoconfigure.JpaContentAutoConfiguration
 internal.org.springframework.content.mongo.boot.autoconfigure.MongoContentAutoConfiguration
 internal.org.springframework.content.renditions.boot.autoconfigure.RenditionsContentAutoConfiguration

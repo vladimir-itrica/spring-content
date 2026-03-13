@@ -27,10 +27,9 @@ import org.springframework.content.commons.annotations.MimeType;
 import org.springframework.content.commons.property.PropertyPath;
 import org.springframework.content.commons.store.SetContentParams;
 import org.springframework.content.commons.store.UnsetContentParams;
-import org.springframework.content.commons.store.ContentStore;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
-import org.springframework.content.fs.store.FilesystemContentStore;
+import org.springframework.content.fs.store.FileSystemContentStore;
 import org.springframework.content.rest.RestResource;
 import org.springframework.content.rest.config.RestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -181,7 +180,7 @@ public class MethodNotAllowedExceptionIT {
     public interface PreferResourceForPutsAndPostsRepository extends CrudRepository<TEntity, Long> {
     }
 
-    public interface UnexportedContentStore extends FilesystemContentStore<TEntity, UUID> {
+    public interface UnexportedContentStore extends FileSystemContentStore<TEntity, UUID> {
 
         @RestResource(exported=false)
         @Override
@@ -227,7 +226,7 @@ public class MethodNotAllowedExceptionIT {
     }
 
     public interface TestEntity2Repo extends CrudRepository<TEntity2, Long> {}
-    public interface TestEntity2Store extends FilesystemContentStore<TEntity2, UUID> {}
+    public interface TestEntity2Store extends FileSystemContentStore<TEntity2, UUID> {}
 
     @SpringBootApplication(exclude = {
             MongoAutoConfiguration.class,
@@ -242,7 +241,7 @@ public class MethodNotAllowedExceptionIT {
 
         @Import({RestConfiguration.class, SecurityConfiguration.class})
         @EnableJpaRepositories(basePackages="internal.org.springframework.content.rest.it.http_405", considerNestedRepositories = true)
-        @EnableFilesystemStores(basePackages="internal.org.springframework.content.rest.it.http_405")
+        @EnableFileSystemStores(basePackages="internal.org.springframework.content.rest.it.http_405")
         public class TestConfig {
 
             @Value("/org/springframework/content/jpa/schema-drop-h2.sql")

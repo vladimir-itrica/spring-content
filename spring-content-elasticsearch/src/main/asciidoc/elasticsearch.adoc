@@ -38,7 +38,7 @@ Elasticsearch can be enabled with the following Java Config.
 ----
 @Configuration
 @EnableElasticsearchFulltextIndexing        <1>
-@EnableFilesystemStores                     <2>
+@EnableFileSystemStores                     <2>
 public static class ApplicationConfig {
 
                                             <3>
@@ -101,7 +101,7 @@ will then be sent to the Elasticsearch for fulltext indexing in place of the ori
 ----
 @Configuration
 @EnableElasticsearchFulltextIndexing
-@EnableFilesystemStores
+@EnableFileSystemStores
 public static class ApplicationConfig {
 
     public RestHighLevelClient client() {

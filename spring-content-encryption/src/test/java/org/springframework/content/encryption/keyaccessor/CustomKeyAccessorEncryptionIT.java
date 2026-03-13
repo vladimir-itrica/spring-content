@@ -32,9 +32,9 @@ import org.springframework.content.commons.annotations.MimeType;
 import org.springframework.content.encryption.keys.DataEncryptionKeyAccessor;
 import org.springframework.content.encryption.keys.StoredDataEncryptionKey.UnencryptedSymmetricDataEncryptionKey;
 import org.springframework.content.encryption.store.EncryptingContentStore;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
-import org.springframework.content.fs.store.FilesystemContentStore;
+import org.springframework.content.fs.store.FileSystemContentStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -135,7 +135,7 @@ public class CustomKeyAccessorEncryptionIT {
     @SpringBootApplication(exclude={S3ContentAutoConfiguration.class})
     @ImportAutoConfiguration(ContentRestAutoConfiguration.class)
     @EnableJpaRepositories(considerNestedRepositories = true)
-    @EnableFilesystemStores
+    @EnableFileSystemStores
     static class Application {
         public static void main(String[] args) {
             SpringApplication.run(Application.class, args);
@@ -171,7 +171,7 @@ public class CustomKeyAccessorEncryptionIT {
 
     public interface FileRepository extends CrudRepository<FsFile, Long> {}
 
-    public interface FileContentStore3 extends FilesystemContentStore<FsFile, UUID>, EncryptingContentStore<FsFile, UUID> {}
+    public interface FileContentStore3 extends FileSystemContentStore<FsFile, UUID>, EncryptingContentStore<FsFile, UUID> {}
 
     @Entity
     @Getter

@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.content.commons.renditions.RenditionProvider;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
 import org.springframework.content.rest.config.RestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -34,7 +34,6 @@ import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfigu
 
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jSpringRunner;
 
-import internal.org.springframework.content.rest.support.BaseUriConfig;
 import internal.org.springframework.content.rest.support.TestEntity3;
 import internal.org.springframework.content.rest.support.TestEntity3ContentRepository;
 import internal.org.springframework.content.rest.support.TestEntity3Repository;
@@ -96,7 +95,7 @@ public class ContextPathIT {
 	@Configuration
 	@EnableJpaRepositories(basePackages = "internal.org.springframework.content.rest.support")
 	@EnableTransactionManagement
-	@EnableFilesystemStores(basePackages = "internal.org.springframework.content.rest.support")
+	@EnableFileSystemStores(basePackages = "internal.org.springframework.content.rest.support")
 	@Profile("store")
 	public static class ContextPathConfig extends JpaInfrastructureConfig {
 

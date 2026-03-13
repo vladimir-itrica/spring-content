@@ -18,7 +18,7 @@ import java.io.StringReader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
 import org.springframework.content.rest.config.ContentRestConfigurer;
 import org.springframework.content.rest.config.RestConfiguration;
@@ -100,7 +100,7 @@ public class ShortcutExclusionsIT {
 	@Configuration
 	@EnableJpaRepositories(basePackages = "internal.org.springframework.content.rest.support")
 	@EnableTransactionManagement
-	@EnableFilesystemStores(basePackages = "internal.org.springframework.content.rest.support")
+	@EnableFileSystemStores(basePackages = "internal.org.springframework.content.rest.support")
 	public static class Config extends JpaInfrastructureConfig {
 
 	    @Bean

@@ -9,11 +9,11 @@ For these situations you need to provide a `StoreResolver` that, based on runtim
 [source, java]
 ----
 public interface S3ExampleStore extends S3ContentStore<Example, UUID>{}
-public interface FSExampleStore extends FilesystemContentStore<Example, UUID>{}     <1>
+public interface FSExampleStore extends FileSystemContentStore<Example, UUID>{}     <1>
 
 @Configuration
 @EnableS3Stores
-@EnableFilesystemStores
+@EnableFileSystemStores
 public static class ApplicationConfig {
 
     @Bean

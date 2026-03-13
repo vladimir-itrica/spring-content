@@ -24,9 +24,9 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.content.commons.annotations.ContentId;
 import org.springframework.content.commons.annotations.ContentLength;
 import org.springframework.content.commons.annotations.MimeType;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
-import org.springframework.content.fs.store.FilesystemContentStore;
+import org.springframework.content.fs.store.FileSystemContentStore;
 import org.springframework.content.rest.StoreRestResource;
 import org.springframework.content.rest.config.RestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -191,7 +191,7 @@ public class LockingAndVersioningRestIT {
     @EnableJpaRepositories(considerNestedRepositories = true,
                             basePackages={"it.rest.versioning", "org.springframework.versions"})
     @EnableTransactionManagement
-    @EnableFilesystemStores(basePackages = "it.rest.versioning")
+    @EnableFileSystemStores(basePackages = "it.rest.versioning")
     @Import({JpaLockingAndVersioningConfig.class, RestConfiguration.class, SecurityConfiguration.class})
     public static class Application {
 
@@ -362,7 +362,7 @@ public class LockingAndVersioningRestIT {
     }
 
     @StoreRestResource(path="versionedDocumentsContent")
-    public interface VersionedDocumentStore extends FilesystemContentStore<VersionedDocument, UUID> {
+    public interface VersionedDocumentStore extends FileSystemContentStore<VersionedDocument, UUID> {
     }
 
     @Test

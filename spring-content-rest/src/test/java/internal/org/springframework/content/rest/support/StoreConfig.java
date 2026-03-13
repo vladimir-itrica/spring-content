@@ -7,7 +7,7 @@ import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.content.commons.renditions.RenditionProvider;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
 import org.springframework.content.rest.config.ContentRestConfigurer;
 import org.springframework.content.rest.config.RestConfiguration;
@@ -23,7 +23,7 @@ import internal.org.springframework.content.rest.support.config.JpaInfrastructur
 @Configuration
 @EnableJpaRepositories(basePackages = "internal.org.springframework.content.rest.support")
 @EnableTransactionManagement
-@EnableFilesystemStores(basePackages = "internal.org.springframework.content.rest.support")
+@EnableFileSystemStores(basePackages = "internal.org.springframework.content.rest.support")
 @Profile("store")
 public class StoreConfig extends JpaInfrastructureConfig {
 

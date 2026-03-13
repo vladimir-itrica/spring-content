@@ -1,8 +1,8 @@
 package org.springframework.content.fs.config;
 
-import internal.org.springframework.content.fs.config.FilesystemStoreConfiguration;
-import internal.org.springframework.content.fs.config.FilesystemStoreFactoryBean;
-import internal.org.springframework.content.fs.config.FilesystemStoreRegistrar;
+import internal.org.springframework.content.fs.config.FileSystemContentRepositoriesRegistrar;
+import internal.org.springframework.content.fs.config.FileSystemStoreConfiguration;
+import internal.org.springframework.content.fs.config.FileSystemStoreFactoryBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.annotation.Import;
 
@@ -12,8 +12,9 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Import({FilesystemStoreRegistrar.class, FilesystemStoreConfiguration.class})
-public @interface EnableFilesystemStores {
+@Import({FileSystemContentRepositoriesRegistrar.class, FileSystemStoreConfiguration.class})
+@Deprecated
+public @interface EnableFileSystemContentRepositories {
 
     /**
      * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation
@@ -45,9 +46,9 @@ public @interface EnableFilesystemStores {
 
     /**
      * Returns the {@link FactoryBean} class to be used for each repository instance.
-     * Defaults to {@link FilesystemStoreFactoryBean}.
+     * Defaults to {@link FileSystemStoreFactoryBean}.
      *
      * @return content repository factory bean class
      */
-    Class<?> storeFactoryBeanClass() default FilesystemStoreFactoryBean.class;
+    Class<?> storeFactoryBeanClass() default FileSystemStoreFactoryBean.class;
 }

@@ -8,10 +8,10 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.content.commons.annotations.ContentId;
 import org.springframework.content.commons.repository.ContentStore;
-import org.springframework.content.fs.config.EnableFilesystemContentRepositories;
-import org.springframework.content.fs.config.EnableFilesystemStores;
-import org.springframework.content.fs.config.FilesystemStoreConfigurer;
-import org.springframework.content.fs.config.FilesystemStoreConverter;
+import org.springframework.content.fs.config.EnableFileSystemContentRepositories;
+import org.springframework.content.fs.config.EnableFileSystemStores;
+import org.springframework.content.fs.config.FileSystemStoreConfigurer;
+import org.springframework.content.fs.config.FileSystemStoreConverter;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -37,15 +37,15 @@ import static org.mockito.Mockito.verify;
 @SuppressWarnings("deprecation")
 @RunWith(Ginkgo4jRunner.class)
 @Ginkgo4jConfiguration(threads = 1)
-public class EnableFilesystemStoresTest {
+public class EnableFileSystemStoresTest {
 
     private AnnotationConfigApplicationContext context;
 
     // mocks
-    static FilesystemStoreConfigurer configurer;
+    static FileSystemStoreConfigurer configurer;
 
     {
-        Describe("EnableFilesystemStores", () -> {
+        Describe("EnableFileSystemStores", () -> {
 
             Context("given a context and a configuration with a filesystem content repository bean",
                     () -> {
@@ -55,32 +55,25 @@ public class EnableFilesystemStoresTest {
                             context.refresh();
                         });
                         AfterEach(() -> context.close());
-                        It("should have a ContentRepository bean", () -> {
-                            assertThat(context.getBean(TestEntityContentRepository.class),
-                                    is(not(nullValue())));
-                        });
-                        It("should have a filesystem placement service bean", () -> {
-                            assertThat(context.getBean("filesystemStorePlacementService"),
-                                    is(not(nullValue())));
-                        });
-                        It("should have a FileSystemResourceLoader bean", () -> {
-                            assertThat(context.getBean("fileSystemResourceLoader"),
-                                    is(not(nullValue())));
-                        });
+                        It("should have a ContentRepository bean", () ->
+                                assertThat(context.getBean(TestEntityContentRepository.class), is(not(nullValue()))));
+                        It("should have a filesystem placement service bean", () ->
+                                assertThat(context.getBean("filesystemStorePlacementService"), is(not(nullValue()))));
+                        It("should have a FileSystemResourceLoader bean", () ->
+                                assertThat(context.getBean("fileSystemResourceLoader"), is(not(nullValue()))));
                     });
 
             Context("given a context with a configurer", () -> {
                 BeforeEach(() -> {
-                    configurer = mock(FilesystemStoreConfigurer.class);
+                    configurer = mock(FileSystemStoreConfigurer.class);
 
                     context = new AnnotationConfigApplicationContext();
                     context.register(ConverterConfig.class);
                     context.refresh();
                 });
                 AfterEach(() -> context.close());
-                It("should call that configurer to help customize the store", () -> {
-                    verify(configurer).configureFilesystemStoreConverters(any());
-                });
+                It("should call that configurer to help customize the store", () ->
+                        verify(configurer).configureFileSystemStoreConverters(any()));
             });
 
             Context("given a context with an empty configuration", () -> {
@@ -101,22 +94,20 @@ public class EnableFilesystemStoresTest {
             });
         });
 
-        Describe("EnableFilesystemContentRepositories", () -> {
-
-            Context("given a context and a configuration with a filesystem content repository bean",
-                    () -> {
-                        BeforeEach(() -> {
-                            context = new AnnotationConfigApplicationContext();
-                            context.register(BackwardCompatibilityConfig.class);
-                            context.refresh();
-                        });
-                        AfterEach(() -> context.close());
-                        It("should have a ContentRepository bean", () -> assertThat(
-                                context.getBean(TestEntityContentRepository.class),
-                                is(not(nullValue()))
-                        ));
+        Describe("EnableFileSystemContentRepositories", () ->
+                Context("given a context and a configuration with a file system content repository bean", () -> {
+                    BeforeEach(() -> {
+                        context = new AnnotationConfigApplicationContext();
+                        context.register(BackwardCompatibilityConfig.class);
+                        context.refresh();
                     });
-        });
+                    AfterEach(() -> context.close());
+                    It("should have a ContentRepository bean", () -> assertThat(
+                            context.getBean(TestEntityContentRepository.class),
+                            is(not(nullValue()))
+                    ));
+                })
+        );
 
     }
 
@@ -125,13 +116,13 @@ public class EnableFilesystemStoresTest {
     }
 
     @Configuration
-    @EnableFilesystemStores(basePackages = "contains.no.fs.repositories")
+    @EnableFileSystemStores(basePackages = "contains.no.fs.repositories")
     @PropertySource("classpath:/test.properties")
     public static class EmptyConfig {
     }
 
     @Configuration
-    @EnableFilesystemStores
+    @EnableFileSystemStores
     @PropertySource("classpath:/test.properties")
     public static class TestConfig {
 
@@ -145,7 +136,7 @@ public class EnableFilesystemStoresTest {
     }
 
     @Configuration
-    @EnableFilesystemStores
+    @EnableFileSystemStores
     @PropertySource("classpath:/test.properties")
     public static class ConverterConfig {
 
@@ -153,12 +144,12 @@ public class EnableFilesystemStoresTest {
         private String filesystemRoot;
 
         @Bean
-        public FilesystemStoreConverter<UUID, String> uuidConverter() {
+        public FileSystemStoreConverter<UUID, String> uuidConverter() {
             return source -> String.format("/%s", source.toString().replaceAll("-", "/"));
         }
 
         @Bean
-        public FilesystemStoreConfigurer configurer() {
+        public FileSystemStoreConfigurer configurer() {
             return configurer;
         }
 
@@ -168,7 +159,7 @@ public class EnableFilesystemStoresTest {
         }
     }
 
-    @EnableFilesystemContentRepositories
+    @EnableFileSystemContentRepositories
     @PropertySource("classpath:/test.properties")
     public static class BackwardCompatibilityConfig {
 
@@ -182,7 +173,7 @@ public class EnableFilesystemStoresTest {
 
     }
 
-    public class TestEntity {
+    public static class TestEntity {
         @ContentId
         private String contentId;
     }
