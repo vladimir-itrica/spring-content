@@ -1,32 +1,19 @@
 package org.springframework.content.commons.utils;
 
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.AfterEach;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.BeforeEach;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.Context;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.Describe;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.It;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.JustBeforeEach;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import com.github.paulcwarren.ginkgo4j.Ginkgo4jConfiguration;
+import com.github.paulcwarren.ginkgo4j.Ginkgo4jRunner;
+import org.apache.commons.io.FileUtils;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.runner.RunWith;
-import org.springframework.content.commons.utils.FileService;
-import org.springframework.content.commons.utils.FileServiceImpl;
-
-import com.github.paulcwarren.ginkgo4j.Ginkgo4jConfiguration;
-import com.github.paulcwarren.ginkgo4j.Ginkgo4jRunner;
+import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
 
 @RunWith(Ginkgo4jRunner.class)
 @Ginkgo4jConfiguration(threads = 1)
@@ -39,12 +26,7 @@ public class FileServiceTest {
 
 	{
 		Describe("mkdirs", () -> {
-			BeforeEach(() -> {
-				parent = new File(Paths
-						.get(System.getProperty("java.io.tmpdir"),
-								UUID.randomUUID().toString())
-						.toAbsolutePath().toString());
-			});
+			BeforeEach(() -> parent = Files.createTempDirectory("contentCommons").toFile());
 
 			JustBeforeEach(() -> {
 				fileService = new FileServiceImpl();
@@ -62,9 +44,7 @@ public class FileServiceTest {
 					FileUtils.touch(file);
 					assertThat(file.exists(), is(true));
 				});
-				AfterEach(() -> {
-					file.delete();
-				});
+				AfterEach(() -> file.delete());
 				It("should throw an IOException", () -> {
 					assertThat(ex, is(not(nullValue())));
 					assertThat(ex, instanceOf(IOException.class));
@@ -76,13 +56,9 @@ public class FileServiceTest {
 					file = new File(parent, "something.txt");
 					assertThat(file.exists(), is(false));
 				});
-				AfterEach(() -> {
-					file.delete();
-				});
+				AfterEach(() -> file.delete());
 
-				It("should not throw an exception", () -> {
-					assertThat(ex, is(nullValue()));
-				});
+				It("should not throw an exception", () -> assertThat(ex, is(nullValue())));
 
 				It("should create the directory", () -> {
 					assertThat(file.isDirectory(), is(true));
@@ -96,9 +72,7 @@ public class FileServiceTest {
 					file.mkdirs();
 					assertThat(file.exists(), is(true));
 				});
-				AfterEach(() -> {
-					file.delete();
-				});
+				AfterEach(() -> file.delete());
 				It("should succeed", () -> {
 					assertThat(ex, is(nullValue()));
 					assertThat(file.exists(), is(true));
@@ -111,9 +85,7 @@ public class FileServiceTest {
 					file = new File(parent, "something");
 					assertThat(file.exists(), is(false));
 				});
-				AfterEach(() -> {
-					file.delete();
-				});
+				AfterEach(() -> file.delete());
 				It("should succeed", () -> {
 					assertThat(ex, is(nullValue()));
 					assertThat(file.exists(), is(true));
@@ -123,9 +95,7 @@ public class FileServiceTest {
 			});
 
 			Context("when passed null", () -> {
-				BeforeEach(() -> {
-					file = null;
-				});
+				BeforeEach(() -> file = null);
 				It("should throw an IllegalArgumentException", () -> {
 					assertThat(ex, is(not(nullValue())));
 					assertThat(ex, instanceOf(IllegalArgumentException.class));
@@ -134,9 +104,7 @@ public class FileServiceTest {
 		});
 
 		Describe("rmdirs", () -> {
-			JustBeforeEach(() -> {
-				fileService = new FileServiceImpl();
-			});
+			JustBeforeEach(() -> fileService = new FileServiceImpl());
 
 			It("should delete empty directories but stop at 'to'", () -> {
 				Path p0 = Files.createTempDirectory(null);

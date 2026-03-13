@@ -1,6 +1,5 @@
 package org.springframework.content.fs.io;
 
-import com.github.f4b6a3.uuid.UuidCreator;
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jConfiguration;
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jRunner;
 import org.apache.commons.io.FileUtils;
@@ -11,7 +10,7 @@ import org.springframework.content.commons.io.DeletableResource;
 import org.springframework.core.io.Resource;
 
 import java.io.File;
-import java.nio.file.Paths;
+import java.nio.file.Files;
 
 import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
 import static org.hamcrest.CoreMatchers.*;
@@ -67,8 +66,7 @@ public class FileSystemResourceLoaderTest {
         );
 
         Describe("DeletableResource", () -> Context("#delete", () -> {
-            BeforeEach(() -> parent = Paths.get(System.getProperty("java.io.tmpdir"),
-                    UuidCreator.getTimeOrdered().toString()).toAbsolutePath().toFile());
+            BeforeEach(() -> parent = Files.createTempDirectory("content-fs").toFile());
             JustBeforeEach(() -> {
                 loader = new FileSystemResourceLoader(parent.getPath() + "/");
                 Resource resource = loader.getResource(location);
