@@ -53,10 +53,9 @@ public class FileSystemResourceLoader
 
     @Override
     public @NonNull Resource getResource(@NonNull String location) {
-        Assert.notNull(root, "root must not be null");
         Resource resource = root.createRelative(location);
-        if (resource instanceof FileSystemResource) {
-            resource = new FileSystemDeletableResource((FileSystemResource) resource, fileService);
+        if (resource instanceof FileSystemResource fsr) {
+            resource = new FileSystemDeletableResource(fsr, fileService);
         }
         return resource;
     }

@@ -17,26 +17,26 @@ import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.It;
 import internal.org.springframework.content.fs.boot.autoconfigure.FilesystemContentAutoConfiguration;
 
 @RunWith(Ginkgo4jRunner.class)
-public class FilesystemPropertiesTest {
+public class FileSystemPropertiesTest {
 
-    private FilesystemContentAutoConfiguration.FilesystemProperties props;
+    private FilesystemContentAutoConfiguration.FileSystemProperties props;
 
     {
-        Describe("FilesystemProperties", () -> {
+        Describe("FileSystemProperties", () -> {
             Context("given a filesystem properties with no root set", () -> {
-                BeforeEach(() -> props = new FilesystemContentAutoConfiguration.FilesystemProperties());
+                BeforeEach(() -> props = new FilesystemContentAutoConfiguration.FileSystemProperties());
                 It("should return a JAVA.IO.TMPDIR based default", () ->
-                        assertThat(props.getFilesystemRoot(), startsWith(System.getProperty("java.io.tmpdir"))));
+                        assertThat(props.getFileSystemRoot(), startsWith(System.getProperty("java.io.tmpdir"))));
             });
             Context("given a filesystem properties with root set", () -> {
                 final String someRandomPath = SystemUtils.IS_OS_WINDOWS ?
                         "C:\\some\\random\\path" : "/some/random/path";
                 BeforeEach(() -> {
-                    props = new FilesystemContentAutoConfiguration.FilesystemProperties();
-                    props.setFilesystemRoot(someRandomPath);
+                    props = new FilesystemContentAutoConfiguration.FileSystemProperties();
+                    props.setFileSystemRoot(someRandomPath);
                 });
                 It("should return a JAVA.IO.TMPDIR based default", () ->
-                        assertThat(props.getFilesystemRoot(), is(someRandomPath)));
+                        assertThat(props.getFileSystemRoot(), is(someRandomPath)));
             });
         });
     }
