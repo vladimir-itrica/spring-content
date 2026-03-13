@@ -13,13 +13,13 @@ import org.springframework.core.type.AnnotationMetadata;
 import java.util.Objects;
 import java.util.Set;
 
-public class FilesystemContentAutoConfigureRegistrar extends FileSystemStoreRegistrar {
+public class FileSystemContentAutoConfigureRegistrar extends FileSystemStoreRegistrar {
 
     @Override
     protected void registerContentStoreBeanDefinitions(
             AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 
-        AnnotationMetadata metadata = AnnotationMetadata.introspect(EnableFilesystemContentAutoConfiguration.class);
+        AnnotationMetadata metadata = AnnotationMetadata.introspect(EnableFileSystemContentAutoConfiguration.class);
         AnnotationAttributes attributes = new AnnotationAttributes(Objects.requireNonNull(metadata.getAnnotationAttributes(this.getAnnotation().getName())));
 
         String[] basePackages = this.getBasePackages();
@@ -45,6 +45,6 @@ public class FilesystemContentAutoConfigureRegistrar extends FileSystemStoreRegi
     }
 
     @EnableFileSystemStores
-    private static class EnableFilesystemContentAutoConfiguration {
+    private static class EnableFileSystemContentAutoConfiguration {
     }
 }

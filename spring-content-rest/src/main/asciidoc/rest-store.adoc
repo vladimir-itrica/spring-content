@@ -6,7 +6,7 @@ Spring Content REST builds on top of Spring Content stores and automatically exp
 
 Spring Content REST officially supports:
 
-- https://github.com/paulcwarren/spring-content/spring-content-fs[Spring Content Filesystem]
+- https://github.com/paulcwarren/spring-content/spring-content-fs[Spring Content File System]
 - https://github.com/paulcwarren/spring-content/spring-content-s3[Spring Content S3]
 - https://github.com/paulcwarren/spring-content/spring-content-mongo[Spring Content Mongo]
 - https://github.com/paulcwarren/spring-content/spring-content-jpa[Spring Content JPA]

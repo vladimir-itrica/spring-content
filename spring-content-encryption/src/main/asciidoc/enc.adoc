@@ -53,7 +53,7 @@ and then updating your application's configuration, as follows:
 [source, java]
 ----
 @Configuration
-@EnableFilesystemStores
+@EnableFileSystemStores
 public static class Config {
 
     @Bean
@@ -122,7 +122,7 @@ All components of the content encryption system can be configured or swapped out
 ====
 [source,java]
 ----
-@EnableFilesystemStores
+@EnableFileSystemStores
 public static class Config {
 
     @Bean
@@ -159,7 +159,7 @@ However, it depends on the type of backing storage how that happens exactly.
 With S3 storage byte-ranges will be forwarded onto S3 for fetching and therefore only the
 byte range need be decrypted before serving.  This is very efficient.
 
-With storage that does not yet support byte ranges.  Filesystem for example.  The
+With storage that does not yet support byte ranges.  File System for example.  The
 byte range cannot be forwarded and the entire content is fetched and decrypted before
 serving just the byte range.  This is less efficient but works and can be useful when, for
 example, S3 storage is used in production, but filesystem is used in test.

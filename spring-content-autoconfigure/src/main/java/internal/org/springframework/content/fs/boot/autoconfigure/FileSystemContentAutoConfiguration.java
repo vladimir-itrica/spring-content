@@ -26,7 +26,7 @@ import java.nio.file.Files;
 @ConditionalOnClass(FileSystemStoreRegistrar.class)
 @ConditionalOnProperty(prefix = "spring.content.storage.type", name = "default",
         havingValue = "fs", matchIfMissing = true)
-public class FilesystemContentAutoConfiguration {
+public class FileSystemContentAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(FileSystemResourceLoader.class)
@@ -36,8 +36,8 @@ public class FilesystemContentAutoConfiguration {
 
     @Configuration
     @ConditionalOnMissingBean(FileSystemStoreFactoryBean.class)
-    @Import({FilesystemContentAutoConfigureRegistrar.class, FileSystemStoreConfiguration.class})
-    public static class EnableFilesystemStoresConfig {
+    @Import({FileSystemContentAutoConfigureRegistrar.class, FileSystemStoreConfiguration.class})
+    public static class EnableFileSystemStoresConfig {
     }
 
     @Component

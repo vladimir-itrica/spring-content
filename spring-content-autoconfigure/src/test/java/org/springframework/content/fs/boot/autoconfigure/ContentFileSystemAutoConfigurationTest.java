@@ -2,7 +2,7 @@ package org.springframework.content.fs.boot.autoconfigure;
 
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jConfiguration;
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jRunner;
-import internal.org.springframework.content.fs.boot.autoconfigure.FilesystemContentAutoConfiguration;
+import internal.org.springframework.content.fs.boot.autoconfigure.FileSystemContentAutoConfiguration;
 import internal.org.springframework.content.s3.boot.autoconfigure.S3ContentAutoConfiguration;
 import internal.org.springframework.content.solr.boot.autoconfigure.SolrAutoConfiguration;
 import internal.org.springframework.content.solr.boot.autoconfigure.SolrExtensionAutoConfiguration;
@@ -23,14 +23,14 @@ import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
 
 @RunWith(Ginkgo4jRunner.class)
 @Ginkgo4jConfiguration(threads = 1)
-public class ContentFilesystemAutoConfigurationTest {
+public class ContentFileSystemAutoConfigurationTest {
 
     private ApplicationContextRunner contextRunner;
 
     {
-        Describe("FilesystemContentAutoConfiguration", () -> {
+        Describe("FileSystemContentAutoConfiguration", () -> {
             BeforeEach(() -> contextRunner = new ApplicationContextRunner()
-                    .withConfiguration(AutoConfigurations.of(FilesystemContentAutoConfiguration.class)));
+                    .withConfiguration(AutoConfigurations.of(FileSystemContentAutoConfiguration.class)));
             Context("given a default configuration", () -> It("should load the context", () ->
                     contextRunner.withUserConfiguration(TestConfig.class).run((context) -> Assertions.assertThat(context).hasSingleBean(TestEntityContentRepository.class))));
 
@@ -40,8 +40,8 @@ public class ContentFilesystemAutoConfigurationTest {
                 AfterEach(() -> System.clearProperty("spring.content.fs.filesystem-root"));
                 It("should have a filesystem properties bean with the correct root set", () ->
                         contextRunner.withUserConfiguration(TestConfig.class).run((context) -> {
-                            Assertions.assertThat(context).hasSingleBean(FilesystemContentAutoConfiguration.FileSystemProperties.class);
-                            Assertions.assertThat(context).getBean(FilesystemContentAutoConfiguration.FileSystemProperties.class).extracting("fileSystemRoot").matches((val) -> val.toString().endsWith("/UPPERCASE/NOTATION/"));
+                            Assertions.assertThat(context).hasSingleBean(FileSystemContentAutoConfiguration.FileSystemProperties.class);
+                            Assertions.assertThat(context).getBean(FileSystemContentAutoConfiguration.FileSystemProperties.class).extracting("fileSystemRoot").matches((val) -> val.toString().endsWith("/UPPERCASE/NOTATION/"));
                         }));
             });
 
