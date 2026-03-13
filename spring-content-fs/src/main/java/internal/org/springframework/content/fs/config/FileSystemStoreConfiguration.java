@@ -32,7 +32,7 @@ public class FileSystemStoreConfiguration {
             return;
 
         for (FileSystemStoreConfigurer configurer : configurers) {
-            configurer.configureFilesystemStoreConverters(registry);
+            configurer.configureFileSystemStoreConverters(registry);
         }
     }
 

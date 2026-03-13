@@ -29,7 +29,7 @@ Spring Content File System Stores are enabled with the following Java Config.
 [source, java]
 ----
 @Configuration
-@EnableFilesystemStores
+@EnableFileSystemStores
 public static class ApplicationConfig {
 
     @Bean
@@ -68,7 +68,7 @@ The following configuration properties (prefix `spring.content.fs`) are supporte
 === Signature Types
 [[signature_types]]
 
-Filesystem Storage supports the following signature types:
+File System Storage supports the following signature types:
 
 - `org.springframework.content.fs.store.FileSystemStore`
 - `org.springframework.content.fs.store.FileSystemAssociativeStore`
@@ -78,11 +78,11 @@ The module id for the `spring.content.storage.type.default` property is `fs`.
 
 === Loading Spring Resources from a Store or AssociativeStore
 
-Resources returned by Filesystem Storage are standard Spring Resources implementing the following interfaces:
+Resources returned by File System Storage are standard Spring Resources implementing the following interfaces:
 
 - `org.springframework.core.io.Resource`
 - `org.springframework.core.io.WriteableResource`
-- `org.springframework.content.commons.io.DeleteableResoure`
+- `org.springframework.content.commons.io.DeletableResource`
 
 When a Resource is loaded from the Store the following rules are used to determine the resource's location.
 
@@ -123,7 +123,7 @@ Content can be removed using the `ContentStore.unsetContent(T entity, PropertyPa
 === Storage Customization
 [[configuring_converters]]
 
-By default, the Filesystem Store Module will store all content at the root of the backing store.  Usually, this
+By default, the File System Store Module will store all content at the root of the backing store.  Usually, this
 is sufficient.
 
 However, for the cases where you need more control over the content in the backing store, the Module provides a placement
@@ -156,15 +156,15 @@ public class Document {
 
 The first option is a converter that converts from the `@ContentId` type, in this case UUID, to String.
 
-.Spring Content Filesystem Stores customizing storage customization by `@ContentId` type
+.Spring Content File System Stores customizing storage customization by `@ContentId` type
 ====
 [source, java]
 ----
 @Configuration
-public class FilesystemStoreConfiguration  {
+public class FileSystemStoreConfiguration  {
 
    	public Converter<UUID,String> converter() {
-		return new FilesystemStoreConverter<UUID,String>() {
+		return new FileSystemStoreConverter<UUID,String>() {
 
 			@Override
 			public String convert(UUID source) {
@@ -174,11 +174,11 @@ public class FilesystemStoreConfiguration  {
 	}
 
 	@Bean
-	public FilesystemStoreConfigurer configurer() {
-		return new FilesystemStoreConfigurer() {
+	public FileSystemStoreConfigurer configurer() {
+		return new FileSystemStoreConfigurer() {
 
 			@Override
-			public void configureFilesystemStoreConverters(ConverterRegistry registry) {
+			public void configureFileSystemStoreConverters(ConverterRegistry registry) {
 				registry.addConverter(converter());
 			}
 		};
@@ -193,18 +193,18 @@ backing store at `/ec39f99b/5de3/4dc5/9753/a97c26f809c2`.
 
 The second option is a converter that converts from the Entity type to String.
 
-.Spring Content Filesystem Stores customizing storage customization by Entity type
+.Spring Content File System Stores customizing storage customization by Entity type
 ====
 [source, java]
 ----
 @Configuration
 public static class StoreConfig {
     @Bean
-    public FilesystemStoreConfigurer configurer() {
-        return new FilesystemStoreConfigurer() {
+    public FileSystemStoreConfigurer configurer() {
+        return new FileSystemStoreConfigurer() {
 
             @Override
-            public void configureFilesystemStoreConverters(ConverterRegistry registry) {
+            public void configureFileSystemStoreConverters(ConverterRegistry registry) {
                 registry.addConverter(new Converter<Document, String>() {
 
                     @Override
@@ -217,11 +217,11 @@ public static class StoreConfig {
     }
 
 	@Bean
-	public FilesystemStoreConfigurer configurer() {
-		return new FilesystemStoreConfigurer() {
+	public FileSystemStoreConfigurer configurer() {
+		return new FileSystemStoreConfigurer() {
 
 			@Override
-			public void configureFilesystemStoreConverters(ConverterRegistry registry) {
+			public void configureFileSystemStoreConverters(ConverterRegistry registry) {
 				registry.addConverter(converter());
 			}
 		};

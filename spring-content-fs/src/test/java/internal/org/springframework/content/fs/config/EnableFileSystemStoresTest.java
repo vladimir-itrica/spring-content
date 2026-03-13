@@ -73,7 +73,7 @@ public class EnableFileSystemStoresTest {
                 });
                 AfterEach(() -> context.close());
                 It("should call that configurer to help customize the store", () ->
-                        verify(configurer).configureFilesystemStoreConverters(any()));
+                        verify(configurer).configureFileSystemStoreConverters(any()));
             });
 
             Context("given a context with an empty configuration", () -> {

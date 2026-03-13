@@ -45,7 +45,7 @@
 //import com.github.paulcwarren.ginkgo4j.Ginkgo4jRunner;
 //
 //@RunWith(Ginkgo4jRunner.class)
-//public class DefaultFilesystemStoresImplTest {
+//public class DefaultFileSystemStoresImplTest {
 //	private DefaultFileSystemStoreImpl<ContentProperty, String> filesystemContentRepoImpl;
 //	private FileSystemResourceLoader loader;
 //	private PlacementService placer;
@@ -69,7 +69,7 @@
 //	private Exception e;
 //
 //	{
-//		Describe("DefaultFilesystemContentRepositoryImpl", () -> {
+//		Describe("DefaultFileSystemContentRepositoryImpl", () -> {
 //
 //			BeforeEach(() -> {
 //				loader = mock(FileSystemResourceLoader.class);
