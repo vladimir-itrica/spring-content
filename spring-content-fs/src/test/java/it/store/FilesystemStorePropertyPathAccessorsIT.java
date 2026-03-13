@@ -59,7 +59,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jConfiguration;
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jRunner;
 
-import internal.org.springframework.content.fs.store.DefaultFilesystemStoreImpl;
+import internal.org.springframework.content.fs.store.DefaultFileSystemStoreImpl;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -71,7 +71,7 @@ import javax.sql.DataSource;
 @Ginkgo4jConfiguration(threads = 1)
 public class FilesystemStorePropertyPathAccessorsIT {
 
-    private DefaultFilesystemStoreImpl<Object, String> mongoContentRepoImpl;
+    private DefaultFileSystemStoreImpl<Object, String> mongoContentRepoImpl;
     private FilesystemStorePropertyPathAccessorsIT.TEntity entity;
     private Resource genericResource;
 
@@ -87,7 +87,7 @@ public class FilesystemStorePropertyPathAccessorsIT {
     private String resourceLocation;
 
     {
-        Describe("DefaultFilesystemStoreImpl PropertyPath Accessors", () -> {
+        Describe("DefaultFileSystemStoreImpl PropertyPath Accessors", () -> {
 
             BeforeEach(() -> {
                 context = new AnnotationConfigApplicationContext();

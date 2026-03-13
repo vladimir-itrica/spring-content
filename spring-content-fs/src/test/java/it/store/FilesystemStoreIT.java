@@ -70,7 +70,7 @@ public class FilesystemStoreIT {
     private String resourceLocation;
 
     {
-        Describe("DefaultFilesystemStoreImpl", () -> {
+        Describe("DefaultFileSystemStoreImpl", () -> {
 
             BeforeEach(() -> {
                 context = new AnnotationConfigApplicationContext();

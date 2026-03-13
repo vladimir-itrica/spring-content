@@ -12,7 +12,7 @@ import org.springframework.content.fs.io.FileSystemResourceLoader;
 import org.springframework.util.Assert;
 import org.springframework.versions.LockingAndVersioningProxyFactory;
 
-import internal.org.springframework.content.fs.store.DefaultFilesystemStoreImpl;
+import internal.org.springframework.content.fs.store.DefaultFileSystemStoreImpl;
 
 @SuppressWarnings("rawtypes")
 public class FilesystemStoreFactoryBean extends AbstractStoreFactoryBean {
@@ -50,6 +50,6 @@ public class FilesystemStoreFactoryBean extends AbstractStoreFactoryBean {
 
 	@Override
 	protected Object getContentStoreImpl() {
-		return new DefaultFilesystemStoreImpl(loader, mappingContext, filesystemStorePlacementService, new FileServiceImpl());
+		return new DefaultFileSystemStoreImpl(loader, mappingContext, filesystemStorePlacementService, new FileServiceImpl());
 	}
 }

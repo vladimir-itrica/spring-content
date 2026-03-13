@@ -35,18 +35,18 @@ import java.util.UUID;
 import static java.lang.String.format;
 
 @Transactional(readOnly = true)
-public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
+public class DefaultFileSystemStoreImpl<S, SID extends Serializable>
         implements Store<SID>, AssociativeStore<S, SID>, ContentStore<S, SID>,
         org.springframework.content.commons.store.ContentStore<S, SID> {
 
-    private static final Log logger = LogFactory.getLog(DefaultFilesystemStoreImpl.class);
+    private static final Log logger = LogFactory.getLog(DefaultFileSystemStoreImpl.class);
 
     private final FileSystemResourceLoader loader;
     private final PlacementService placer;
     private final FileService fileService;
     private MappingContext mappingContext;
 
-    public DefaultFilesystemStoreImpl(FileSystemResourceLoader loader, MappingContext mappingContext,
+    public DefaultFileSystemStoreImpl(FileSystemResourceLoader loader, MappingContext mappingContext,
                                       PlacementService conversion, FileService fileService) {
         this.loader = loader;
         this.placer = conversion;

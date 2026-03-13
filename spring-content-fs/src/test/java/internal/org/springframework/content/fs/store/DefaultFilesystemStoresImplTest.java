@@ -46,7 +46,7 @@
 //
 //@RunWith(Ginkgo4jRunner.class)
 //public class DefaultFilesystemStoresImplTest {
-//	private DefaultFilesystemStoreImpl<ContentProperty, String> filesystemContentRepoImpl;
+//	private DefaultFileSystemStoreImpl<ContentProperty, String> filesystemContentRepoImpl;
 //	private FileSystemResourceLoader loader;
 //	private PlacementService placer;
 //	private ContentProperty entity;
@@ -76,7 +76,7 @@
 //				placer = mock(PlacementService.class);
 //				fileService = mock(FileService.class);
 //
-//				filesystemContentRepoImpl = spy(new DefaultFilesystemStoreImpl<ContentProperty, String>(
+//				filesystemContentRepoImpl = spy(new DefaultFileSystemStoreImpl<ContentProperty, String>(
 //						loader, null, placer, fileService));
 //			});
 //
