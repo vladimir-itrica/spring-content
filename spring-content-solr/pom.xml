@@ -6,7 +6,7 @@
     <parent>
         <artifactId>spring-content</artifactId>
         <groupId>io.github.vsvyatski</groupId>
-        <version>4.0.2-SNAPSHOT</version>
+        <version>4.0.2</version>
     </parent>
 
     <artifactId>spring-content-solr</artifactId>
