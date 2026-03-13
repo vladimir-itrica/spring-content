@@ -1,7 +1,6 @@
 package org.springframework.content.fs.io;
 
-import static org.springframework.util.StringUtils.cleanPath;
-
+import internal.org.springframework.content.fs.io.FileSystemDeletableResource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.NonNull;
@@ -14,7 +13,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.Assert;
 
-import internal.org.springframework.content.fs.io.FileSystemDeletableResource;
+import static org.springframework.util.StringUtils.cleanPath;
 
 /**
  * The implementation of the {@link ResourceLoader} that resolves plain paths as {@link DeletableResource}
@@ -34,16 +33,11 @@ public class FileSystemResourceLoader
     private final FileSystemResource root;
     private FileService fileService = null;
 
-    public FileSystemResourceLoader(String root) {
+    public FileSystemResourceLoader(@NonNull String root) {
         Assert.notNull(root, "root must not be null");
         logger.info(String.format("Defaulting filesystem root to %s", root));
         this.root = new FileSystemResource(suffixPath(cleanPath(root)));
         this.fileService = new FileServiceImpl();
-    }
-
-    @Deprecated
-    public String getFilesystemRoot() {
-        return root.getPath();
     }
 
     public FileSystemResource getRootResource() {
@@ -58,8 +52,7 @@ public class FileSystemResourceLoader
     }
 
     @Override
-    @NonNull
-    public Resource getResource(@NonNull String location) {
+    public @NonNull Resource getResource(@NonNull String location) {
         Assert.notNull(root, "root must not be null");
         Resource resource = root.createRelative(location);
         if (resource instanceof FileSystemResource) {
