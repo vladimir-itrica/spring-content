@@ -1,34 +1,21 @@
 package it.store;
 
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.AfterEach;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.BeforeEach;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.Context;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.Describe;
-import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.It;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.notNullValue;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.util.UUID;
-
+import com.github.paulcwarren.ginkgo4j.Ginkgo4jConfiguration;
+import com.github.paulcwarren.ginkgo4j.Ginkgo4jRunner;
+import internal.org.springframework.content.fs.store.DefaultFileSystemStoreImpl;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import net.bytebuddy.utility.RandomString;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.persistence.autoconfigure.EntityScan;
-import org.springframework.boot.jpa.autoconfigure.JpaProperties;
 import org.springframework.boot.jpa.EntityManagerFactoryBuilder;
+import org.springframework.boot.jpa.autoconfigure.JpaProperties;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.content.commons.annotations.ContentId;
 import org.springframework.content.commons.annotations.ContentLength;
 import org.springframework.content.commons.annotations.MimeType;
@@ -50,29 +37,28 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.github.paulcwarren.ginkgo4j.Ginkgo4jConfiguration;
-import com.github.paulcwarren.ginkgo4j.Ginkgo4jRunner;
-
-import internal.org.springframework.content.fs.store.DefaultFileSystemStoreImpl;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import net.bytebuddy.utility.RandomString;
-
 import javax.sql.DataSource;
+import java.io.*;
+import java.nio.file.Files;
+import java.util.UUID;
+
+import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.notNullValue;
 
 @RunWith(Ginkgo4jRunner.class)
 @Ginkgo4jConfiguration(threads = 1)
-public class FilesystemStorePropertyPathAccessorsIT {
+public class FileSystemStorePropertyPathAccessorsIT {
 
     private DefaultFileSystemStoreImpl<Object, String> mongoContentRepoImpl;
-    private FilesystemStorePropertyPathAccessorsIT.TEntity entity;
+    private FileSystemStorePropertyPathAccessorsIT.TEntity entity;
     private Resource genericResource;
 
     private InputStream content;
@@ -91,7 +77,7 @@ public class FilesystemStorePropertyPathAccessorsIT {
 
             BeforeEach(() -> {
                 context = new AnnotationConfigApplicationContext();
-                context.register(FilesystemStorePropertyPathAccessorsIT.TestConfig.class);
+                context.register(FileSystemStorePropertyPathAccessorsIT.TestConfig.class);
                 context.refresh();
 
                 repo = context.getBean(TestEntityRepository.class);
@@ -191,7 +177,7 @@ public class FilesystemStorePropertyPathAccessorsIT {
                 Context("given a new entity", () -> {
 
                     BeforeEach(() -> {
-                        entity = new FilesystemStorePropertyPathAccessorsIT.TEntity();
+                        entity = new FileSystemStorePropertyPathAccessorsIT.TEntity();
                         entity = repo.save(entity);
                     });
 
@@ -267,7 +253,7 @@ public class FilesystemStorePropertyPathAccessorsIT {
             Describe("ContentStore", () -> {
 
                 BeforeEach(() -> {
-                    entity = new FilesystemStorePropertyPathAccessorsIT.TEntity();
+                    entity = new FileSystemStorePropertyPathAccessorsIT.TEntity();
                     entity = repo.save(entity);
 
                     store.setContent(entity, PropertyPath.from("content"), new ByteArrayInputStream("Hello Spring Content World!".getBytes()));
@@ -277,7 +263,7 @@ public class FilesystemStorePropertyPathAccessorsIT {
                     // content
                     try (InputStream content = store.getContent(entity, PropertyPath.from("content"))) {
                         assertThat(IOUtils.contentEquals(new ByteArrayInputStream("Hello Spring Content World!".getBytes()), content), is(true));
-                    } catch (IOException ioe) {
+                    } catch (IOException ignored) {
                     }
                 });
 
@@ -296,9 +282,8 @@ public class FilesystemStorePropertyPathAccessorsIT {
 
                     It("should have the updated content", () -> {
                         //content
-                        boolean matches = false;
                         try (InputStream content = store.getContent(entity, PropertyPath.from("content"))) {
-                            matches = IOUtils.contentEquals(new ByteArrayInputStream("Hello Updated Spring Content World!".getBytes()), content);
+                            boolean matches = IOUtils.contentEquals(new ByteArrayInputStream("Hello Updated Spring Content World!".getBytes()), content);
                             assertThat(matches, is(true));
                         }
                     });
@@ -311,9 +296,8 @@ public class FilesystemStorePropertyPathAccessorsIT {
                     });
                     It("should store only the new content", () -> {
                         //content
-                        boolean matches = false;
                         try (InputStream content = store.getContent(entity, PropertyPath.from("content"))) {
-                            matches = IOUtils.contentEquals(new ByteArrayInputStream("Hello Spring World!".getBytes()), content);
+                            boolean matches = IOUtils.contentEquals(new ByteArrayInputStream("Hello Spring World!".getBytes()), content);
                             assertThat(matches, is(true));
                         }
                     });
@@ -394,7 +378,7 @@ public class FilesystemStorePropertyPathAccessorsIT {
         File filesystemRoot() {
             try {
                 return Files.createTempDirectory("").toFile();
-            } catch (IOException ioe) {
+            } catch (IOException ignored) {
             }
             return null;
         }

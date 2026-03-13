@@ -53,9 +53,9 @@ import static org.hamcrest.Matchers.notNullValue;
 
 @RunWith(Ginkgo4jRunner.class)
 @Ginkgo4jConfiguration(threads = 1)
-public class FilesystemStoreIT {
+public class FileSystemStoreIT {
 
-    private FilesystemStoreIT.TEntity entity;
+    private FileSystemStoreIT.TEntity entity;
     private Resource genericResource;
     private Exception e;
 
@@ -74,7 +74,7 @@ public class FilesystemStoreIT {
 
             BeforeEach(() -> {
                 context = new AnnotationConfigApplicationContext();
-                context.register(FilesystemStoreIT.TestConfig.class);
+                context.register(FileSystemStoreIT.TestConfig.class);
                 context.refresh();
 
                 repo = context.getBean(TestEntityRepository.class);
@@ -251,7 +251,7 @@ public class FilesystemStoreIT {
             Describe("ContentStore", () -> {
 
                 BeforeEach(() -> {
-                    entity = new FilesystemStoreIT.TEntity();
+                    entity = new FileSystemStoreIT.TEntity();
                     entity = repo.save(entity);
 
                     store.setContent(entity, new ByteArrayInputStream("Hello Spring Content World!".getBytes()));
