@@ -1,5 +1,6 @@
 package it.typesupport;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jConfiguration;
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jSpringRunner;
 import it.typesupport.model.*;
@@ -42,7 +43,7 @@ public class FsTypeSupportTest {
                 BeforeEach(() -> entity = new UUIDBasedContentEntity());
                 Context("given the Application sets the ID", () -> {
                     BeforeEach(() -> {
-                        id = UUID.randomUUID();
+                        id = UuidCreator.getTimeOrdered();
                         ((UUIDBasedContentEntity) entity).setContentId((UUID) id);
 
                         uuidStore.setContent((UUIDBasedContentEntity) entity, new ByteArrayInputStream("uuid".getBytes()));

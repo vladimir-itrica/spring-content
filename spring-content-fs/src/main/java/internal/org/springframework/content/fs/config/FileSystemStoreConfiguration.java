@@ -3,7 +3,7 @@ package internal.org.springframework.content.fs.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.content.commons.utils.PlacementService;
 import org.springframework.content.commons.utils.PlacementServiceImpl;
-import org.springframework.content.fs.config.FilesystemStoreConfigurer;
+import org.springframework.content.fs.config.FileSystemStoreConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -13,10 +13,10 @@ import java.net.URI;
 import java.util.List;
 
 @Configuration
-public class FilesystemStoreConfiguration {
+public class FileSystemStoreConfiguration {
 
     @Autowired(required = false)
-    private List<FilesystemStoreConfigurer> configurers;
+    private List<FileSystemStoreConfigurer> configurers;
 
     @Bean
     public PlacementService filesystemStorePlacementService() {
@@ -31,8 +31,8 @@ public class FilesystemStoreConfiguration {
         if (configurers == null)
             return;
 
-        for (FilesystemStoreConfigurer configurer : configurers) {
-            configurer.configureFilesystemStoreConverters(registry);
+        for (FileSystemStoreConfigurer configurer : configurers) {
+            configurer.configureFileSystemStoreConverters(registry);
         }
     }
 

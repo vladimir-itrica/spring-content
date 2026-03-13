@@ -13,7 +13,7 @@ import org.springframework.content.commons.annotations.HandleBeforeSetContent;
 import org.springframework.content.commons.annotations.StoreEventHandler;
 import org.springframework.content.commons.repository.ContentStore;
 import org.springframework.content.commons.repository.events.BeforeSetContentEvent;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -60,7 +60,7 @@ public class BeforeSetEventIT {
     }
 
     @Configuration
-    @EnableFilesystemStores
+    @EnableFileSystemStores
     public static class TestConfig {
 
         @Bean

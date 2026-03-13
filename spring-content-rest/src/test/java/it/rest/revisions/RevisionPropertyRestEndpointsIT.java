@@ -26,9 +26,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.content.commons.annotations.ContentId;
 import org.springframework.content.commons.annotations.ContentLength;
 import org.springframework.content.commons.annotations.MimeType;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
-import org.springframework.content.fs.store.FilesystemContentStore;
+import org.springframework.content.fs.store.FileSystemContentStore;
 import org.springframework.content.rest.config.RestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -126,7 +126,7 @@ public class RevisionPropertyRestEndpointsIT {
 
     @Configuration
     @EnableJpaRepositories(basePackages = "it.rest.revisions", considerNestedRepositories = true, repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean.class)
-    @EnableFilesystemStores(basePackages = "it.rest.revisions")
+    @EnableFileSystemStores(basePackages = "it.rest.revisions")
     public static class TestConfig extends JpaInfrastructureConfig {
 
         @Override
@@ -151,7 +151,7 @@ public class RevisionPropertyRestEndpointsIT {
     public interface TEntityRepository extends JpaRepository<TEntity, Long>, RevisionRepository<TEntity, Long, Integer> {
     }
 
-    public interface TEntityContentStore extends FilesystemContentStore<TEntity, String> {
+    public interface TEntityContentStore extends FileSystemContentStore<TEntity, String> {
     }
 
     @Entity

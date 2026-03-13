@@ -1,20 +1,9 @@
 package internal.org.springframework.content.jpa.store;
 
-import static java.lang.String.format;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.util.UUID;
-
+import com.github.f4b6a3.uuid.UuidCreator;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.content.commons.annotations.ContentId;
 import org.springframework.content.commons.annotations.ContentLength;
 import org.springframework.content.commons.io.DeletableResource;
@@ -23,12 +12,10 @@ import org.springframework.content.commons.mappingcontext.MappingContext;
 import org.springframework.content.commons.property.PropertyPath;
 import org.springframework.content.commons.repository.SetContentParams;
 import org.springframework.content.commons.repository.UnsetContentParams;
-import org.springframework.content.commons.store.AssociativeStore;
 import org.springframework.content.commons.store.ContentStore;
 import org.springframework.content.commons.store.GetResourceParams;
 import org.springframework.content.commons.store.StoreAccessException;
 import org.springframework.content.commons.utils.BeanUtils;
-import org.springframework.content.commons.utils.Condition;
 import org.springframework.content.jpa.io.BlobResource;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
@@ -39,19 +26,27 @@ import org.springframework.core.io.WritableResource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+
+import static java.lang.String.format;
+
 public class DefaultJpaStoreImpl<S, SID extends Serializable>
         implements org.springframework.content.commons.repository.Store<SID>,
         org.springframework.content.commons.repository.AssociativeStore<S, SID>,
         org.springframework.content.commons.repository.ContentStore<S, SID>,
         ContentStore<S, SID> {
 
-    private static Log logger = LogFactory.getLog(DefaultJpaStoreImpl.class);
+    private static final Log logger = LogFactory.getLog(DefaultJpaStoreImpl.class);
 
-    private ResourceLoader loader;
+    private final ResourceLoader loader;
 
-    private MappingContext mappingContext/* = new MappingContext("/", ".")*/;
+    private MappingContext mappingContext;
 
-    private int copyBufferSize = 4096;
+    private final int copyBufferSize;
 
     public DefaultJpaStoreImpl(ResourceLoader blobResourceLoader, MappingContext mappingContext, int copyBufferSize) {
         this.loader = blobResourceLoader;
@@ -114,18 +109,15 @@ public class DefaultJpaStoreImpl<S, SID extends Serializable>
             throw new StoreAccessException(String.format("Content property %s does not exist", propertyPath.getName()));
         }
 
-        property.setContentId(entity, null, new org.springframework.content.commons.mappingcontext.Condition() {
-            @Override
-            public boolean matches(TypeDescriptor descriptor) {
-                for (Annotation annotation : descriptor.getAnnotations()) {
-                    String canonicalName = annotation.annotationType().getCanonicalName();
-                    if ("jakarta.persistence.Id".equals(canonicalName)
-                            || "org.springframework.data.annotation.Id".equals(canonicalName)) {
-                        return false;
-                    }
+        property.setContentId(entity, null, descriptor -> {
+            for (Annotation annotation : descriptor.getAnnotations()) {
+                String canonicalName = annotation.annotationType().getCanonicalName();
+                if ("jakarta.persistence.Id".equals(canonicalName)
+                        || "org.springframework.data.annotation.Id".equals(canonicalName)) {
+                    return false;
                 }
-                return true;
             }
+            return true;
         });
     }
 
@@ -136,20 +128,16 @@ public class DefaultJpaStoreImpl<S, SID extends Serializable>
 
     @Override
     public void unassociate(S entity) {
-        BeanUtils.setFieldWithAnnotationConditionally(entity, ContentId.class, null,
-                new Condition() {
-                    @Override
-                    public boolean matches(Field field) {
-                        for (Annotation annotation : field.getAnnotations()) {
-                            String canonicalName = annotation.annotationType().getCanonicalName();
-                            if ("jakarta.persistence.Id".equals(canonicalName)
-                                    || "org.springframework.data.annotation.Id".equals(canonicalName)) {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                });
+        BeanUtils.setFieldWithAnnotationConditionally(entity, ContentId.class, null, field -> {
+            for (Annotation annotation : field.getAnnotations()) {
+                String canonicalName = annotation.annotationType().getCanonicalName();
+                if ("jakarta.persistence.Id".equals(canonicalName)
+                        || "org.springframework.data.annotation.Id".equals(canonicalName)) {
+                    return false;
+                }
+            }
+            return true;
+        });
     }
 
     @Override
@@ -194,7 +182,7 @@ public class DefaultJpaStoreImpl<S, SID extends Serializable>
         Object contentId = BeanUtils.getFieldWithAnnotation(entity, ContentId.class);
         if (contentId == null) {
 
-            Serializable newId = UUID.randomUUID().toString();
+            Serializable newId = UuidCreator.getTimeOrdered().toString();
 
             Object convertedId = convertToExternalContentIdType(entity, newId);
 
@@ -264,11 +252,11 @@ public class DefaultJpaStoreImpl<S, SID extends Serializable>
         SID contentId = getContentId(entity, propertyPath);
         if (contentId == null || params.getDisposition().equals(org.springframework.content.commons.store.SetContentParams.ContentDisposition.CreateNew)) {
 
-            Serializable newId = UUID.randomUUID().toString();
+            Serializable newId = UuidCreator.getTimeOrdered().toString();
 
             Object convertedId = convertToExternalContentIdType(newId, property.getContentIdType(entity));
 
-            setContentId(entity, propertyPath, (SID) convertedId, null);
+            setContentId(entity, propertyPath, (SID) convertedId);
         }
 
         Resource resource = getResource(entity, propertyPath);
@@ -429,12 +417,11 @@ public class DefaultJpaStoreImpl<S, SID extends Serializable>
         return (SID) property.getContentId(entity);
     }
 
-    private void setContentId(S entity, PropertyPath propertyPath, SID contentId, Condition condition) {
+    private void setContentId(S entity, PropertyPath propertyPath, SID contentId) {
 
         Assert.notNull(entity, "entity must not be null");
         Assert.notNull(propertyPath, "propertyPath must not be null");
 
-        BeanWrapper wrapper = new BeanWrapperImpl(entity);
         ContentProperty property = this.mappingContext.getContentProperty(entity.getClass(), propertyPath.getName());
         if (property == null) {
             throw new StoreAccessException(String.format("Content property %s does not exist", propertyPath.getName()));

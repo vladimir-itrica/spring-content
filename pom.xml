@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.vsvyatski</groupId>
     <artifactId>spring-content</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.2</version>
     <packaging>pom</packaging>
 
     <name>Spring Content</name>
@@ -58,6 +58,7 @@
         <hibernate-orm.version>7.2.6.Final</hibernate-orm.version>
         <solr-solrj.version>10.0.0</solr-solrj.version>
         <elasticsearch-rest-high-level-client.version>7.17.29</elasticsearch-rest-high-level-client.version>
+        <uuid-creator.version>6.1.1</uuid-creator.version>
 
         <!-- Test dependencies -->
         <test-containers.version>1.21.4</test-containers.version>

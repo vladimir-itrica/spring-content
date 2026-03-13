@@ -5,7 +5,7 @@ module provides these capabilities.
 
 Spring Versions JPA can be used with the following storage modules:
 
-- https://github.com/paulcwarren/spring-content/spring-content-fs[Spring Content Filesystem]
+- https://github.com/paulcwarren/spring-content/spring-content-fs[Spring Content File System]
 - https://github.com/paulcwarren/spring-content/spring-content-s3[Spring Content S3]
 
 = Getting Started
@@ -149,7 +149,7 @@ public class Application {
 
     @Configuration
     @EnableJpaRepositories(basePackages={"tests.versioning", "org.springframework.versions"})	// <1>
-    @EnableFilesystemStores(basePackages = "tests.versioning")
+    @EnableFileSystemStores(basePackages = "tests.versioning")
     public static class ApplicationConfiguration {
     }
 }

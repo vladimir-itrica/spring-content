@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.github.vsvyatski</groupId>
         <artifactId>spring-content</artifactId>
-        <version>4.0.1</version>
+        <version>4.0.2</version>
     </parent>
 
     <artifactId>spring-content-fs</artifactId>
@@ -44,6 +44,11 @@
             <groupId>io.github.vsvyatski</groupId>
             <artifactId>spring-content-commons</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.f4b6a3</groupId>
+            <artifactId>uuid-creator</artifactId>
+            <version>${uuid-creator.version}</version>
         </dependency>
 
         <!-- Test Dependencies -->

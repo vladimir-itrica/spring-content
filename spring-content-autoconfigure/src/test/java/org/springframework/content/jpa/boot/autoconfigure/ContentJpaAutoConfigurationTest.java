@@ -70,7 +70,7 @@ public class ContentJpaAutoConfigurationTest {
 					});
 				});
 			});
-			Context("when an explicit @EnableFilesystemStores is used", () -> {
+			Context("when an explicit @EnableFileSystemStores is used", () -> {
 				It("should load the context", () -> {
 					contextRunner.withUserConfiguration(ConfigWithExplicitEnableJpaStores.class).run((context) -> {
 						Assertions.assertThat(context).hasSingleBean(TestEntityContentRepository.class);

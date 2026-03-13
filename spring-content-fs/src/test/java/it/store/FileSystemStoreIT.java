@@ -1,19 +1,17 @@
-package internal.org.springframework.content.gcs.it;
+package it.store;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jConfiguration;
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jRunner;
-import com.google.api.gax.paging.Page;
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.contrib.nio.testing.LocalStorageHelper;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import net.bytebuddy.utility.RandomString;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.content.commons.annotations.ContentId;
@@ -21,7 +19,8 @@ import org.springframework.content.commons.annotations.ContentLength;
 import org.springframework.content.commons.io.DeletableResource;
 import org.springframework.content.commons.property.PropertyPath;
 import org.springframework.content.commons.store.*;
-import org.springframework.content.gcs.config.EnableGCPStorage;
+import org.springframework.content.fs.config.EnableFileSystemStores;
+import org.springframework.content.fs.io.FileSystemResourceLoader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,58 +38,53 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 
 import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 
 @RunWith(Ginkgo4jRunner.class)
 @Ginkgo4jConfiguration(threads = 1)
-public class GCPStorageIT {
+public class FileSystemStoreIT {
 
-    private TestEntity entity;
+    private FileSystemStoreIT.TEntity entity;
     private Resource genericResource;
-
     private Exception e;
 
     private AnnotationConfigApplicationContext context;
 
     private TestEntityRepository repo;
     private TestEntityStore store;
-    private Storage storage;
 
     private EmbeddedRepository embeddedRepo;
     private EmbeddedStore embeddedStore;
 
     private String resourceLocation;
 
-    static {
-        System.setProperty("spring.content.gcp.storage.bucket", "test-bucket");
-    }
-
     {
-        Describe("DefaultGCPStorageImpl", () -> {
+        Describe("DefaultFileSystemStoreImpl", () -> {
 
             BeforeEach(() -> {
                 context = new AnnotationConfigApplicationContext();
-                context.register(TestConfig.class);
+                context.register(FileSystemStoreIT.TestConfig.class);
                 context.refresh();
 
                 repo = context.getBean(TestEntityRepository.class);
                 store = context.getBean(TestEntityStore.class);
-                storage = context.getBean(Storage.class);
-
-                embeddedRepo = context.getBean(EmbeddedRepository.class);
-                embeddedStore = context.getBean(EmbeddedStore.class);
 
                 RandomString random = new RandomString(5);
                 resourceLocation = random.nextString();
+
+                embeddedRepo = context.getBean(EmbeddedRepository.class);
+                embeddedStore = context.getBean(EmbeddedStore.class);
             });
 
             AfterEach(() -> context.close());
@@ -99,16 +93,7 @@ public class GCPStorageIT {
 
                 BeforeEach(() -> genericResource = store.getResource(resourceLocation));
 
-                AfterEach(() -> {
-                    if (genericResource != null) {
-                        ((DeletableResource) genericResource).delete();
-                    }
-
-                    Page<Blob> blobs = storage.list("delete-me-please-please", Storage.BlobListOption.currentDirectory());
-                    for (Blob blob : blobs.iterateAll()) {
-                        storage.delete(blob.getBlobId());
-                    }
-                });
+                AfterEach(() -> ((DeletableResource) genericResource).delete());
 
                 It("should get Resource", () -> assertThat(genericResource, is(instanceOf(Resource.class))));
 
@@ -129,8 +114,7 @@ public class GCPStorageIT {
 
                         try (InputStream expected = new ByteArrayInputStream("Hello Spring Content World!".getBytes())) {
                             try (InputStream actual = genericResource.getInputStream()) {
-                                boolean matches = IOUtils.contentEquals(expected, actual);
-                                assertThat(matches, Matchers.is(true));
+                                assertThat(IOUtils.contentEquals(expected, actual), Matchers.is(true));
                             }
                         }
                     });
@@ -174,7 +158,7 @@ public class GCPStorageIT {
             Describe("AssociativeStore", () -> Context("given a new entity", () -> {
 
                 BeforeEach(() -> {
-                    entity = new TestEntity();
+                    entity = new TEntity();
                     entity = repo.save(entity);
                 });
 
@@ -214,6 +198,7 @@ public class GCPStorageIT {
                                 }
                             });
                         });
+
                         Context("when the resource is unassociated", () -> {
 
                             BeforeEach(() -> {
@@ -266,12 +251,11 @@ public class GCPStorageIT {
             Describe("ContentStore", () -> {
 
                 BeforeEach(() -> {
-                    entity = new TestEntity();
+                    entity = new FileSystemStoreIT.TEntity();
                     entity = repo.save(entity);
 
                     store.setContent(entity, new ByteArrayInputStream("Hello Spring Content World!".getBytes()));
                     store.setContent(entity, PropertyPath.from("rendition"), new ByteArrayInputStream("<html>Hello Spring Content World!</html>".getBytes()));
-                    entity = repo.save(entity);
                 });
 
                 It("should be able to store new content", () -> {
@@ -292,35 +276,44 @@ public class GCPStorageIT {
                     // content
                     assertThat(entity.getContentId(), is(notNullValue()));
                     assertThat(entity.getContentId().trim().length(), greaterThan(0));
-                    Assert.assertEquals(27L, (long) entity.getContentLen());
+                    Assert.assertEquals(entity.getContentLen(), Long.valueOf(27L));
 
                     //rendition
                     assertThat(entity.getRenditionId(), is(notNullValue()));
                     assertThat(entity.getRenditionId().trim().length(), greaterThan(0));
-                    Assert.assertEquals(40L, (long) entity.getRenditionLen());
+                    Assert.assertEquals(40L, entity.getRenditionLen());
                 });
 
-                Context("when content is updated", () -> {
-                    BeforeEach(() -> {
-                        store.setContent(entity, new ByteArrayInputStream("Hello Updated Spring Content World!".getBytes()));
-                        store.setContent(entity, PropertyPath.from("rendition"), new ByteArrayInputStream("<html>Hello Updated Spring Content World!</html>".getBytes()));
-                        entity = repo.save(entity);
-                    });
+                Context("when content is updated", () ->
+                        It("should have the updated content", () -> {
+                            FileSystemResourceLoader loader = context.getBean(FileSystemResourceLoader.class);
+                            String contentId = entity.getContentId();
+                            assertThat(new File(loader.getRootResource().getPath(), contentId).exists(), is(true));
+                            String renditionId = entity.getRenditionId();
+                            assertThat(new File(loader.getRootResource().getPath(), renditionId).exists(), is(true));
+                            store.setContent(entity, new ByteArrayInputStream("Hello Updated Spring Content World!".getBytes()));
+                            store.setContent(entity, PropertyPath.from("rendition"), new ByteArrayInputStream("<html>Hello Updated Spring Content World!</html>".getBytes()));
+                            entity = repo.save(entity);
 
-                    It("should have the updated content", () -> {
-                        //content
-                        try (InputStream content = store.getContent(entity)) {
-                            boolean matches = IOUtils.contentEquals(new ByteArrayInputStream("Hello Updated Spring Content World!".getBytes()), content);
-                            assertThat(matches, is(true));
-                        }
+                            //content
+                            try (InputStream content = store.getContent(entity)) {
+                                boolean matches = IOUtils.contentEquals(new ByteArrayInputStream("Hello Updated Spring Content World!".getBytes()), content);
+                                assertThat(matches, is(true));
+                            }
 
-                        //rendition
-                        try (InputStream content = store.getContent(entity, PropertyPath.from("rendition"))) {
-                            boolean matches = IOUtils.contentEquals(new ByteArrayInputStream("<html>Hello Updated Spring Content World!</html>".getBytes()), content);
-                            assertThat(matches, is(true));
-                        }
-                    });
-                });
+                            //rendition
+                            try (InputStream content = store.getContent(entity, PropertyPath.from("rendition"))) {
+                                boolean matches = IOUtils.contentEquals(new ByteArrayInputStream("<html>Hello Updated Spring Content World!</html>".getBytes()), content);
+                                assertThat(matches, is(true));
+                            }
+
+                            assertThat(entity.getContentId(), is(contentId));
+                            assertThat(entity.getRenditionId(), is(renditionId));
+
+                            assertThat(new File(loader.getRootResource().getPath(), entity.getContentId()).exists(), is(true));
+                            assertThat(new File(loader.getRootResource().getPath(), entity.getRenditionId()).exists(), is(true));
+                        })
+                );
 
                 Context("when content is updated with shorter content", () -> {
                     BeforeEach(() -> {
@@ -345,9 +338,9 @@ public class GCPStorageIT {
 
                 Context("when content is updated and not overwritten", () ->
                         It("should have the updated content", () -> {
+                            FileSystemResourceLoader loader = context.getBean(FileSystemResourceLoader.class);
                             String contentId = entity.getContentId();
-                            assertThat(contentId, is(not(nullValue())));
-                            assertThat(storage.get(BlobId.of("test-bucket", contentId)).exists(), is(true));
+                            assertThat(new File(loader.getRootResource().getPath(), contentId).exists(), is(true));
 
                             store.setContent(entity, PropertyPath.from("content"), new ByteArrayInputStream("Hello Updated Spring Content World!".getBytes()), SetContentParams.builder().disposition(SetContentParams.ContentDisposition.CreateNew).build());
                             entity = repo.save(entity);
@@ -357,15 +350,16 @@ public class GCPStorageIT {
                                 assertThat(matches, is(true));
                             }
 
+                            assertThat(new File(loader.getRootResource().getPath(), contentId).exists(), is(true));
+
                             assertThat(entity.getContentId(), is(not(contentId)));
 
-                            assertThat(storage.get(BlobId.of("test-bucket", entity.getContentId())).exists(), is(true));
-                        })
-                );
+                            assertThat(new File(loader.getRootResource().getPath(), entity.getContentId()).exists(), is(true));
+                        }));
 
                 Context("when content is unset", () -> {
                     BeforeEach(() -> {
-                        resourceLocation = entity.getContentId().toString();
+                        resourceLocation = entity.getContentId();
                         entity = store.unsetContent(entity);
                         entity = store.unsetContent(entity, PropertyPath.from("rendition"));
                         entity = repo.save(entity);
@@ -379,7 +373,6 @@ public class GCPStorageIT {
 
                         assertThat(entity.getContentId(), is(Matchers.nullValue()));
                         assertThat(entity.getContentLen(), is(nullValue()));
-                        assertThat(storage.get(BlobId.of("test-bucket", resourceLocation)), is(nullValue()));
 
                         //rendition
                         try (InputStream content = store.getContent(entity, PropertyPath.from("rendition"))) {
@@ -388,12 +381,15 @@ public class GCPStorageIT {
 
                         assertThat(entity.getRenditionId(), is(Matchers.nullValue()));
                         assertThat(entity.getRenditionLen(), is(0L));
+
+                        FileSystemResourceLoader loader = context.getBean(FileSystemResourceLoader.class);
+                        assertThat(new File(loader.getRootResource().getPath(), resourceLocation).exists(), is(false));
                     });
                 });
 
                 Context("when content is unset but kept", () -> {
                     BeforeEach(() -> {
-                        resourceLocation = entity.getContentId().toString();
+                        resourceLocation = entity.getContentId();
                         entity = store.unsetContent(entity, PropertyPath.from("content"), UnsetContentParams.builder().disposition(UnsetContentParams.Disposition.Keep).build());
                         entity = repo.save(entity);
                     });
@@ -406,12 +402,13 @@ public class GCPStorageIT {
 
                         assertThat(entity.getContentId(), is(Matchers.nullValue()));
                         assertThat(entity.getContentLen(), is(nullValue()));
-                        assertThat(storage.get(BlobId.of("test-bucket", resourceLocation)).exists(), is(true));
+
+                        FileSystemResourceLoader loader = context.getBean(FileSystemResourceLoader.class);
+                        assertThat(new File(loader.getRootResource().getPath(), resourceLocation).exists(), is(true));
                     });
                 });
 
-                Context("when an invalid property path is used to setContent", () ->
-                        It("should throw an error", () -> {
+                Context("when an invalid property path is used to setContent", () -> It("should throw an error", () -> {
                             try {
                                 store.setContent(entity, PropertyPath.from("does.not.exist"), new ByteArrayInputStream("foo".getBytes()));
                             } catch (Exception sae) {
@@ -443,7 +440,7 @@ public class GCPStorageIT {
                         })
                 );
 
-                Context("when content is deleted and the content id field is shared with entity id", () ->
+                Context("when content is deleted and the id field is shared with Jakarta id", () ->
                         It("should not reset the id field", () -> {
                             SharedIdRepository sharedIdRepository = context.getBean(SharedIdRepository.class);
                             SharedIdStore sharedIdStore = context.getBean(SharedIdStore.class);
@@ -455,34 +452,32 @@ public class GCPStorageIT {
                             String id = sharedIdContentIdEntity.getContentId();
                             sharedIdContentIdEntity = sharedIdStore.unsetContent(sharedIdContentIdEntity);
                             assertThat(sharedIdContentIdEntity.getContentId(), is(id));
-                            assertThat(sharedIdContentIdEntity.getContentLen(), is(0L));
+                            assertThat(sharedIdContentIdEntity.getContentLen(), is(nullValue()));
                         })
                 );
 
                 Context("@Embedded content", () ->
                         Context("given a entity with a null embedded content object", () -> {
-                                    It("should return null when content is fetched", () -> {
-                                        EntityWithEmbeddedContent entity = embeddedRepo.save(new EntityWithEmbeddedContent());
-                                        assertThat(embeddedStore.getContent(entity, PropertyPath.from("content")), is(nullValue()));
-                                    });
+                            It("should return null when content is fetched", () -> {
+                                EntityWithEmbeddedContent entity = embeddedRepo.save(new EntityWithEmbeddedContent());
+                                assertThat(embeddedStore.getContent(entity, PropertyPath.from("content")), is(nullValue()));
+                            });
 
-                                    It("should be successful when content is set", () -> {
-                                        EntityWithEmbeddedContent entity = embeddedRepo.save(new EntityWithEmbeddedContent());
-                                        embeddedStore.setContent(entity, PropertyPath.from("content"), new ByteArrayInputStream("Hello Spring Content World!".getBytes()));
-                                        try (InputStream is = embeddedStore.getContent(entity, PropertyPath.from("content"))) {
-                                            assertThat(IOUtils.contentEquals(is, new ByteArrayInputStream("Hello Spring Content World!".getBytes())), is(true));
-                                        }
-                                    });
-
-                                    It("should return null when content is unset", () -> {
-                                        EntityWithEmbeddedContent entity = embeddedRepo.save(new EntityWithEmbeddedContent());
-                                        EntityWithEmbeddedContent expected = new EntityWithEmbeddedContent(entity.getId(), entity.getContent());
-                                        assertThat(embeddedStore.unsetContent(entity, PropertyPath.from("content")), is(expected));
-                                        int i = 0;
-                                    });
+                            It("should be successful when content is set", () -> {
+                                EntityWithEmbeddedContent entity = embeddedRepo.save(new EntityWithEmbeddedContent());
+                                embeddedStore.setContent(entity, PropertyPath.from("content"), new ByteArrayInputStream("Hello Spring Content World!".getBytes()));
+                                try (InputStream is = embeddedStore.getContent(entity, PropertyPath.from("content"))) {
+                                    assertThat(IOUtils.contentEquals(is, new ByteArrayInputStream("Hello Spring Content World!".getBytes())), is(true));
                                 }
-                        )
-                );
+                            });
+
+                            It("should return null when content is unset", () -> {
+                                EntityWithEmbeddedContent entity = embeddedRepo.save(new EntityWithEmbeddedContent());
+                                EntityWithEmbeddedContent expected = new EntityWithEmbeddedContent(entity.getId(), entity.getContent());
+                                assertThat(embeddedStore.unsetContent(entity, PropertyPath.from("content")), is(expected));
+                                int i = 0;
+                            });
+                        }));
             });
         });
     }
@@ -492,37 +487,77 @@ public class GCPStorageIT {
         // noop
     }
 
-    @Configuration
-    @EnableJpaRepositories(basePackages = "internal.org.springframework.content.gcs.it", considerNestedRepositories = true)
-    @EnableGCPStorage(basePackages = "internal.org.springframework.content.gcs.it")
-    @Import(InfrastructureConfig.class)
-    public static class TestConfig {
+    public interface ContentProperty {
+        String getContentId();
 
-        @Bean
-        public static Storage storage() {
-            return LocalStorageHelper.getOptions().getService();
-        }
+        void setContentId(String contentId);
+
+        Long getContentLen();
+
+        void setContentLen(Long contentLen);
     }
 
+    public interface TestEntityRepository extends JpaRepository<TEntity, String> {
+    }
+
+    public interface TestEntityStore extends ContentStore<TEntity, String> {
+    }
+
+    public interface SharedIdRepository extends JpaRepository<SharedIdContentIdEntity, String> {
+    }
+
+    public interface SharedIdStore extends ContentStore<SharedIdContentIdEntity, String> {
+    }
+
+    public interface EmbeddedRepository extends JpaRepository<EntityWithEmbeddedContent, String> {
+    }
+
+    public interface EmbeddedStore extends ContentStore<EntityWithEmbeddedContent, String> {
+    }
+
+    @Ignore("It's not a test and must not be considered as one.")
+    @Configuration
+    @EnableJpaRepositories(considerNestedRepositories = true)
+    @EnableFileSystemStores
+    @Import(InfrastructureConfig.class)
+    public static class TestConfig {
+        //
+    }
+
+    @Ignore("It's not a test and must not be considered as one.")
     @Configuration
     public static class InfrastructureConfig {
 
         @Bean
+        File filesystemRoot() {
+            try {
+                return Files.createTempDirectory("").toFile();
+            } catch (IOException ignored) {
+            }
+            return null;
+        }
+
+        @Bean
+        FileSystemResourceLoader fileSystemResourceLoader() {
+            return new FileSystemResourceLoader(filesystemRoot().getAbsolutePath());
+        }
+
+        @Bean
         public DataSource dataSource() {
             EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-            return builder.setType(EmbeddedDatabaseType.H2).build();
+            return builder.setType(EmbeddedDatabaseType.HSQL).build();
         }
 
         @Bean
         public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
 
             HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-            vendorAdapter.setDatabase(Database.H2);
+            vendorAdapter.setDatabase(Database.HSQL);
             vendorAdapter.setGenerateDdl(true);
 
             LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
             factory.setJpaVendorAdapter(vendorAdapter);
-            factory.setPackagesToScan("internal.org.springframework.content.gcs.it");
+            factory.setPackagesToScan("it.store");
             factory.setDataSource(dataSource());
 
             return factory;
@@ -537,15 +572,13 @@ public class GCPStorageIT {
         }
     }
 
+    @Ignore("It's not a test and must not be considered as one.")
     @Entity
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    public static class TestEntity {
+    @Table(name = "tentity")
+    public static class TEntity implements ContentProperty {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
-        private Long id;
+        private String id = UuidCreator.getTimeOrdered().toString();
 
         @ContentId
         private String contentId;
@@ -559,37 +592,83 @@ public class GCPStorageIT {
         @ContentLength
         private long renditionLen;
 
-        public TestEntity(String contentId) {
+        public TEntity() {
+        }
+
+        @Override
+        public String getContentId() {
+            return this.contentId;
+        }
+
+        @Override
+        public void setContentId(String contentId) {
             this.contentId = contentId;
+        }
+
+        @Override
+        public Long getContentLen() {
+            return contentLen;
+        }
+
+        @Override
+        public void setContentLen(Long contentLen) {
+            this.contentLen = contentLen;
+        }
+
+        public String getRenditionId() {
+            return this.renditionId;
+        }
+
+        public void setRenditionId(String renditionId) {
+            this.renditionId = renditionId;
+        }
+
+        public long getRenditionLen() {
+            return renditionLen;
+        }
+
+        public void setRenditionLen(long renditionLen) {
+            this.renditionLen = renditionLen;
         }
     }
 
-    public interface TestEntityRepository extends JpaRepository<TestEntity, Long> {
-    }
-
-    public interface TestEntityStore extends ContentStore<TestEntity, String> {
-    }
-
+    @Ignore("It's not a test and must not be considered as one.")
     @Entity
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    public static class SharedIdContentIdEntity {
+    @Table(name = "shared_id_entity")
+    public static class SharedIdContentIdEntity implements ContentProperty {
 
-        @jakarta.persistence.Id
+        @Id
         @ContentId
         private String contentId = UuidCreator.getTimeOrdered().toString();
 
         @ContentLength
-        private long contentLen;
+        private Long contentLen;
+
+        public SharedIdContentIdEntity() {
+        }
+
+        @Override
+        public String getContentId() {
+            return this.contentId;
+        }
+
+        @Override
+        public void setContentId(String contentId) {
+            this.contentId = contentId;
+        }
+
+        @Override
+        public Long getContentLen() {
+            return contentLen;
+        }
+
+        @Override
+        public void setContentLen(Long contentLen) {
+            this.contentLen = contentLen;
+        }
     }
 
-    public interface SharedIdRepository extends JpaRepository<SharedIdContentIdEntity, String> {
-    }
-
-    public interface SharedIdStore extends ContentStore<SharedIdContentIdEntity, String> {
-    }
-
+    @Ignore("It's not a test and must not be considered as one.")
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -604,6 +683,7 @@ public class GCPStorageIT {
         private EmbeddedContent content;
     }
 
+    @Ignore("It's not a test and must not be considered as one.")
     @Embeddable
     @NoArgsConstructor
     @Data
@@ -614,11 +694,5 @@ public class GCPStorageIT {
 
         @ContentLength
         private Long contentLen;
-    }
-
-    public interface EmbeddedRepository extends JpaRepository<EntityWithEmbeddedContent, String> {
-    }
-
-    public interface EmbeddedStore extends ContentStore<EntityWithEmbeddedContent, String> {
     }
 }

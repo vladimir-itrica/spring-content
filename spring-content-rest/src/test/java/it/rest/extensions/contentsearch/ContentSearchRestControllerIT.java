@@ -44,9 +44,9 @@ import org.springframework.content.commons.fulltext.Attribute;
 import org.springframework.content.commons.fulltext.Highlight;
 import org.springframework.content.commons.search.Searchable;
 import org.springframework.content.commons.utils.ReflectionService;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
-import org.springframework.content.fs.store.FilesystemContentStore;
+import org.springframework.content.fs.store.FileSystemContentStore;
 import org.springframework.content.rest.FulltextEntityLookupQuery;
 import org.springframework.content.rest.config.RestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -659,7 +659,7 @@ public class ContentSearchRestControllerIT {
     @EnableJpaRepositories( basePackages="it.rest.extensions.contentsearch",
                             considerNestedRepositories = true)
     @EnableTransactionManagement
-    @EnableFilesystemStores(basePackages="it.rest.extensions.contentsearch")
+    @EnableFileSystemStores(basePackages="it.rest.extensions.contentsearch")
     public static class TestConfig extends JpaInfrastructureConfig {
 
         @Bean
@@ -721,7 +721,7 @@ public class ContentSearchRestControllerIT {
     public interface TestEntityNotSearchableRepository extends CrudRepository<TestEntityNotSearchable, String> {
     }
 
-    public interface TestEntityNotSearchableStore extends FilesystemContentStore<TestEntityNotSearchable, String> {
+    public interface TestEntityNotSearchableStore extends FileSystemContentStore<TestEntityNotSearchable, String> {
     }
 
     @Entity(name = "testentitysharedid")
@@ -731,7 +731,7 @@ public class ContentSearchRestControllerIT {
     public interface TestEntityWithSharedIdsRepository extends CrudRepository<TestEntityWithSharedId, String> {
     }
 
-    public interface TestEntityWithSharedIdsSearchableStore extends FilesystemContentStore<TestEntityWithSharedId, String>, Searchable<String> {
+    public interface TestEntityWithSharedIdsSearchableStore extends FileSystemContentStore<TestEntityWithSharedId, String>, Searchable<String> {
     }
 
     // stub out a Searchable implementation so that the content store can be instantiated
@@ -820,7 +820,7 @@ public class ContentSearchRestControllerIT {
     }
 
     public interface TestEntityWithSeparateIdsSearchableStore
-        extends FilesystemContentStore<TestEntityWithSeparateId, String>, Searchable<String> {
+        extends FileSystemContentStore<TestEntityWithSeparateId, String>, Searchable<String> {
     }
 
     @Entity
@@ -840,7 +840,7 @@ public class ContentSearchRestControllerIT {
     }
 
     public interface TestEntity2SearchableStore
-        extends FilesystemContentStore<TestEntity2, String>, Searchable<String> {
+        extends FileSystemContentStore<TestEntity2, String>, Searchable<String> {
     }
 
     @Entity
@@ -860,7 +860,7 @@ public class ContentSearchRestControllerIT {
     }
 
     public interface TestEntity3SearchableStore
-        extends FilesystemContentStore<TestEntity3, String>, Searchable<CustomResult> {
+        extends FileSystemContentStore<TestEntity3, String>, Searchable<CustomResult> {
     }
 
     @Getter

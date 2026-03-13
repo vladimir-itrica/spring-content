@@ -12,10 +12,9 @@ import org.springframework.content.commons.annotations.ContentId;
 import org.springframework.content.commons.annotations.ContentLength;
 import org.springframework.content.commons.annotations.MimeType;
 import org.springframework.content.commons.storeservice.StoreInfo;
-import org.springframework.content.commons.storeservice.StoreResolver;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
-import org.springframework.content.fs.store.FilesystemContentStore;
+import org.springframework.content.fs.store.FileSystemContentStore;
 import org.springframework.content.jpa.config.EnableJpaStores;
 import org.springframework.content.jpa.store.JpaContentStore;
 import org.springframework.content.rest.config.ContentRestConfigurer;
@@ -60,7 +59,7 @@ public class Application {
     @EnableJpaRepositories(basePackages = "internal.org.springframework.content.rest.storeresolver", considerNestedRepositories = true)
     @EnableTransactionManagement
     @EnableJpaStores(basePackages = "internal.org.springframework.content.rest.storeresolver")
-    @EnableFilesystemStores(basePackages = "internal.org.springframework.content.rest.storeresolver")
+    @EnableFileSystemStores(basePackages = "internal.org.springframework.content.rest.storeresolver")
     public static class AppConfig {
 
         @Value("/org/springframework/content/jpa/schema-drop-h2.sql")
@@ -120,7 +119,7 @@ public class Application {
         public ContentRestConfigurer contentRestConfigurer() {
             return config -> config.addStoreResolver("tEntities", stores -> {
                 for (StoreInfo info : stores) {
-                    if (info.getImplementation(FilesystemContentStore.class) != null) {
+                    if (info.getImplementation(FileSystemContentStore.class) != null) {
                         return info;
                     }
                 }
@@ -150,7 +149,7 @@ public class Application {
     public interface TEntityRepository extends JpaRepository<TEntity, Long> {
     }
 
-    public interface TEntityFsStore extends FilesystemContentStore<TEntity, String> {
+    public interface TEntityFsStore extends FileSystemContentStore<TEntity, String> {
     }
 
     public interface TEntityJpaStore extends JpaContentStore<TEntity, String> {

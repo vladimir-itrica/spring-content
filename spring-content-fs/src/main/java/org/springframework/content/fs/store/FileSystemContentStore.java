@@ -4,5 +4,5 @@ import java.io.Serializable;
 
 import org.springframework.content.commons.store.ContentStore;
 
-public interface FilesystemContentStore<I, CID extends Serializable> extends ContentStore<I, CID> {
+public interface FileSystemContentStore<I, CID extends Serializable> extends ContentStore<I, CID> {
 }

@@ -2,7 +2,7 @@ package internal.org.springframework.content.rest.support;
 
 import java.util.UUID;
 
-import org.springframework.content.fs.store.FilesystemContentStore;
+import org.springframework.content.fs.store.FileSystemContentStore;
 
-public interface TestEntity6Store extends FilesystemContentStore<TestEntity6, UUID> {
+public interface TestEntity6Store extends FileSystemContentStore<TestEntity6, UUID> {
 }

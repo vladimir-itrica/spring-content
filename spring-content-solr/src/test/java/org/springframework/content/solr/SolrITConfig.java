@@ -9,7 +9,7 @@ import javax.sql.DataSource;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
 import org.springframework.content.solr.SolrIT.Document;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +26,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 @EnableFullTextSolrIndexing
 @EnableJpaRepositories(considerNestedRepositories = true)
-@EnableFilesystemStores
+@EnableFileSystemStores
 public class SolrITConfig {
 
     @Autowired
