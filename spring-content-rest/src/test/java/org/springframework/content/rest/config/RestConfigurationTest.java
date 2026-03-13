@@ -9,9 +9,9 @@ import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 import org.springframework.content.commons.annotations.ContentId;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
-import org.springframework.content.fs.store.FilesystemContentStore;
+import org.springframework.content.fs.store.FileSystemContentStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.annotation.Id;
@@ -80,7 +80,7 @@ public class RestConfigurationTest {
 
    @Ignore("This is not a test and must not be treated as such.")
    @Configuration
-   @EnableFilesystemStores
+   @EnableFileSystemStores
    public static class TestConfig {
 
       @Bean
@@ -106,6 +106,6 @@ public class RestConfigurationTest {
    public interface TestEntityRepository extends MongoRepository<TestEntity, String> {
    }
 
-   public interface TestEntityContentRepository extends FilesystemContentStore<TestEntity, String> {
+   public interface TestEntityContentRepository extends FileSystemContentStore<TestEntity, String> {
    }
 }

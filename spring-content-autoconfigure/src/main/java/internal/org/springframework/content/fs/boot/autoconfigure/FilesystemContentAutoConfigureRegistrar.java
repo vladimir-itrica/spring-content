@@ -6,7 +6,7 @@ import internal.org.springframework.content.fs.config.FilesystemStoreRegistrar;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 
@@ -44,7 +44,7 @@ public class FilesystemContentAutoConfigureRegistrar extends FilesystemStoreRegi
                 .toArray(new String[]{});
     }
 
-    @EnableFilesystemStores
+    @EnableFileSystemStores
     private static class EnableFilesystemContentAutoConfiguration {
     }
 }

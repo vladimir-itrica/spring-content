@@ -19,7 +19,7 @@ import org.springframework.content.commons.annotations.ContentLength;
 import org.springframework.content.commons.io.DeletableResource;
 import org.springframework.content.commons.property.PropertyPath;
 import org.springframework.content.commons.store.*;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -518,7 +518,7 @@ public class FileSystemStoreIT {
     @Ignore("It's not a test and must not be considered as one.")
     @Configuration
     @EnableJpaRepositories(considerNestedRepositories = true)
-    @EnableFilesystemStores
+    @EnableFileSystemStores
     @Import(InfrastructureConfig.class)
     public static class TestConfig {
         //

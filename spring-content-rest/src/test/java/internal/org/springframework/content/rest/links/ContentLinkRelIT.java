@@ -20,9 +20,9 @@ import org.springframework.content.commons.annotations.OriginalFileName;
 import org.springframework.content.commons.property.PropertyPath;
 import org.springframework.content.commons.renditions.Renderable;
 import org.springframework.content.commons.renditions.RenditionProvider;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
-import org.springframework.content.fs.store.FilesystemContentStore;
+import org.springframework.content.fs.store.FileSystemContentStore;
 import org.springframework.content.rest.RestResource;
 import org.springframework.content.rest.StoreRestResource;
 import org.springframework.content.rest.config.ContentRestConfigurer;
@@ -232,7 +232,7 @@ public class ContentLinkRelIT {
     }
 
     @StoreRestResource(linkRel="foo")
-    public interface TestEntity5LinkrelStore extends FilesystemContentStore<TestEntity5, UUID> {
+    public interface TestEntity5LinkrelStore extends FileSystemContentStore<TestEntity5, UUID> {
 
         @RestResource(paths={"rendition"}, exported=false)
         @Override
@@ -261,7 +261,7 @@ public class ContentLinkRelIT {
 
     @CrossOrigin(origins = "http://www.someurl.com")
     @StoreRestResource(path = "testEntitiesContent", linkRel ="foo")
-    public interface TestEntityContentRepository extends FilesystemContentStore<TestEntity, Long>, Renderable<TestEntity> {
+    public interface TestEntityContentRepository extends FileSystemContentStore<TestEntity, Long>, Renderable<TestEntity> {
     }
 
     @Entity
@@ -279,7 +279,7 @@ public class ContentLinkRelIT {
     }
 
     @StoreRestResource(path = "files", linkRel = "foo")
-    public interface TestEntity2Store extends FilesystemContentStore<TestEntity2, UUID> {
+    public interface TestEntity2Store extends FileSystemContentStore<TestEntity2, UUID> {
     }
 
     @RepositoryRestResource(path = "files")
@@ -329,7 +329,7 @@ public class ContentLinkRelIT {
     }
 
     @StoreRestResource(linkRel = "foo")
-    public interface TestEntity10Store extends FilesystemContentStore<TestEntity10, UUID>, Renderable<TestEntity10> {
+    public interface TestEntity10Store extends FileSystemContentStore<TestEntity10, UUID>, Renderable<TestEntity10> {
     }
 
     @Entity
@@ -346,7 +346,7 @@ public class ContentLinkRelIT {
     }
 
 
-    public interface TestEntity3ContentRepository extends FilesystemContentStore<TestEntity3, Long>, Renderable<TestEntity3> {
+    public interface TestEntity3ContentRepository extends FileSystemContentStore<TestEntity3, Long>, Renderable<TestEntity3> {
         @RestResource(exported=false)
         @Override
         TestEntity3 setContent(TestEntity3 property, InputStream content);
@@ -358,7 +358,7 @@ public class ContentLinkRelIT {
     @Configuration
     @EnableJpaRepositories(considerNestedRepositories=true)
     @EnableTransactionManagement
-    @EnableFilesystemStores()
+    @EnableFileSystemStores()
     public static class BaseUriConfig extends JpaInfrastructureConfig {
 
         @Bean

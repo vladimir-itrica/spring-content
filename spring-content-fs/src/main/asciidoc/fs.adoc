@@ -70,9 +70,9 @@ The following configuration properties (prefix `spring.content.fs`) are supporte
 
 Filesystem Storage supports the following signature types:
 
-- `org.springframework.content.fs.store.FilesystemStore`
-- `org.springframework.content.fs.store.FilesystemAssociativeStore`
-- `org.springframework.content.fs.store.FilesystemContentStore`
+- `org.springframework.content.fs.store.FileSystemStore`
+- `org.springframework.content.fs.store.FileSystemAssociativeStore`
+- `org.springframework.content.fs.store.FileSystemContentStore`
 
 The module id for the `spring.content.storage.type.default` property is `fs`.
 

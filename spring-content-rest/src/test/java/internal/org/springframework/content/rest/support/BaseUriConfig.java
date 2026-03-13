@@ -8,7 +8,7 @@ import java.net.URI;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.content.commons.renditions.RenditionProvider;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
 import org.springframework.content.rest.config.ContentRestConfigurer;
 import org.springframework.content.rest.config.RestConfiguration;
@@ -27,7 +27,7 @@ import internal.org.springframework.content.rest.support.config.JpaInfrastructur
 @EnableJpaRepositories(basePackages = "internal.org.springframework.content.rest.support")
 @EnableTransactionManagement
 // @Import(RepositoryRestMvcConfiguration.class)
-@EnableFilesystemStores(basePackages = "internal.org.springframework.content.rest.support")
+@EnableFileSystemStores(basePackages = "internal.org.springframework.content.rest.support")
 @Profile("store")
 public class BaseUriConfig extends JpaInfrastructureConfig {
 

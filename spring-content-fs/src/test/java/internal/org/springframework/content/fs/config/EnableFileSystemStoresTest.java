@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.content.commons.annotations.ContentId;
 import org.springframework.content.commons.repository.ContentStore;
 import org.springframework.content.fs.config.EnableFileSystemContentRepositories;
-import org.springframework.content.fs.config.EnableFilesystemStores;
-import org.springframework.content.fs.config.FilesystemStoreConfigurer;
-import org.springframework.content.fs.config.FilesystemStoreConverter;
+import org.springframework.content.fs.config.EnableFileSystemStores;
+import org.springframework.content.fs.config.FileSystemStoreConfigurer;
+import org.springframework.content.fs.config.FileSystemStoreConverter;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -42,10 +42,10 @@ public class EnableFileSystemStoresTest {
     private AnnotationConfigApplicationContext context;
 
     // mocks
-    static FilesystemStoreConfigurer configurer;
+    static FileSystemStoreConfigurer configurer;
 
     {
-        Describe("EnableFilesystemStores", () -> {
+        Describe("EnableFileSystemStores", () -> {
 
             Context("given a context and a configuration with a filesystem content repository bean",
                     () -> {
@@ -65,7 +65,7 @@ public class EnableFileSystemStoresTest {
 
             Context("given a context with a configurer", () -> {
                 BeforeEach(() -> {
-                    configurer = mock(FilesystemStoreConfigurer.class);
+                    configurer = mock(FileSystemStoreConfigurer.class);
 
                     context = new AnnotationConfigApplicationContext();
                     context.register(ConverterConfig.class);
@@ -116,13 +116,13 @@ public class EnableFileSystemStoresTest {
     }
 
     @Configuration
-    @EnableFilesystemStores(basePackages = "contains.no.fs.repositories")
+    @EnableFileSystemStores(basePackages = "contains.no.fs.repositories")
     @PropertySource("classpath:/test.properties")
     public static class EmptyConfig {
     }
 
     @Configuration
-    @EnableFilesystemStores
+    @EnableFileSystemStores
     @PropertySource("classpath:/test.properties")
     public static class TestConfig {
 
@@ -136,7 +136,7 @@ public class EnableFileSystemStoresTest {
     }
 
     @Configuration
-    @EnableFilesystemStores
+    @EnableFileSystemStores
     @PropertySource("classpath:/test.properties")
     public static class ConverterConfig {
 
@@ -144,12 +144,12 @@ public class EnableFileSystemStoresTest {
         private String filesystemRoot;
 
         @Bean
-        public FilesystemStoreConverter<UUID, String> uuidConverter() {
+        public FileSystemStoreConverter<UUID, String> uuidConverter() {
             return source -> String.format("/%s", source.toString().replaceAll("-", "/"));
         }
 
         @Bean
-        public FilesystemStoreConfigurer configurer() {
+        public FileSystemStoreConfigurer configurer() {
             return configurer;
         }
 

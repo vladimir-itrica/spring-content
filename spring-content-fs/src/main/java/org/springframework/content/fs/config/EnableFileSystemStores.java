@@ -13,7 +13,7 @@ import java.lang.annotation.*;
 @Documented
 @Inherited
 @Import({FileSystemStoreRegistrar.class, FileSystemStoreConfiguration.class})
-public @interface EnableFilesystemStores {
+public @interface EnableFileSystemStores {
 
     /**
      * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation

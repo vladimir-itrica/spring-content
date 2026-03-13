@@ -24,7 +24,7 @@ import org.springframework.content.commons.io.DeletableResource;
 import org.springframework.content.commons.property.PropertyPath;
 import org.springframework.content.commons.repository.ContentStore;
 import org.springframework.content.commons.repository.StoreAccessException;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -365,7 +365,7 @@ public class FileSystemStorePropertyPathAccessorsIT {
     @Configuration
     @EnableJpaRepositories(considerNestedRepositories = true)
     @EntityScan(basePackageClasses = TEntity.class)
-    @EnableFilesystemStores
+    @EnableFileSystemStores
     @Import(InfrastructureConfig.class)
     public static class TestConfig {
         //

@@ -30,9 +30,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.content.commons.annotations.ContentId;
 import org.springframework.content.commons.annotations.ContentLength;
 import org.springframework.content.commons.annotations.MimeType;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
-import org.springframework.content.fs.store.FilesystemContentStore;
+import org.springframework.content.fs.store.FileSystemContentStore;
 import org.springframework.content.rest.config.HypermediaConfiguration;
 import org.springframework.content.rest.config.RestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -151,12 +151,12 @@ public class ContentLinksWithProjectionsIT {
     }
 
 	public interface TEntityRepository extends JpaRepository<TEntity,Long> {};
-    public interface TEntityStore extends FilesystemContentStore<TEntity,UUID> {};
+    public interface TEntityStore extends FileSystemContentStore<TEntity,UUID> {};
 
     @Configuration
     @EnableJpaRepositories(basePackages = "internal.org.springframework.content.rest.links", considerNestedRepositories=true)
     @EnableTransactionManagement
-    @EnableFilesystemStores(basePackages = "internal.org.springframework.content.rest.links")
+    @EnableFileSystemStores(basePackages = "internal.org.springframework.content.rest.links")
 //    @Profile("store")
     public static class StoreConfig /*extends JpaInfrastructureConfig*/ {
 

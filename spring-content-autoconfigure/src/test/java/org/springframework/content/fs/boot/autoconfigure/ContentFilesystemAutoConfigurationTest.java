@@ -12,9 +12,9 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.config.EnableFileSystemStores;
 import org.springframework.content.fs.io.FileSystemResourceLoader;
-import org.springframework.content.fs.store.FilesystemContentStore;
+import org.springframework.content.fs.store.FileSystemContentStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.support.TestEntity;
@@ -67,9 +67,9 @@ public class ContentFilesystemAutoConfigurationTest {
 				});
 			});
 
-			Context("given a configuration with explicit @EnableFilesystemStores annotation", () -> {
+			Context("given a configuration with explicit @EnableFileSystemStores annotation", () -> {
 				It("should load the context", () -> {
-					contextRunner.withUserConfiguration(ConfigWithExplicitEnableFilesystemStores.class).run((context) -> {
+					contextRunner.withUserConfiguration(ConfigWithExplicitEnableFileSystemStores.class).run((context) -> {
 						Assertions.assertThat(context).hasSingleBean(TestEntityContentRepository.class);
 						Assertions.assertThat(context).getBean(FileSystemResourceLoader.class);
 					});
@@ -95,13 +95,13 @@ public class ContentFilesystemAutoConfigurationTest {
 
 	@Ignore("This is not a test")
 	@SpringBootApplication
-	@EnableFilesystemStores
-	public static class ConfigWithExplicitEnableFilesystemStores {
+	@EnableFileSystemStores
+	public static class ConfigWithExplicitEnableFileSystemStores {
 	}
 
 	public interface TestEntityRepository extends JpaRepository<TestEntity, Long> {
 	}
 
-	public interface TestEntityContentRepository extends FilesystemContentStore<TestEntity, String> {
+	public interface TestEntityContentRepository extends FileSystemContentStore<TestEntity, String> {
 	}
 }
