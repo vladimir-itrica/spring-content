@@ -1,5 +1,6 @@
 package internal.org.springframework.content.fs.store;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -159,7 +160,7 @@ public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
         Object contentId = BeanUtils.getFieldWithAnnotation(entity, ContentId.class);
         if (contentId == null) {
 
-            Serializable newId = UUID.randomUUID().toString();
+            Serializable newId = UuidCreator.getTimeOrdered().toString();
 
             Object convertedId = convertToExternalContentIdType(entity, newId);
 
@@ -239,7 +240,7 @@ public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
         if (contentId == null || params.getDisposition()
                 .equals(org.springframework.content.commons.store.SetContentParams.ContentDisposition.CreateNew)) {
 
-            Serializable newId = UUID.randomUUID().toString();
+            Serializable newId = UuidCreator.getTimeOrdered().toString();
 
             Object convertedId = placer.convert(
                     newId,
@@ -424,8 +425,7 @@ public class DefaultFilesystemStoreImpl<S, SID extends Serializable>
                 TypeDescriptor.valueOf(BeanUtils.getFieldWithAnnotationType(property,
                         ContentId.class)))) {
             contentId = placer.convert(contentId, TypeDescriptor.forObject(contentId),
-                    TypeDescriptor.valueOf(BeanUtils.getFieldWithAnnotationType(property,
-                            ContentId.class)));
+                    TypeDescriptor.valueOf(BeanUtils.getFieldWithAnnotationType(property, ContentId.class)));
             return contentId;
         }
         return contentId.toString();
